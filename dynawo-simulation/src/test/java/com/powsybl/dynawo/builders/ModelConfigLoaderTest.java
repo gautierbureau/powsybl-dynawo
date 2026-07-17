@@ -169,4 +169,38 @@ class ModelConfigLoaderTest {
                 .hasMessage("Additional dynamic models configuration file not found");
 
     }
+
+    @Test
+    void addModelsProgrammatically() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        int baseGenNumber = BaseGeneratorBuilder.getSupportedModelInfos().size();
+        int baseLineNumber = LineBuilder.getSupportedModelInfos().size();
+
+        ModelConfig gen1 = new ModelConfig("ProgrammaticGenerator1");
+        ModelConfig gen2 = new ModelConfig("ProgrammaticGenerator2", List.of("CONTROLLABLE"));
+        ModelConfig line = new ModelConfig("ProgrammaticLine");
+        handler.addModels(Map.of(
+                "BASE_GENERATOR", List.of(gen1, gen2),
+                "BASE_LINE", List.of(line)));
+
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos())
+                .hasSize(baseGenNumber + 2)
+                .contains(gen1, gen2);
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticGenerator1", ReportNode.NO_OP));
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticGenerator2", ReportNode.NO_OP));
+
+        assertThat(LineBuilder.getSupportedModelInfos())
+                .hasSize(baseLineNumber + 1)
+                .contains(line);
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticLine", ReportNode.NO_OP));
+    }
+
+    @Test
+    void addModelsProgrammaticallyUnknownCategoryIsSkipped() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        handler.addModels(Map.of("UNKNOWN_CATEGORY", List.of(new ModelConfig("ShouldBeSkipped"))));
+        assertNull(handler.getModelBuilder(network, "ShouldBeSkipped", ReportNode.NO_OP));
+    }
 }

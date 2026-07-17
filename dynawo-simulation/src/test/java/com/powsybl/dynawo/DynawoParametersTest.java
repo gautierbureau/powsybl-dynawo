@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.commons.ExportMode;
 import com.powsybl.dynawo.parameters.Parameter;
 import com.powsybl.dynawo.parameters.ParameterType;
@@ -189,6 +190,25 @@ class DynawoParametersTest extends AbstractSerDeTest {
         assertEquals(DEFAULT_TIMELINE_EXPORT_MODE, parameters.getTimelineExportMode());
         assertTrue(parameters.getCriteriaFilePath().isEmpty());
         assertTrue(parameters.getAdditionalModelsPath().isEmpty());
+        assertTrue(parameters.getAdditionalModels().isEmpty());
+    }
+
+    @Test
+    void additionalModelsProgrammatic() {
+        DynawoSimulationParameters parameters = new DynawoSimulationParameters();
+        assertTrue(parameters.getAdditionalModels().isEmpty());
+
+        ModelConfig gen = new ModelConfig("MyGenerator");
+        parameters.addAdditionalModel("BASE_GENERATOR", gen);
+        assertThat(parameters.getAdditionalModels())
+                .containsOnlyKeys("BASE_GENERATOR")
+                .containsEntry("BASE_GENERATOR", List.of(gen));
+
+        ModelConfig load = new ModelConfig("MyLoad");
+        parameters.setAdditionalModels(Map.of("BASE_LOAD", List.of(load)));
+        assertThat(parameters.getAdditionalModels())
+                .containsOnlyKeys("BASE_LOAD")
+                .containsEntry("BASE_LOAD", List.of(load));
     }
 
     @Test

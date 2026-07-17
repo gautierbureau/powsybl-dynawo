@@ -7,6 +7,7 @@
 package com.powsybl.dynawo;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.powsybl.commons.PowsyblException;
@@ -16,6 +17,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.commons.ExportMode;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.xml.ParametersXml;
@@ -123,6 +125,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private EnumSet<SpecificLog> specificLogs = EnumSet.noneOf(SpecificLog.class);
     private Path criteriaFilePath = null;
     private Path additionalModelsPath = null;
+    private Map<String, List<ModelConfig>> additionalModels = new LinkedHashMap<>();
 
     public static final List<Parameter> SPECIFIC_PARAMETERS = Stream.concat(Stream.of(
             new Parameter(PARAMETERS_FILE, ParameterType.STRING, "Main parameters file path", DEFAULT_INPUT_PARAMETERS_FILE),
@@ -466,5 +469,29 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             throw new PowsyblException("File " + additionalModelsPathName + " set in 'additionalModelsFile' property cannot be found");
         }
         setAdditionalModelsPath(path);
+    }
+
+    /**
+     * Additional dynamic model definitions to register at runtime, grouped by category name. This is the
+     * in-memory (programmatic) equivalent of {@link #getAdditionalModelsPath()}: models declared here are
+     * registered in the same way as those loaded from an additional models file, and both can be combined.
+     * <p>
+     * As a purely programmatic input, these models are not part of the JSON-serialized form of the parameters;
+     * use {@link #setAdditionalModelsPath(Path)} to persist additional models through a file.
+     */
+    @JsonIgnore
+    public Map<String, List<ModelConfig>> getAdditionalModels() {
+        return additionalModels;
+    }
+
+    public DynawoSimulationParameters setAdditionalModels(Map<String, List<ModelConfig>> additionalModels) {
+        this.additionalModels = new LinkedHashMap<>(Objects.requireNonNull(additionalModels));
+        return this;
+    }
+
+    public DynawoSimulationParameters addAdditionalModel(String category, ModelConfig modelConfig) {
+        additionalModels.computeIfAbsent(Objects.requireNonNull(category), k -> new ArrayList<>())
+                .add(Objects.requireNonNull(modelConfig));
+        return this;
     }
 }
