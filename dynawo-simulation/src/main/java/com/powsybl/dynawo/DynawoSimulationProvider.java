@@ -107,6 +107,9 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
         DynawoSimulationParameters dynawoParameters = DynawoSimulationParameters.load(parameters);
         dynawoParameters.getAdditionalModelsPath().ifPresent(additionalModelPath ->
                 ModelConfigsHandler.getInstance().addModels(new AdditionalModelConfigLoader(additionalModelPath)));
+        if (!dynawoParameters.getAdditionalModels().isEmpty()) {
+            ModelConfigsHandler.getInstance().addModels(dynawoParameters.getAdditionalModels());
+        }
         DynawoSimulationContext context = new DynawoSimulationContext
                 .Builder(network, BlackBoxSupplierUtils.getBlackBoxModelList(dynamicModelsSupplier, network, dsReportNode))
                 .workingVariantId(workingVariantId)
