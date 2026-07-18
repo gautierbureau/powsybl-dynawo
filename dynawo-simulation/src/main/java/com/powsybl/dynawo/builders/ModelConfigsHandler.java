@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -106,6 +107,26 @@ public final class ModelConfigsHandler {
                     }
                 }
         );
+    }
+
+    public Set<String> getCategories() {
+        return Collections.unmodifiableSet(modelConfigsCat.keySet());
+    }
+
+    /**
+     * Returns every model configuration of every category, whichever {@link ModelConfigLoader}
+     * contributed it. Used to select a model from its name and capabilities without having to
+     * know in which category it was declared.
+     */
+    public Stream<ModelConfig> getModelConfigStream() {
+        return modelConfigsCat.values().stream().flatMap(mc -> mc.getModelConfigs().stream());
+    }
+
+    public Optional<ModelConfig> findModelConfig(String modelName) {
+        return modelConfigsCat.values().stream()
+                .map(mc -> mc.getModelConfig(modelName))
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     public List<String> getSupportedLibs(DynawoVersion dynawoVersion) {

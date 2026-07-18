@@ -47,6 +47,14 @@ public class ModelConfigs {
         return Collections.unmodifiableCollection(modelConfigMap.values());
     }
 
+    /**
+     * Returns the configurations themselves, giving access to the model properties used to
+     * select a model from its capabilities (transformer, auxiliary, rpcl, ...)
+     */
+    public Collection<ModelConfig> getModelConfigs() {
+        return Collections.unmodifiableCollection(modelConfigMap.values());
+    }
+
     public Collection<ModelInfo> getModelInfos(DynawoVersion dynawoVersion) {
         return modelConfigMap.values().stream()
                 .filter(m -> m.version().includes(dynawoVersion))
