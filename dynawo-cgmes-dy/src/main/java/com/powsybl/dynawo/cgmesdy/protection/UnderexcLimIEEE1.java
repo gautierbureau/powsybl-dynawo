@@ -11,6 +11,19 @@ package com.powsybl.dynawo.cgmesdy.protection;
  */
 public record UnderexcLimIEEE1(
     String id, String excitationSystemId,
-    double kur, double kuc, double kuf, double vurmax, double vuimax, double vuimin,
-    double tu1, double tu2, double tu3, double tu4
+    double kuc,
+    double kuf,
+    double kui,
+    double kul,
+    double kur,
+    double tu1,
+    double tu2,
+    double tu3,
+    double tu4,
+    double vucmax,
+    double vuimax,
+    double vuimin,
+    double vulmax,
+    double vulmin,
+    double vurmax
 ) { }

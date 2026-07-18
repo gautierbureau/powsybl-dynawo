@@ -11,15 +11,17 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcRQB .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcRQB.clmt ?clmt . }
-  OPTIONAL { ?id cim:ExcRQB.lsmin ?lsmin . }
+  OPTIONAL { ?id cim:ExcRQB.ki0 ?ki0 . }
+  OPTIONAL { ?id cim:ExcRQB.ki1 ?ki1 . }
+  OPTIONAL { ?id cim:ExcRQB.klir ?klir . }
+  OPTIONAL { ?id cim:ExcRQB.klus ?klus . }
+  OPTIONAL { ?id cim:ExcRQB.lsat ?lsat . }
+  OPTIONAL { ?id cim:ExcRQB.lus ?lus . }
   OPTIONAL { ?id cim:ExcRQB.mesu ?mesu . }
   OPTIONAL { ?id cim:ExcRQB.t4m ?t4m . }
   OPTIONAL { ?id cim:ExcRQB.tc ?tc . }
+  OPTIONAL { ?id cim:ExcRQB.te ?te . }
   OPTIONAL { ?id cim:ExcRQB.tf ?tf . }
-  OPTIONAL { ?id cim:ExcRQB.tout ?tout . }
   OPTIONAL { ?id cim:ExcRQB.ucmax ?ucmax . }
   OPTIONAL { ?id cim:ExcRQB.ucmin ?ucmin . }
-  OPTIONAL { ?id cim:ExcRQB.ki ?ki . }
-  OPTIONAL { ?id cim:ExcRQB.xp ?xp . }
 }

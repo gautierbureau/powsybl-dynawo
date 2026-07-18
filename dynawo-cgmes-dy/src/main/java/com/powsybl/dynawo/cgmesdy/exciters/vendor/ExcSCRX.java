@@ -11,6 +11,6 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcSCRX(
     String id, String synchronousMachineId,
-    double tr, double k, double tatb, double tb, double emax, double emin,
-    boolean rcmxFlag
+    double k, double tatb, double tb, double te, double emax, double emin,
+    double rcrfd, boolean cswitch
 ) { }

@@ -25,7 +25,10 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindContQIEC.kpq ?kpq . }
   OPTIONAL { ?id cim:WindContQIEC.kpu ?kpu . }
   OPTIONAL { ?id cim:WindContQIEC.kqv ?kqv . }
+  OPTIONAL { ?id cim:WindContQIEC.qmax ?qmax . }
+  OPTIONAL { ?id cim:WindContQIEC.qmin ?qmin . }
   OPTIONAL { ?id cim:WindContQIEC.rdroop ?rdroop . }
+  OPTIONAL { ?id cim:WindContQIEC.tiq ?tiq . }
   OPTIONAL { ?id cim:WindContQIEC.tpfilt ?tpfilt . }
   OPTIONAL { ?id cim:WindContQIEC.tpost ?tpost . }
   OPTIONAL { ?id cim:WindContQIEC.tqord ?tqord . }
@@ -37,8 +40,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindContQIEC.uqdip ?uqdip . }
   OPTIONAL { ?id cim:WindContQIEC.uref0 ?uref0 . }
   OPTIONAL { ?id cim:WindContQIEC.xdroop ?xdroop . }
-  OPTIONAL { ?id cim:WindContQIEC.mconq ?mconq . }
-  OPTIONAL { ?id cim:WindContQIEC.mqfrt ?mqfrt . }
-  OPTIONAL { ?id cim:WindContQIEC.mqpri ?mqpri . }
-  OPTIONAL { ?id cim:WindContQIEC.windLVRTQcontrolModeType ?windLVRTQcontrolModeType . }
+  OPTIONAL { ?id cim:WindContQIEC.windLVRTQcontrolModesType ?windLVRTQcontrolModesType . }
+  OPTIONAL { ?id cim:WindContQIEC.windQcontrolModesType ?windQcontrolModesType . }
 }

@@ -19,4 +19,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:SynchronousMachineDetailed.ifdBaseType ?ifdBaseType . }
   OPTIONAL { ?id cim:RotatingMachineDynamics.saturationFactor ?saturationFactor . }
   OPTIONAL { ?id cim:RotatingMachineDynamics.saturationFactor120 ?saturationFactor120 . }
+  OPTIONAL { ?id cim:SynchronousMachineDetailed.efdBaseRatio ?efdBaseRatio . }
+  OPTIONAL { ?id cim:SynchronousMachineDetailed.ifdBaseValue ?ifdBaseValue . }
+  OPTIONAL { ?id cim:SynchronousMachineDetailed.saturationFactorQAxis ?saturationFactorQAxis . }
+  OPTIONAL { ?id cim:SynchronousMachineDetailed.saturationFactor120QAxis ?saturationFactor120QAxis . }
 }

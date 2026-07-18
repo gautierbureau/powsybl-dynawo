@@ -11,18 +11,17 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:GovGAST4 .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
-  OPTIONAL { ?id cim:GovGAST4.mwbase ?mwbase . }
-  OPTIONAL { ?id cim:GovGAST4.r ?r . }
-  OPTIONAL { ?id cim:GovGAST4.t1 ?t1 . }
-  OPTIONAL { ?id cim:GovGAST4.t2 ?t2 . }
-  OPTIONAL { ?id cim:GovGAST4.t3 ?t3 . }
-  OPTIONAL { ?id cim:GovGAST4.at ?at . }
-  OPTIONAL { ?id cim:GovGAST4.kt ?kt . }
-  OPTIONAL { ?id cim:GovGAST4.vmax ?vmax . }
-  OPTIONAL { ?id cim:GovGAST4.vmin ?vmin . }
-  OPTIONAL { ?id cim:GovGAST4.dturb ?dturb . }
   OPTIONAL { ?id cim:GovGAST4.bp ?bp . }
-  OPTIONAL { ?id cim:GovGAST4.tr ?tr . }
-  OPTIONAL { ?id cim:GovGAST4.rLimMax ?rLimMax . }
-  OPTIONAL { ?id cim:GovGAST4.rLimMin ?rLimMin . }
+  OPTIONAL { ?id cim:GovGAST4.ktm ?ktm . }
+  OPTIONAL { ?id cim:GovGAST4.mnef ?mnef . }
+  OPTIONAL { ?id cim:GovGAST4.mxef ?mxef . }
+  OPTIONAL { ?id cim:GovGAST4.rymn ?rymn . }
+  OPTIONAL { ?id cim:GovGAST4.rymx ?rymx . }
+  OPTIONAL { ?id cim:GovGAST4.ta ?ta . }
+  OPTIONAL { ?id cim:GovGAST4.tc ?tc . }
+  OPTIONAL { ?id cim:GovGAST4.tcm ?tcm . }
+  OPTIONAL { ?id cim:GovGAST4.tm ?tm . }
+  # tv is the CIM16 valve time constant; CIM17 renamed it ty — query both
+  OPTIONAL { ?id cim:GovGAST4.tv ?tv . }
+  OPTIONAL { ?id cim:GovGAST4.ty ?ty . }
 }

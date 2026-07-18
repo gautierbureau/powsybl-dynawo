@@ -137,6 +137,10 @@ class GovernorLoaderTest {
             assertEquals(0.4, g.gv2(), TOL);
             assertEquals(0.75, g.pgv2(), TOL);
             assertEquals(0.0, g.gv6(), TOL);
+            // deadband-selector / nonlinear-valve flags
+            assertTrue(g.sdb1());
+            assertFalse(g.sdb2());
+            assertFalse(g.valve());
         }
 
         @Test void powerConstraints() {
@@ -157,16 +161,14 @@ class GovernorLoaderTest {
             GovSteam2 g = single(MODEL.govSteam2List(), "GovSteam2");
             assertContains(g.id(), "steam2");
             assertSmId(g.synchronousMachineId(), "sm-gov-3");
-            assertEquals(500.0, g.mwbase(), TOL);
             assertEquals(0.0, g.dbf(), TOL);
             assertEquals(20.0, g.k(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(0.3, g.t1(), TOL);
-            assertEquals(0.15, g.t2(), TOL);
+            assertEquals(-1.0, g.mnef(), TOL);
+            assertEquals(1.0, g.mxef(), TOL);
             assertEquals(1.0, g.pmax(), TOL);
             assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(0.17, g.uo(), TOL);
-            assertEquals(-0.5, g.uc(), TOL);
+            assertEquals(0.3, g.t1(), TOL);
+            assertEquals(0.15, g.t2(), TOL);
         }
     }
 
@@ -181,22 +183,24 @@ class GovernorLoaderTest {
             assertContains(g.id(), "steamcc");
             assertSmId(g.synchronousMachineId(), "sm-gov-4");
             assertEquals(400.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(0.5, g.t1(), TOL);
-            assertEquals(0.5, g.t2(), TOL);
-            assertEquals(3.0, g.t3(), TOL);
-            assertEquals(0.5, g.t4(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(-0.1, g.uc(), TOL);
-            assertEquals(0.1, g.uo(), TOL);
-            assertEquals(0.29, g.dhp(), TOL);
-            assertEquals(0.71, g.dlp(), TOL);
+            // HP train
+            assertEquals(0.05, g.rhp(), TOL);
+            assertEquals(0.5, g.t1hp(), TOL);
+            assertEquals(3.0, g.t3hp(), TOL);
+            assertEquals(0.5, g.t4hp(), TOL);
+            assertEquals(8.0, g.t5hp(), TOL);
             assertEquals(0.3, g.fhp(), TOL);
+            assertEquals(0.29, g.dhp(), TOL);
+            assertEquals(1.0, g.pmaxhp(), TOL);
+            // LP train
+            assertEquals(0.05, g.rlp(), TOL);
+            assertEquals(0.5, g.t1lp(), TOL);
+            assertEquals(3.0, g.t3lp(), TOL);
+            assertEquals(0.5, g.t4lp(), TOL);
+            assertEquals(10.0, g.t5lp(), TOL);
             assertEquals(0.7, g.flp(), TOL);
-            assertEquals(0.0, g.fip(), TOL);
-            assertEquals(0.0, g.tip(), TOL);
-            assertEquals(0.5, g.tlp(), TOL);
+            assertEquals(0.71, g.dlp(), TOL);
+            assertEquals(1.0, g.pmaxlp(), TOL);
         }
 
         @Test void fractionConstraint() {
@@ -217,29 +221,15 @@ class GovernorLoaderTest {
             assertContains(g.id(), "steameu");
             assertSmId(g.synchronousMachineId(), "sm-gov-5");
             assertEquals(660.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
             assertEquals(0.1, g.ke(), TOL);
             assertEquals(20.0, g.kfcor(), TOL);
-            assertEquals(20.0, g.komegacor(), TOL);
-            assertEquals(0.01, g.t1(), TOL);
-            assertEquals(0.45, g.t2(), TOL);
-            assertEquals(8.0, g.t3(), TOL);
-            assertEquals(0.15, g.t4(), TOL);
-            assertEquals(0.15, g.t5(), TOL);
-            assertEquals(1.5, g.t6(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(0.5, g.te(), TOL);
-            assertEquals(0.07, g.tfp(), TOL);
-            assertEquals(0.1, g.tvhp(), TOL);
-            assertEquals(0.15, g.tvip(), TOL);
-            assertEquals(0.1, g.chc(), TOL);
-            assertEquals(0.17, g.cho(), TOL);
+            assertEquals(15.0, g.komegacor(), TOL);
+            assertEquals(-0.1, g.chc(), TOL);
         }
     }
 
     @Nested
-    @DisplayName("GovSteamFV2 – fast-valving governor with iFlag")
+    @DisplayName("GovSteamFV2 – steam turbine governor with reheat and fast valve closing")
     class GovSteamFV2Test {
         @Test void count() {
             assertEquals(1, MODEL.govSteamFV2List().size()); }
@@ -250,30 +240,28 @@ class GovernorLoaderTest {
             assertSmId(g.synchronousMachineId(), "sm-gov-6");
             assertEquals(350.0, g.mwbase(), TOL);
             assertEquals(0.05, g.r(), TOL);
+            assertEquals(0.7, g.k(), TOL);
             assertEquals(0.5, g.t1(), TOL);
-            assertEquals(1.0, g.vamax(), TOL);
-            assertEquals(-1.0, g.vamin(), TOL);
-            assertEquals(20.0, g.k(), TOL);
-            assertEquals(3.0, g.t2(), TOL);
             assertEquals(10.0, g.t3(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(0.3, g.t4(), TOL);
-            assertEquals(0.2, g.k1(), TOL);
-            assertEquals(10.0, g.t5(), TOL);
-            assertEquals(0.3, g.k3(), TOL);
-            assertEquals(1, g.iFlag());   // integer field
+            assertEquals(0.2, g.ta(), TOL);
+            assertEquals(0.5, g.tb(), TOL);
+            assertEquals(1.0, g.tc(), TOL);
+            assertEquals(0.05, g.ti(), TOL);
+            assertEquals(2.0, g.tt(), TOL);
+            assertEquals(1.0, g.vmax(), TOL);
+            assertEquals(0.0, g.vmin(), TOL);
         }
 
-        @Test void integerFieldRange() {
-            // iFlag is 0 or 1 in CIM
-            int flag = MODEL.govSteamFV2List().get(0).iFlag();
-            assertTrue(flag == 0 || flag == 1, "iFlag must be 0 or 1, was: " + flag);
+        @Test void valveTimingOrdered() {
+            // fast-valving sequence: close (Ta) < begin-open (Tb) < fully-open (Tc)
+            GovSteamFV2 g = MODEL.govSteamFV2List().get(0);
+            assertTrue(g.ta() <= g.tb() && g.tb() <= g.tc(),
+                "fast-valving times must be ordered Ta <= Tb <= Tc");
         }
     }
 
     @Nested
-    @DisplayName("GovSteamFV3 – fast-valving with GV table")
+    @DisplayName("GovSteamFV3 – simplified GovSteamIEEE1 with Prmax and fast valving")
     class GovSteamFV3Test {
         @Test void count() {
             assertEquals(1, MODEL.govSteamFV3List().size()); }
@@ -283,13 +271,15 @@ class GovernorLoaderTest {
             assertContains(g.id(), "steamfv3");
             assertSmId(g.synchronousMachineId(), "sm-gov-7");
             assertEquals(800.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(1.1, g.prmax(), TOL);
             assertEquals(20.0, g.k(), TOL);
+            assertEquals(0.3, g.k1(), TOL);
+            assertEquals(0.3, g.k2(), TOL);
+            assertEquals(0.4, g.k3(), TOL);
+            assertEquals(1.1, g.prmax(), TOL);
             assertEquals(-1.0, g.uc(), TOL);
             assertEquals(1.0, g.uo(), TOL);
-            assertEquals(0.4, g.gv2(), TOL);
-            assertEquals(0.75, g.pgv2(), TOL);
+            assertEquals(3.0, g.t2(), TOL);
+            assertEquals(0.5, g.t6(), TOL);
         }
 
         @Test void prmaxGePmax() {
@@ -300,7 +290,7 @@ class GovernorLoaderTest {
     }
 
     @Nested
-    @DisplayName("GovSteamFV4 – enhanced fast-valving governor")
+    @DisplayName("GovSteamFV4 – detailed electro-hydraulic steam turbine governor")
     class GovSteamFV4Test {
         @Test void count() {
             assertEquals(1, MODEL.govSteamFV4List().size()); }
@@ -309,22 +299,25 @@ class GovernorLoaderTest {
             GovSteamFV4 g = single(MODEL.govSteamFV4List(), "GovSteamFV4");
             assertContains(g.id(), "steamfv4");
             assertSmId(g.synchronousMachineId(), "sm-gov-8");
-            assertEquals(660.0, g.mwbase(), TOL);
-            assertEquals(0.4, g.k1(), TOL);
-            assertEquals(0.35, g.k3(), TOL);
-            assertEquals(0.1, g.vvmax(), TOL);
-            assertEquals(-0.1, g.vvmin(), TOL);
-            assertEquals(0.01, g.dp(), TOL);
-            assertEquals(0.4, g.lpsp(), TOL);
-            assertEquals(0.5, g.ovex(), TOL);
+            assertEquals(0.35, g.khp(), TOL);
+            assertEquals(0.5, g.kic(), TOL);
+            assertEquals(1.0, g.kpc(), TOL);
+            assertEquals(10.0, g.trh(), TOL);
+            assertEquals(0.4, g.tv(), TOL);
+            assertEquals(0.1, g.thp(), TOL);
+            assertEquals(0.1, g.tmp(), TOL);
+            assertEquals(1.0, g.yhpmx(), TOL);
+            assertEquals(1.0, g.ympmx(), TOL);
             assertEquals(0.0, g.rsmimn(), TOL);
             assertEquals(1.1, g.rsmimx(), TOL);
         }
 
-        @Test void rsmConstraints() {
+        @Test void limitConstraints() {
             GovSteamFV4 g = MODEL.govSteamFV4List().get(0);
             assertTrue(g.rsmimx() >= g.rsmimn());
             assertTrue(g.cpsmx() >= g.cpsmn());
+            assertTrue(g.yhpmx() >= g.yhpmn());
+            assertTrue(g.ympmx() >= g.ympmn());
         }
     }
 
@@ -339,25 +332,14 @@ class GovernorLoaderTest {
             assertContains(g.id(), "steamieee1");
             assertSmId(g.synchronousMachineId(), "sm-gov-9");
             assertEquals(1000.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
+            assertEquals(25.0, g.k(), TOL);
             assertEquals(0.5, g.t1(), TOL);
-            assertEquals(1.0, g.vmax(), TOL);
-            assertEquals(0.0, g.vmin(), TOL);
-            assertEquals(3.0, g.t2(), TOL);
-            assertEquals(10.0, g.t3(), TOL);
-            assertEquals(0.1, g.uo(), TOL);
-            assertEquals(-0.1, g.uc(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.2, g.k1(), TOL);
-            assertEquals(0.3, g.k3(), TOL);
             assertEquals(0.5, g.k5(), TOL);
-            assertEquals(0.4, g.gv2(), TOL);
-            assertEquals(0.75, g.pgv2(), TOL);
+            assertEquals(0.15, g.k8(), TOL);
         }
 
         @Test void physicalConstraints() {
             GovSteamIEEE1 g = MODEL.govSteamIEEE1List().get(0);
-            assertTrue(g.vmax() >= g.vmin());
             assertTrue(g.pmax() >= g.pmin());
             assertTrue(g.mwbase() > 0);
         }
@@ -374,10 +356,10 @@ class GovernorLoaderTest {
             assertContains(g.id(), "steamsgo");
             assertSmId(g.synchronousMachineId(), "sm-gov-10");
             assertEquals(750.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
+            assertEquals(0.3, g.k1(), TOL);
+            assertEquals(0.25, g.k2(), TOL);
+            assertEquals(0.2, g.k3(), TOL);
             assertEquals(0.5, g.t1(), TOL);
-            assertEquals(1.0, g.vmax(), TOL);
-            assertEquals(0.0, g.vmin(), TOL);
             assertEquals(3.0, g.t2(), TOL);
             assertEquals(7.0, g.t3(), TOL);
             assertEquals(0.4, g.t4(), TOL);
@@ -403,26 +385,24 @@ class GovernorLoaderTest {
             assertContains(g.id(), "hydro1");
             assertSmId(g.synchronousMachineId(), "sm-gov-11");
             assertEquals(200.0, g.mwbase(), TOL);
-            assertEquals(0.04, g.r(), TOL);
             assertEquals(5.0, g.tr(), TOL);
             assertEquals(0.5, g.tf(), TOL);
             assertEquals(0.5, g.tg(), TOL);
             assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
+            assertEquals(1.0, g.gmax(), TOL);
+            assertEquals(0.0, g.gmin(), TOL);
             assertEquals(1.0, g.tw(), TOL);
             assertEquals(1.2, g.at(), TOL);
             assertEquals(0.5, g.dturb(), TOL);
             assertEquals(0.08, g.qnl(), TOL);
             assertEquals(0.05, g.rperm(), TOL);
             assertEquals(0.3, g.rtemp(), TOL);
-            assertEquals(0.07, g.tp(), TOL);
             assertEquals(1.0, g.hdam(), TOL);
         }
 
         @Test void physicalConstraints() {
             GovHydro1 g = MODEL.govHydro1List().get(0);
-            assertTrue(g.pmax() >= g.pmin());
+            assertTrue(g.gmax() >= g.gmin());
             assertTrue(g.tw() > 0, "Water starting time must be positive");
             assertTrue(g.velm() > 0, "Gate velocity limit must be positive");
         }
@@ -439,21 +419,10 @@ class GovernorLoaderTest {
             assertContains(g.id(), "hydro2");
             assertSmId(g.synchronousMachineId(), "sm-gov-12");
             assertEquals(300.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(0.5, g.ki(), TOL);
-            assertEquals(1.0, g.kg(), TOL);
-            assertEquals(0.07, g.tp(), TOL);
-            assertEquals(0.05, g.td(), TOL);
-            assertEquals(1.2, g.aturb(), TOL);
-            assertEquals(0.4, g.bturb(), TOL);
-            assertEquals(0.8, g.tturb(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.tw(), TOL);
-            assertEquals(0.0, g.db1(), TOL);
-            assertEquals(0.0, g.eps(), TOL);
+            assertEquals(1.10, g.aturb(), TOL);
+            assertEquals(0.42, g.bturb(), TOL);
+            assertEquals(1.25, g.kturb(), TOL);
+            assertEquals(1.15, g.tw(), TOL);
         }
     }
 
@@ -468,18 +437,14 @@ class GovernorLoaderTest {
             assertContains(g.id(), "hydro3");
             assertSmId(g.synchronousMachineId(), "sm-gov-13");
             assertEquals(250.0, g.mwbase(), TOL);
-            assertEquals(1, g.govtype());   // integer field
+            assertEquals(1.20, g.at(), TOL);
+            assertEquals(0.5, g.ki(), TOL);
             assertEquals(0.08, g.qnl(), TOL);
-            assertEquals(0.05, g.rperm(), TOL);
-            assertEquals(0.3, g.rtemp(), TOL);
-            assertEquals(1.0, g.hdam(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
+            assertTrue(g.governorControl());   // boolean field
         }
 
-        @Test void govtypeRange() {
-            int gt = MODEL.govHydro3List().get(0).govtype();
-            assertTrue(gt == 0 || gt == 1, "govtype is 0 or 1, was: " + gt);
+        @Test void governorControlFlag() {
+            assertTrue(MODEL.govHydro3List().get(0).governorControl());
         }
     }
 
@@ -493,29 +458,32 @@ class GovernorLoaderTest {
             GovHydro4 g = single(MODEL.govHydro4List(), "GovHydro4");
             assertContains(g.id(), "hydro4");
             assertSmId(g.synchronousMachineId(), "sm-gov-14");
-            assertEquals(400.0, g.mwbase(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(-0.2, g.rclose(), TOL);
-            assertEquals(0.1, g.ropen(), TOL);
-            assertEquals(0.1, g.ta(), TOL);
-            assertEquals(0.0, g.tc(), TOL);
-            assertEquals(0.05, g.td(), TOL);
-            assertEquals(0.1, g.ts(), TOL);
-            assertEquals(0.07, g.tp(), TOL);
-            assertEquals(1.0, g.tw(), TOL);
+            assertEquals(1.2, g.at(), TOL);
+            assertEquals(0.0, g.bmax(), TOL);
             assertEquals(0.5, g.dturb(), TOL);
-            assertEquals(0.08, g.qnl(), TOL);
+            assertEquals(1.0, g.gmax(), TOL);
+            assertEquals(0.0, g.gmin(), TOL);
             assertEquals(0.4, g.gv2(), TOL);
-            assertEquals(0.75, g.pgv2(), TOL);
-            assertEquals(1.2, g.atw(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
+            assertEquals(0.4, g.pgv2(), TOL);
             assertEquals(1.0, g.hdam(), TOL);
+            assertEquals(400.0, g.mwbase(), TOL);
+            assertEquals(0.08, g.qn1(), TOL);
+            assertEquals(0.08, g.qnl(), TOL);
+            assertEquals(0.05, g.rperm(), TOL);
+            assertEquals(0.3, g.rtemp(), TOL);
+            assertEquals(0.0, g.tblade(), TOL);
+            assertEquals(0.5, g.tg(), TOL);
+            assertEquals(0.07, g.tp(), TOL);
+            assertEquals(5.0, g.tr(), TOL);
+            assertEquals(1.0, g.tw(), TOL);
+            assertEquals(-0.2, g.uc(), TOL);
+            assertEquals(0.1, g.uo(), TOL);
         }
 
         @Test void rateConstraints() {
             GovHydro4 g = MODEL.govHydro4List().get(0);
-            assertTrue(g.ropen() > 0, "Opening rate must be positive");
-            assertTrue(g.rclose() <= 0, "Closing rate must be non-positive");
+            assertTrue(g.uo() > 0, "Opening velocity must be positive");
+            assertTrue(g.uc() <= 0, "Closing velocity must be non-positive");
         }
     }
 
@@ -531,19 +499,9 @@ class GovernorLoaderTest {
             assertSmId(g.synchronousMachineId(), "sm-gov-15");
             assertEquals(180.0, g.mwbase(), TOL);
             assertEquals(0.05, g.r(), TOL);
-            assertEquals(0.05, g.td(), TOL);
-            assertEquals(0.1, g.tf(), TOL);
-            assertEquals(0.5, g.tg(), TOL);
-            assertEquals(0.07, g.tp(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(1.2, g.aturb(), TOL);
-            assertEquals(0.4, g.bturb(), TOL);
+            assertEquals(1.15, g.aturb(), TOL);
             assertEquals(0.8, g.tturb(), TOL);
-            assertEquals(0.4, g.gv2(), TOL);
-            assertEquals(0.75, g.pgv2(), TOL);
+            assertFalse(g.inputSignal());   // boolean field
         }
     }
 
@@ -557,30 +515,38 @@ class GovernorLoaderTest {
             GovHydroFrancis g = single(MODEL.govHydroFrancisList(), "GovHydroFrancis");
             assertContains(g.id(), "hydrofrancis");
             assertSmId(g.synchronousMachineId(), "sm-gov-16");
-            assertEquals(320.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.rs(), TOL);
-            assertEquals(0.5, g.tg(), TOL);
-            assertEquals(0.07, g.tp(), TOL);
-            assertEquals(0.05, g.bp(), TOL);
-            assertEquals(0.05, g.td(), TOL);
-            assertEquals(0.1, g.ta(), TOL);
-            assertEquals(1.0, g.twnc(), TOL);
-            assertEquals(0.5, g.twng(), TOL);
-            assertEquals(0.9, g.qn(), TOL);
-            assertEquals(1.0, g.h0(), TOL);
             assertEquals(0.95, g.am(), TOL);
             assertEquals(0.95, g.av0(), TOL);
+            assertEquals(0.5, g.av1(), TOL);
+            assertEquals(0.05, g.bp(), TOL);
+            assertEquals(0.01, g.db1(), TOL);
+            assertEquals(0.9, g.etamax(), TOL);
+            assertEquals(1.0, g.h1(), TOL);
+            assertEquals(1.0, g.h2(), TOL);
             assertEquals(1.0, g.hn(), TOL);
+            assertEquals(0.0, g.kc(), TOL);
+            assertEquals(1.0, g.kg(), TOL);
+            assertEquals(0.5, g.kt(), TOL);
+            assertEquals(0.0, g.qc0(), TOL);
+            assertEquals(0.9, g.qn(), TOL);
+            assertEquals(0.1, g.ta(), TOL);
+            assertEquals(0.05, g.td(), TOL);
+            assertEquals(1.0, g.twnc(), TOL);
+            assertEquals(0.5, g.twng(), TOL);
+            assertEquals(0.2, g.tx(), TOL);
             assertEquals(0.1, g.va(), TOL);
             assertEquals(1.0, g.valvmax(), TOL);
             assertEquals(0.0, g.valvmin(), TOL);
             assertEquals(-0.1, g.vc(), TOL);
-            // String enum field
-            assertTrue(g.waterTunnelSurgeChamberSimulation().contains("mechanicHydrolicTransientFeedback"));
+            assertEquals(0.5, g.zsfc(), TOL);
+            // enum control-mode field
+            assertTrue(g.governorControl().contains("mechanicHydrolicTransientFeedback"));
+            // boolean surge-chamber flag
+            assertTrue(g.waterTunnelSurgeChamberSimulation());
         }
 
         @Test void enumFieldNotBlank() {
-            String s = MODEL.govHydroFrancisList().get(0).waterTunnelSurgeChamberSimulation();
+            String s = MODEL.govHydroFrancisList().get(0).governorControl();
             assertNotNull(s);
             assertFalse(s.isBlank());
         }
@@ -601,6 +567,7 @@ class GovernorLoaderTest {
             assertEquals(0.5, g.t1(), TOL);
             assertEquals(1.5, g.t2(), TOL);
             assertEquals(0.5, g.t3(), TOL);
+            assertEquals(1.0, g.t4(), TOL);
             assertEquals(1.0, g.pmax(), TOL);
             assertEquals(0.0, g.pmin(), TOL);
         }
@@ -616,23 +583,22 @@ class GovernorLoaderTest {
             GovHydroIEEE2 g = single(MODEL.govHydroIEEE2List(), "GovHydroIEEE2");
             assertContains(g.id(), "hydroieee2");
             assertSmId(g.synchronousMachineId(), "sm-gov-18");
+            assertEquals(-1.0, g.aturb(), TOL);
+            assertEquals(0.5, g.bturb(), TOL);
+            assertEquals(1.0, g.kturb(), TOL);
             assertEquals(250.0, g.mwbase(), TOL);
-            assertEquals(0.04, g.r(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(0.5, g.tf(), TOL);
-            assertEquals(0.5, g.tg(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.tw(), TOL);
-            assertEquals(1.2, g.at(), TOL);
-            assertEquals(0.5, g.dturb(), TOL);
-            assertEquals(0.08, g.qnl(), TOL);
+            assertEquals(1.0, g.pmax(), TOL);
+            assertEquals(0.0, g.pmin(), TOL);
             assertEquals(0.05, g.rperm(), TOL);
             assertEquals(0.3, g.rtemp(), TOL);
+            assertEquals(0.5, g.tg(), TOL);
             assertEquals(0.07, g.tp(), TOL);
-            assertEquals(1.0, g.hdam(), TOL);
-            assertEquals(0.5, g.ki(), TOL);
-            assertEquals(0.4, g.gv2(), TOL);
-            assertEquals(0.75, g.pgv2(), TOL);
+            assertEquals(5.0, g.tr(), TOL);
+            assertEquals(1.0, g.tw(), TOL);
+            assertEquals(-0.1, g.uc(), TOL);
+            assertEquals(0.1, g.uo(), TOL);
+            assertEquals(0.2, g.gv2(), TOL);
+            assertEquals(0.2, g.pgv2(), TOL);
         }
     }
 
@@ -646,7 +612,6 @@ class GovernorLoaderTest {
             GovHydroPelton g = single(MODEL.govHydroPeltonList(), "GovHydroPelton");
             assertContains(g.id(), "hydropelton");
             assertSmId(g.synchronousMachineId(), "sm-gov-19");
-            assertEquals(120.0, g.mwbase(), TOL);
             assertEquals(0.95, g.av0(), TOL);
             assertEquals(0.98, g.av1(), TOL);
             assertEquals(0.05, g.bp(), TOL);
@@ -654,6 +619,7 @@ class GovernorLoaderTest {
             assertEquals(0.45, g.h2(), TOL);
             assertEquals(1.0, g.hn(), TOL);
             assertEquals(0.9, g.qn(), TOL);
+            assertEquals(0.05, g.tv(), TOL);
             assertEquals(1.0, g.twnc(), TOL);
             assertEquals(0.5, g.twng(), TOL);
             assertEquals(0.1, g.va(), TOL);
@@ -661,8 +627,9 @@ class GovernorLoaderTest {
             assertEquals(0.0, g.valvmin(), TOL);
             assertEquals(-0.1, g.vc(), TOL);
             // Boolean fields
-            assertFalse(g.cfrac(), "cfrac should be false");
-            assertTrue(g.sfrac(), "sfrac should be true");
+            assertFalse(g.simplifiedPelton());
+            assertFalse(g.staticCompensating());
+            assertFalse(g.waterTunnelSurgeChamberSimulation());
         }
     }
 
@@ -680,16 +647,17 @@ class GovernorLoaderTest {
             assertEquals(0.05, g.r(), TOL);
             assertEquals(0.05, g.td(), TOL);
             assertEquals(0.1, g.tf(), TOL);
-            assertEquals(0.5, g.tg(), TOL);
             assertEquals(0.07, g.tp(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
+            assertEquals(0.2, g.velop(), TOL);
+            assertEquals(-0.2, g.velcl(), TOL);
             assertEquals(1.0, g.pmax(), TOL);
             assertEquals(1.2, g.aturb(), TOL);
             assertEquals(0.4, g.bturb(), TOL);
             assertEquals(1.0, g.kp(), TOL);
             assertEquals(0.5, g.ki(), TOL);
             assertEquals(0.0, g.kd(), TOL);
+            assertEquals(1.0, g.kg(), TOL);
+            assertFalse(g.inputSignal());
             assertEquals(0.4, g.gv2(), TOL);
         }
     }
@@ -705,9 +673,7 @@ class GovernorLoaderTest {
             assertContains(g.id(), "hydropid2");
             assertSmId(g.synchronousMachineId(), "sm-gov-21");
             assertEquals(140.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
+            assertEquals(0.05, g.rperm(), TOL);
             assertEquals(1.0, g.kp(), TOL);
             assertEquals(0.5, g.ki(), TOL);
             assertEquals(0.0, g.kd(), TOL);
@@ -719,7 +685,11 @@ class GovernorLoaderTest {
             assertEquals(-0.2, g.velmin(), TOL);
             assertEquals(1.0, g.gmax(), TOL);
             assertEquals(0.0, g.gmin(), TOL);
-            assertEquals(0.5, g.g0(), TOL);
+            assertEquals(0.7, g.g2(), TOL);
+            assertEquals(1.0, g.p3(), TOL);
+            assertEquals(1.0, g.atw(), TOL);
+            assertEquals(0.5, g.d(), TOL);
+            assertFalse(g.feedbackSignal());
         }
 
         @Test void velocityConstraints() {
@@ -731,7 +701,7 @@ class GovernorLoaderTest {
     }
 
     @Nested
-    @DisplayName("GovHydroR – hydro governor with R control")
+    @DisplayName("GovHydroR – hydro turbine and governor (4th-order lead-lag)")
     class GovHydroRTest {
         @Test void count() {
             assertEquals(1, MODEL.govHydroRList().size()); }
@@ -742,22 +712,26 @@ class GovernorLoaderTest {
             assertSmId(g.synchronousMachineId(), "sm-gov-22");
             assertEquals(220.0, g.mwbase(), TOL);
             assertEquals(0.05, g.r(), TOL);
-            assertEquals(0.05, g.td(), TOL);
-            assertEquals(0.1, g.tf(), TOL);
-            assertEquals(0.5, g.tg(), TOL);
-            assertEquals(5.0, g.tr(), TOL);
-            assertEquals(0.2, g.velm(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(1.2, g.aturb(), TOL);
-            assertEquals(0.4, g.bturb(), TOL);
+            assertEquals(1.2, g.at(), TOL);
+            assertEquals(0.5, g.dturb(), TOL);
+            assertEquals(1.0, g.gmax(), TOL);
+            assertEquals(0.0, g.gmin(), TOL);
+            assertFalse(g.inputSignal(), "inputSignal should be false");
+            assertEquals(1.0, g.kg(), TOL);
+            assertEquals(0.5, g.ki(), TOL);
+            assertEquals(0.1, g.qnl(), TOL);
+            assertEquals(0.1, g.t1(), TOL);
+            assertEquals(5.0, g.t2(), TOL);
+            assertEquals(1.0, g.tw(), TOL);
+            assertEquals(0.2, g.velop(), TOL);
+            assertEquals(-0.2, g.velcl(), TOL);
             assertEquals(0.4, g.gv2(), TOL);
             assertEquals(0.75, g.pgv2(), TOL);
         }
     }
 
     @Nested
-    @DisplayName("GovHydroWEH – WEH hydro governor with pmss array")
+    @DisplayName("GovHydroWEH – Woodward Electric Hydro governor")
     class GovHydroWEHTest {
         @Test void count() {
             assertEquals(1, MODEL.govHydroWEHList().size()); }
@@ -769,13 +743,19 @@ class GovernorLoaderTest {
             assertEquals(280.0, g.mwbase(), TOL);
             assertEquals(0.05, g.rpg(), TOL);
             assertEquals(0.1, g.rpp(), TOL);
-            assertEquals(0.05, g.reg(), TOL);
+            assertEquals(3.0, g.kp(), TOL);
+            assertEquals(1.0, g.ki(), TOL);
+            assertEquals(0.1, g.kd(), TOL);
             assertEquals(0.5, g.tg(), TOL);
             assertEquals(1.0, g.tw(), TOL);
-            assertEquals(1.0, g.pmax(), TOL);
-            assertEquals(0.0, g.pmin(), TOL);
+            assertEquals(0.5, g.dturb(), TOL);
+            assertFalse(g.feedbackSignal(), "feedbackSignal should be false");
             assertEquals(0.1, g.gtmxop(), TOL);
             assertEquals(-0.1, g.gtmxcl(), TOL);
+            // frequency-limit table + gate schedule
+            assertEquals(0.9, g.fl1(), TOL);
+            assertEquals(1.0, g.fp10(), TOL);
+            assertEquals(0.25, g.gv2(), TOL);
             // pmss array
             assertEquals(0.1, g.pmss1(), TOL);
             assertEquals(0.5, g.pmss5(), TOL);
@@ -807,22 +787,23 @@ class GovernorLoaderTest {
             assertContains(g.id(), "hydrowpid");
             assertSmId(g.synchronousMachineId(), "sm-gov-24");
             assertEquals(190.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
+            assertEquals(0.05, g.reg(), TOL);
             assertEquals(5.0, g.treg(), TOL);
             assertEquals(1.0, g.tw(), TOL);
             assertEquals(0.1, g.ta(), TOL);
             assertEquals(0.2, g.tb(), TOL);
-            assertEquals(0.0, g.tc(), TOL);
             assertEquals(1.0, g.pmax(), TOL);
             assertEquals(0.0, g.pmin(), TOL);
-            assertEquals(1.0, g.gmax(), TOL);
-            assertEquals(0.0, g.gmin(), TOL);
+            assertEquals(1.0, g.gatmax(), TOL);
+            assertEquals(0.0, g.gatmin(), TOL);
             assertEquals(0.5, g.d(), TOL);
             assertEquals(0.0, g.kd(), TOL);
             assertEquals(0.5, g.ki(), TOL);
             assertEquals(1.0, g.kp(), TOL);
             assertEquals(0.2, g.velmax(), TOL);
             assertEquals(-0.2, g.velmin(), TOL);
+            assertEquals(0.5, g.gv2(), TOL);
+            assertEquals(0.6, g.pgv2(), TOL);
         }
     }
 
@@ -869,23 +850,23 @@ class GovernorLoaderTest {
             assertEquals(0.5, g.t1(), TOL);
             assertEquals(3.0, g.t2(), TOL);
             assertEquals(10.0, g.t3(), TOL);
-            assertEquals(1.0, g.at(), TOL);
-            assertEquals(2.0, g.kt(), TOL);
-            assertEquals(1.0, g.vmax(), TOL);
-            assertEquals(0.0, g.vmin(), TOL);
-            assertEquals(0.18, g.dturb(), TOL);
-            assertEquals(0.0, g.fpv(), TOL);
-            assertEquals(0.0, g.ka(), TOL);
             assertEquals(50.0, g.t5(), TOL);
             assertEquals(10.0, g.tltr(), TOL);
-            assertEquals(3.0, g.tac(), TOL);
-            assertEquals(0.05, g.tv(), TOL);
+            assertEquals(2.0, g.kt(), TOL);
+            assertEquals(1.0, g.a(), TOL);
             assertEquals(0.04, g.b(), TOL);
+            assertEquals(1.0, g.lmax(), TOL);
+            assertEquals(0.1, g.loadinc(), TOL);
+            assertEquals(0.5, g.ltrate(), TOL);
+            assertEquals(1.1, g.rmax(), TOL);
+            assertEquals(-0.1, g.fidle(), TOL);
+            assertEquals(1.0, g.vmax(), TOL);
+            assertEquals(0.0, g.vmin(), TOL);
         }
     }
 
     @Nested
-    @DisplayName("GovGAST2 – gas turbine governor with compressor model")
+    @DisplayName("GovGAST2 – Rowen GAST2A gas turbine with temperature control")
     class GovGAST2Test {
         @Test void count() {
             assertEquals(1, MODEL.govGAST2List().size()); }
@@ -895,18 +876,20 @@ class GovernorLoaderTest {
             assertContains(g.id(), "gast2");
             assertSmId(g.synchronousMachineId(), "sm-gov-27");
             assertEquals(130.0, g.mwbase(), TOL);
-            assertEquals(1.0, g.at(), TOL);
-            assertEquals(2.0, g.kt(), TOL);
-            assertEquals(0.18, g.dturb(), TOL);
-            assertEquals(0.25, g.w(), TOL);
-            assertEquals(0.05, g.x(), TOL);
+            assertEquals(1.0, g.a(), TOL);
+            assertEquals(0.5, g.af1(), TOL);
+            assertEquals(-0.3, g.af2(), TOL);
+            assertEquals(0.01, g.ecr(), TOL);
+            assertEquals(0.4, g.t(), TOL);
+            assertEquals(15.0, g.t3(), TOL);
+            assertEquals(1.1, g.tmax(), TOL);
+            assertEquals(-0.1, g.tmin(), TOL);
+            assertEquals(950.0, g.tr(), TOL);
+            assertEquals(130.0, g.trate(), TOL);
+            assertEquals(20.0, g.w(), TOL);
+            assertEquals(0.6, g.x(), TOL);
             assertEquals(1.0, g.y(), TOL);
-            assertEquals(0.0, g.z(), TOL);
-            assertEquals(1.0, g.cd(), TOL);
-            assertEquals(0.4, g.tf(), TOL);
-            assertEquals(0.04, g.etd(), TOL);
-            assertEquals(0.2, g.tcd(), TOL);
-            assertEquals(0.0, g.trate(), TOL);
+            assertTrue(g.z(), "z (governor mode) should be true = Droop");
         }
     }
 
@@ -920,18 +903,19 @@ class GovernorLoaderTest {
             GovGAST3 g = single(MODEL.govGAST3List(), "GovGAST3");
             assertContains(g.id(), "gast3");
             assertSmId(g.synchronousMachineId(), "sm-gov-28");
-            assertEquals(140.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(0.5, g.t1(), TOL);
-            assertEquals(1.0, g.vmax(), TOL);
-            assertEquals(0.0, g.vmin(), TOL);
-            assertEquals(0.18, g.dturb(), TOL);
             assertEquals(0.0, g.bca(), TOL);
-            assertEquals(1.0, g.kca(), TOL);
-            assertEquals(0.15, g.tsi(), TOL);
             assertEquals(1.0, g.bp(), TOL);
-            assertEquals(4.0, g.tsa(), TOL);
-            assertEquals(5.0, g.tsb(), TOL);
+            assertEquals(0.1, g.dtc(), TOL);
+            assertEquals(1.0, g.ka(), TOL);
+            assertEquals(0.9, g.kac(), TOL);
+            assertEquals(1.0, g.kca(), TOL);
+            assertEquals(0.5, g.ksi(), TOL);
+            assertEquals(-1.0, g.mnef(), TOL);
+            assertEquals(1.0, g.mxef(), TOL);
+            assertEquals(4.0, g.tac(), TOL);
+            assertEquals(5.0, g.tc(), TOL);
+            assertEquals(0.15, g.tsi(), TOL);
+            assertEquals(0.1, g.ty(), TOL);
         }
     }
 
@@ -945,24 +929,27 @@ class GovernorLoaderTest {
             GovGAST4 g = single(MODEL.govGAST4List(), "GovGAST4");
             assertContains(g.id(), "gast4");
             assertSmId(g.synchronousMachineId(), "sm-gov-29");
-            assertEquals(150.0, g.mwbase(), TOL);
-            assertEquals(1.0, g.at(), TOL);
-            assertEquals(2.0, g.kt(), TOL);
-            assertEquals(0.18, g.dturb(), TOL);
             assertEquals(1.0, g.bp(), TOL);
-            assertEquals(0.0, g.tr(), TOL);
-            assertEquals(1.0, g.rLimMax(), TOL);
-            assertEquals(-1.0, g.rLimMin(), TOL);
+            assertEquals(1.0, g.ktm(), TOL);
+            assertEquals(-1.0, g.mnef(), TOL);
+            assertEquals(1.0, g.mxef(), TOL);
+            assertEquals(-0.1, g.rymn(), TOL);
+            assertEquals(0.1, g.rymx(), TOL);
+            assertEquals(0.5, g.ta(), TOL);
+            assertEquals(3.0, g.tc(), TOL);
+            assertEquals(10.0, g.tm(), TOL);
+            assertEquals(0.05, g.tv(), TOL);
+            assertEquals(0.05, g.ty(), TOL);
         }
 
-        @Test void rateLimitsSymmetric() {
+        @Test void erLimitsSymmetric() {
             GovGAST4 g = MODEL.govGAST4List().get(0);
-            assertEquals(g.rLimMax(), -g.rLimMin(), TOL);
+            assertEquals(g.rymx(), -g.rymn(), TOL);
         }
     }
 
     @Nested
-    @DisplayName("GovGASTWD – Woodward gas turbine governor")
+    @DisplayName("GovGASTWD – Woodward gas turbine (Rowen with PID governor)")
     @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     class GovGASTWDTest {
         @Test void count() {
@@ -973,25 +960,22 @@ class GovernorLoaderTest {
             assertContains(g.id(), "gastwd");
             assertSmId(g.synchronousMachineId(), "sm-gov-30");
             assertEquals(160.0, g.mwbase(), TOL);
-            assertEquals(0.05, g.r(), TOL);
-            assertEquals(-0.99, g.rdown(), TOL);
-            assertEquals(99.0, g.rup(), TOL);
-            assertEquals(0.01, g.ta(), TOL);
-            assertEquals(0.4, g.tact(), TOL);
-            assertEquals(3.0, g.tb(), TOL);
-            assertEquals(2.0, g.tc(), TOL);
-            assertEquals(1.0, g.tf(), TOL);
-            assertEquals(0.05, g.kdroop(), TOL);
+            assertEquals(1.0, g.a(), TOL);
+            assertEquals(0.5, g.af1(), TOL);
+            assertEquals(-0.3, g.af2(), TOL);
             assertEquals(0.04, g.etd(), TOL);
+            assertEquals(0.1, g.kd(), TOL);
+            assertEquals(0.05, g.kdroop(), TOL);
+            assertEquals(0.45, g.ki(), TOL);
+            assertEquals(1.0, g.kp(), TOL);
+            assertEquals(0.4, g.t(), TOL);
             assertEquals(0.2, g.tcd(), TOL);
             assertEquals(3.0, g.td(), TOL);
-            assertEquals(10.0, g.tltr(), TOL);
-            assertEquals(4.0, g.tsa(), TOL);
-            assertEquals(5.0, g.tsb(), TOL);
-            assertEquals(1.0, g.vmax(), TOL);
-            assertEquals(0.0, g.vmin(), TOL);
-            assertEquals(1.0, g.kpgov(), TOL);
-            assertEquals(0.45, g.kigov(), TOL);
+            assertEquals(1.0, g.tf(), TOL);
+            assertEquals(1.1, g.tmax(), TOL);
+            assertEquals(-0.1, g.tmin(), TOL);
+            assertEquals(950.0, g.tr(), TOL);
+            assertEquals(160.0, g.trate(), TOL);
         }
     }
 
@@ -1012,7 +996,12 @@ class GovernorLoaderTest {
             assertEquals(0.01, g.ta(), TOL);
             assertEquals(0.4, g.tact(), TOL);
             assertEquals(0.1, g.tb(), TOL);
-            assertEquals(1.0, g.tf(), TOL);
+            assertEquals(1.0, g.rselect(), TOL);
+            assertEquals(1.0, g.tpelec(), TOL);
+            assertEquals(3.0, g.tfload(), TOL);
+            assertEquals(1.9, g.kturb(), TOL);
+            assertEquals(0.05, g.maxerr(), TOL);
+            assertEquals(-0.05, g.minerr(), TOL);
             assertEquals(0.2, g.wfnl(), TOL);
             assertTrue(g.wfspd(), "wfspd should be true");
             assertEquals(0.0, g.kdgov(), TOL);
@@ -1037,7 +1026,7 @@ class GovernorLoaderTest {
     }
 
     @Nested
-    @DisplayName("GovCT2 – extended general IEEE governor with prate boolean and flim table")
+    @DisplayName("GovCT2 – general combined-cycle / combustion-turbine governor with flim table")
     class GovCT2Test {
         @Test void count() {
             assertEquals(1, MODEL.govCT2List().size()); }
@@ -1048,30 +1037,33 @@ class GovernorLoaderTest {
             assertSmId(g.synchronousMachineId(), "sm-gov-32");
             assertEquals(180.0, g.mwbase(), TOL);
             assertEquals(0.05, g.r(), TOL);
+            assertEquals(1.0, g.rselect(), TOL);
             assertEquals(0.4, g.tact(), TOL);
+            assertEquals(1.0, g.tpelec(), TOL);
+            assertEquals(3.0, g.tfload(), TOL);
             assertEquals(0.2, g.wfnl(), TOL);
             assertFalse(g.wfspd(), "wfspd should be false");
             assertEquals(0.45, g.kigov(), TOL);
+            assertEquals(0.05, g.maxerr(), TOL);
+            assertEquals(-0.05, g.minerr(), TOL);
+            assertEquals(1.9, g.kturb(), TOL);
             assertEquals(10.0, g.ka(), TOL);
             // flim/plim table – all zeros in fixture
             assertEquals(0.0, g.flim1(), TOL);
             assertEquals(0.0, g.plim1(), TOL);
             assertEquals(0.0, g.flim10(), TOL);
             assertEquals(0.0, g.plim10(), TOL);
-            assertTrue(g.prate(), "prate should be true");
-            assertEquals(-99.0, g.uc(), TOL);
-            assertEquals(99.0, g.uo(), TOL);
+            assertEquals(0.017, g.prate(), TOL);
         }
 
         @Test void booleanFields() {
             GovCT2 g = MODEL.govCT2List().get(0);
             assertFalse(g.wfspd());
-            assertTrue(g.prate());
         }
 
-        @Test void ucUoConstraint() {
+        @Test void errorBandConstraint() {
             GovCT2 g = MODEL.govCT2List().get(0);
-            assertTrue(g.uo() > g.uc(), "uo must be > uc");
+            assertTrue(g.maxerr() > g.minerr(), "maxerr must be > minerr");
         }
     }
 
@@ -1136,12 +1128,12 @@ class GovernorLoaderTest {
         void steamMwbasePositive() {
             assertTrue(MODEL.govSteam0List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govSteam1List().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govSteam2List().stream().allMatch(g -> g.mwbase() > 0));
+            // GovSteam2 is dimensionless in CGMES (no mwbase)
             assertTrue(MODEL.govSteamCCList().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govSteamEUList().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govSteamFV2List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govSteamFV3List().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govSteamFV4List().stream().allMatch(g -> g.mwbase() > 0));
+            // GovSteamFV4 is the detailed electro-hydraulic governor (per-unit, no mwbase in CGMES)
             assertTrue(MODEL.govSteamIEEE1List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govSteamSGOList().stream().allMatch(g -> g.mwbase() > 0));
         }
@@ -1154,10 +1146,10 @@ class GovernorLoaderTest {
             assertTrue(MODEL.govHydro3List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govHydro4List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govHydroDDList().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govHydroFrancisList().stream().allMatch(g -> g.mwbase() > 0));
+            // GovHydroFrancis has no mwbase in CGMES (uses per-unit head/flow parameters instead).
             assertTrue(MODEL.govHydroIEEE0List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govHydroIEEE2List().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govHydroPeltonList().stream().allMatch(g -> g.mwbase() > 0));
+            // GovHydroPelton has no mwbase in CGMES (uses per-unit head/flow parameters instead).
             assertTrue(MODEL.govHydroPIDList().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govHydroPID2List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govHydroRList().stream().allMatch(g -> g.mwbase() > 0));
@@ -1171,8 +1163,7 @@ class GovernorLoaderTest {
             assertTrue(MODEL.govGASTList().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govGAST1List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govGAST2List().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govGAST3List().stream().allMatch(g -> g.mwbase() > 0));
-            assertTrue(MODEL.govGAST4List().stream().allMatch(g -> g.mwbase() > 0));
+            // GovGAST3/GAST4 are dimensionless in CGMES (no mwbase)
             assertTrue(MODEL.govGASTWDList().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govCT1List().stream().allMatch(g -> g.mwbase() > 0));
             assertTrue(MODEL.govCT2List().stream().allMatch(g -> g.mwbase() > 0));

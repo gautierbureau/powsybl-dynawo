@@ -11,7 +11,6 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:GovHydroPelton .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
-  OPTIONAL { ?id cim:GovHydroPelton.mwbase ?mwbase . }
   OPTIONAL { ?id cim:GovHydroPelton.av0 ?av0 . }
   OPTIONAL { ?id cim:GovHydroPelton.av1 ?av1 . }
   OPTIONAL { ?id cim:GovHydroPelton.bp ?bp . }
@@ -27,8 +26,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroPelton.simplifiedPelton ?simplifiedPelton . }
   OPTIONAL { ?id cim:GovHydroPelton.staticCompensating ?staticCompensating . }
   OPTIONAL { ?id cim:GovHydroPelton.ta ?ta . }
-  OPTIONAL { ?id cim:GovHydroPelton.td ?td . }
   OPTIONAL { ?id cim:GovHydroPelton.ts ?ts . }
+  OPTIONAL { ?id cim:GovHydroPelton.tv ?tv . }
   OPTIONAL { ?id cim:GovHydroPelton.twnc ?twnc . }
   OPTIONAL { ?id cim:GovHydroPelton.twng ?twng . }
   OPTIONAL { ?id cim:GovHydroPelton.tx ?tx . }
@@ -38,6 +37,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroPelton.vav ?vav . }
   OPTIONAL { ?id cim:GovHydroPelton.vc ?vc . }
   OPTIONAL { ?id cim:GovHydroPelton.vcv ?vcv . }
-  OPTIONAL { ?id cim:GovHydroPelton.cfrac ?cfrac . }
-  OPTIONAL { ?id cim:GovHydroPelton.sfrac ?sfrac . }
+  OPTIONAL { ?id cim:GovHydroPelton.waterTunnelSurgeChamberSimulation ?waterTunnelSurgeChamberSimulation . }
+  OPTIONAL { ?id cim:GovHydroPelton.zsfc ?zsfc . }
 }

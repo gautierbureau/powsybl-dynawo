@@ -11,9 +11,16 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:Pss1A .
   OPTIONAL { ?id cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics ?excitationSystemId . }
-  OPTIONAL { ?id cim:Pss1A.inputSignalType ?inputSignalType . }
   OPTIONAL { ?id cim:Pss1A.a1 ?a1 . }
   OPTIONAL { ?id cim:Pss1A.a2 ?a2 . }
+  OPTIONAL { ?id cim:Pss1A.a3 ?a3 . }
+  OPTIONAL { ?id cim:Pss1A.a4 ?a4 . }
+  OPTIONAL { ?id cim:Pss1A.a5 ?a5 . }
+  OPTIONAL { ?id cim:Pss1A.a6 ?a6 . }
+  OPTIONAL { ?id cim:Pss1A.a7 ?a7 . }
+  OPTIONAL { ?id cim:Pss1A.a8 ?a8 . }
+  OPTIONAL { ?id cim:Pss1A.inputSignalType ?inputSignalType . }
+  OPTIONAL { ?id cim:Pss1A.kd ?kd . }
   OPTIONAL { ?id cim:Pss1A.ks ?ks . }
   OPTIONAL { ?id cim:Pss1A.t1 ?t1 . }
   OPTIONAL { ?id cim:Pss1A.t2 ?t2 . }

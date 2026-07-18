@@ -22,22 +22,29 @@
   <cim:AsynchronousMachineSimplified rdf:ID="_am-wind-9"><cim:RotatingMachineDynamics.mBase>100</cim:RotatingMachineDynamics.mBase><cim:RotatingMachineDynamics.damping>0</cim:RotatingMachineDynamics.damping><cim:RotatingMachineDynamics.inertia>5</cim:RotatingMachineDynamics.inertia><cim:RotatingMachineDynamics.statorLeakageReactance>0.1</cim:RotatingMachineDynamics.statorLeakageReactance><cim:RotatingMachineDynamics.statorResistance>0.01</cim:RotatingMachineDynamics.statorResistance></cim:AsynchronousMachineSimplified>
   <cim:AsynchronousMachineTimeConstantReactance rdf:ID="_async-tcr">
     <cim:AsynchronousMachineDynamics.AsynchronousMachine rdf:resource="#_am-wind-1"/>
-    <cim:AsynchronousMachineTimeConstantReactance.xs>2.84</cim:AsynchronousMachineTimeConstantReactance.xs>
-    <cim:AsynchronousMachineTimeConstantReactance.xp>0.18</cim:AsynchronousMachineTimeConstantReactance.xp>
-    <cim:AsynchronousMachineTimeConstantReactance.xpp>0.12</cim:AsynchronousMachineTimeConstantReactance.xpp>
+    <cim:RotatingMachineDynamics.mBase>50.0</cim:RotatingMachineDynamics.mBase>
+    <cim:RotatingMachineDynamics.damping>0.0</cim:RotatingMachineDynamics.damping>
+    <cim:RotatingMachineDynamics.inertia>0.6</cim:RotatingMachineDynamics.inertia>
+    <cim:RotatingMachineDynamics.statorLeakageReactance>0.08</cim:RotatingMachineDynamics.statorLeakageReactance>
+    <cim:RotatingMachineDynamics.statorResistance>0.01</cim:RotatingMachineDynamics.statorResistance>
     <cim:AsynchronousMachineTimeConstantReactance.tpo>1.5</cim:AsynchronousMachineTimeConstantReactance.tpo>
     <cim:AsynchronousMachineTimeConstantReactance.tppo>0.02</cim:AsynchronousMachineTimeConstantReactance.tppo>
-    <cim:AsynchronousMachineTimeConstantReactance.xl>0.08</cim:AsynchronousMachineTimeConstantReactance.xl>
+    <cim:AsynchronousMachineTimeConstantReactance.xp>0.18</cim:AsynchronousMachineTimeConstantReactance.xp>
+    <cim:AsynchronousMachineTimeConstantReactance.xpp>0.12</cim:AsynchronousMachineTimeConstantReactance.xpp>
+    <cim:AsynchronousMachineTimeConstantReactance.xs>2.84</cim:AsynchronousMachineTimeConstantReactance.xs>
   </cim:AsynchronousMachineTimeConstantReactance>
   <cim:AsynchronousMachineEquivalentCircuit rdf:ID="_async-eqc">
     <cim:AsynchronousMachineDynamics.AsynchronousMachine rdf:resource="#_am-wind-2"/>
+    <cim:RotatingMachineDynamics.mBase>75.0</cim:RotatingMachineDynamics.mBase>
+    <cim:RotatingMachineDynamics.damping>0.0</cim:RotatingMachineDynamics.damping>
+    <cim:RotatingMachineDynamics.inertia>0.8</cim:RotatingMachineDynamics.inertia>
+    <cim:RotatingMachineDynamics.statorLeakageReactance>0.08</cim:RotatingMachineDynamics.statorLeakageReactance>
+    <cim:RotatingMachineDynamics.statorResistance>0.005</cim:RotatingMachineDynamics.statorResistance>
     <cim:AsynchronousMachineEquivalentCircuit.rr1>0.03</cim:AsynchronousMachineEquivalentCircuit.rr1>
-    <cim:AsynchronousMachineEquivalentCircuit.xr1>0.05</cim:AsynchronousMachineEquivalentCircuit.xr1>
     <cim:AsynchronousMachineEquivalentCircuit.rr2>0.025</cim:AsynchronousMachineEquivalentCircuit.rr2>
-    <cim:AsynchronousMachineEquivalentCircuit.xr2>0.1</cim:AsynchronousMachineEquivalentCircuit.xr2>
+    <cim:AsynchronousMachineEquivalentCircuit.xlr1>0.05</cim:AsynchronousMachineEquivalentCircuit.xlr1>
+    <cim:AsynchronousMachineEquivalentCircuit.xlr2>0.1</cim:AsynchronousMachineEquivalentCircuit.xlr2>
     <cim:AsynchronousMachineEquivalentCircuit.xm>2.5</cim:AsynchronousMachineEquivalentCircuit.xm>
-    <cim:AsynchronousMachineEquivalentCircuit.xs>0.08</cim:AsynchronousMachineEquivalentCircuit.xs>
-    <cim:AsynchronousMachineEquivalentCircuit.rs>0.005</cim:AsynchronousMachineEquivalentCircuit.rs>
   </cim:AsynchronousMachineEquivalentCircuit>
 <!--  <cim:AsynchronousMachineUserDefined rdf:ID="_async-ud">-->
 <!--    <cim:AsynchronousMachineDynamics.AsynchronousMachine rdf:resource="#_am-wind-3"/>-->
@@ -71,9 +78,6 @@
   </cim:WindContPitchAngleIEC>
   <cim:WindContPType3IEC rdf:ID="_wpt3">
     <cim:WindContPType3IEC.dpmax>0.5</cim:WindContPType3IEC.dpmax>
-    <cim:WindContPType3IEC.dprefmax>0.5</cim:WindContPType3IEC.dprefmax>
-    <cim:WindContPType3IEC.dprefmin>-0.5</cim:WindContPType3IEC.dprefmin>
-    <cim:WindContPType3IEC.dthetamx>0.1</cim:WindContPType3IEC.dthetamx>
     <cim:WindContPType3IEC.kdtd>10.0</cim:WindContPType3IEC.kdtd>
     <cim:WindContPType3IEC.kip>0.5</cim:WindContPType3IEC.kip>
     <cim:WindContPType3IEC.kpp>0.5</cim:WindContPType3IEC.kpp>
@@ -91,11 +95,12 @@
     <cim:WindContPType3IEC.updip>0.9</cim:WindContPType3IEC.updip>
     <cim:WindContPType3IEC.wdtd>1.0</cim:WindContPType3IEC.wdtd>
     <cim:WindContPType3IEC.zeta>0.0</cim:WindContPType3IEC.zeta>
-    <cim:WindContPType3IEC.recrossflag>true</cim:WindContPType3IEC.recrossflag>
+    <cim:WindContPType3IEC.dtrisemaxlvrt>0.05</cim:WindContPType3IEC.dtrisemaxlvrt>
+    <cim:WindContPType3IEC.tomegafilt>0.05</cim:WindContPType3IEC.tomegafilt>
+    <cim:WindContPType3IEC.tpfilt>0.05</cim:WindContPType3IEC.tpfilt>
   </cim:WindContPType3IEC>
   <cim:WindContPType4aIEC rdf:ID="_wpt4a">
     <cim:WindContPType4aIEC.dpmax>0.5</cim:WindContPType4aIEC.dpmax>
-    <cim:WindContPType4aIEC.dpmin>-0.5</cim:WindContPType4aIEC.dpmin>
     <cim:WindContPType4aIEC.tpord>0.1</cim:WindContPType4aIEC.tpord>
     <cim:WindContPType4aIEC.tufilt>0.05</cim:WindContPType4aIEC.tufilt>
   </cim:WindContPType4aIEC>
@@ -128,10 +133,11 @@
     <cim:WindContQIEC.uqdip>0.9</cim:WindContQIEC.uqdip>
     <cim:WindContQIEC.uref0>1.0</cim:WindContQIEC.uref0>
     <cim:WindContQIEC.xdroop>0.0</cim:WindContQIEC.xdroop>
-    <cim:WindContQIEC.mconq>WindQcontrolModeKind.voltage</cim:WindContQIEC.mconq>
-    <cim:WindContQIEC.mqfrt>WindUVRTQcontrolModeKind.mode0</cim:WindContQIEC.mqfrt>
-    <cim:WindContQIEC.mqpri>WindQcontrolModesKind.local</cim:WindContQIEC.mqpri>
-    <cim:WindContQIEC.windLVRTQcontrolModeType>WindLVRTQcontrolModeKind.mode0</cim:WindContQIEC.windLVRTQcontrolModeType>
+    <cim:WindContQIEC.qmax>1.0</cim:WindContQIEC.qmax>
+    <cim:WindContQIEC.qmin>-1.0</cim:WindContQIEC.qmin>
+    <cim:WindContQIEC.tiq>0.01</cim:WindContQIEC.tiq>
+    <cim:WindContQIEC.windLVRTQcontrolModesType>WindLVRTQcontrolModesKind.mode0</cim:WindContQIEC.windLVRTQcontrolModesType>
+    <cim:WindContQIEC.windQcontrolModesType>WindQcontrolModesKind.local</cim:WindContQIEC.windQcontrolModesType>
   </cim:WindContQIEC>
   <cim:WindContCurrLimIEC rdf:ID="_wcurrlim">
     <cim:WindContCurrLimIEC.imax>1.3</cim:WindContCurrLimIEC.imax>
@@ -153,53 +159,53 @@
     <cim:WindContRotorRIEC.tpfilt>0.02</cim:WindContRotorRIEC.tpfilt>
   </cim:WindContRotorRIEC>
   <cim:WindProtectionIEC rdf:ID="_wprot">
-    <cim:WindProtectionIEC.dfimax>1.0</cim:WindProtectionIEC.dfimax>
     <cim:WindProtectionIEC.fover>52.0</cim:WindProtectionIEC.fover>
     <cim:WindProtectionIEC.funder>48.0</cim:WindProtectionIEC.funder>
-    <cim:WindProtectionIEC.mzc>0.0</cim:WindProtectionIEC.mzc>
-    <cim:WindProtectionIEC.tfma>5.0</cim:WindProtectionIEC.tfma>
     <cim:WindProtectionIEC.uover>1.15</cim:WindProtectionIEC.uover>
     <cim:WindProtectionIEC.uunder>0.85</cim:WindProtectionIEC.uunder>
+    <cim:WindProtectionIEC.tfover>0.1</cim:WindProtectionIEC.tfover>
+    <cim:WindProtectionIEC.tfunder>0.1</cim:WindProtectionIEC.tfunder>
+    <cim:WindProtectionIEC.tuover>0.1</cim:WindProtectionIEC.tuover>
+    <cim:WindProtectionIEC.tuunder>0.1</cim:WindProtectionIEC.tuunder>
   </cim:WindProtectionIEC>
   <cim:WindPlantFreqPcontrolIEC rdf:ID="_wplantfreq">
-    <cim:WindPlantFreqPcontrolIEC.dpref>0.0</cim:WindPlantFreqPcontrolIEC.dpref>
-    <cim:WindPlantFreqPcontrolIEC.ki>0.0</cim:WindPlantFreqPcontrolIEC.ki>
-    <cim:WindPlantFreqPcontrolIEC.kp>0.0</cim:WindPlantFreqPcontrolIEC.kp>
     <cim:WindPlantFreqPcontrolIEC.prefmax>1.0</cim:WindPlantFreqPcontrolIEC.prefmax>
     <cim:WindPlantFreqPcontrolIEC.prefmin>0.0</cim:WindPlantFreqPcontrolIEC.prefmin>
-    <cim:WindPlantFreqPcontrolIEC.tft>0.0</cim:WindPlantFreqPcontrolIEC.tft>
-    <cim:WindPlantFreqPcontrolIEC.tlag>0.0</cim:WindPlantFreqPcontrolIEC.tlag>
-    <cim:WindPlantFreqPcontrolIEC.twpfiltp>30.0</cim:WindPlantFreqPcontrolIEC.twpfiltp>
-    <cim:WindPlantFreqPcontrolIEC.twpfiltu>30.0</cim:WindPlantFreqPcontrolIEC.twpfiltu>
+    <cim:WindPlantFreqPcontrolIEC.dprefmax>0.1</cim:WindPlantFreqPcontrolIEC.dprefmax>
+    <cim:WindPlantFreqPcontrolIEC.dprefmin>-0.1</cim:WindPlantFreqPcontrolIEC.dprefmin>
+    <cim:WindPlantFreqPcontrolIEC.kiwpp>0.5</cim:WindPlantFreqPcontrolIEC.kiwpp>
+    <cim:WindPlantFreqPcontrolIEC.kpwpp>1.0</cim:WindPlantFreqPcontrolIEC.kpwpp>
+    <cim:WindPlantFreqPcontrolIEC.tpft>0.1</cim:WindPlantFreqPcontrolIEC.tpft>
+    <cim:WindPlantFreqPcontrolIEC.tpfv>0.1</cim:WindPlantFreqPcontrolIEC.tpfv>
+    <cim:WindPlantFreqPcontrolIEC.twpffilt>0.05</cim:WindPlantFreqPcontrolIEC.twpffilt>
+    <cim:WindPlantFreqPcontrolIEC.twppfilt>0.05</cim:WindPlantFreqPcontrolIEC.twppfilt>
   </cim:WindPlantFreqPcontrolIEC>
   <cim:WindPlantReactiveControlIEC rdf:ID="_wplantreact">
-    <cim:WindPlantReactiveControlIEC.ki>0.0</cim:WindPlantReactiveControlIEC.ki>
-    <cim:WindPlantReactiveControlIEC.kp>0.0</cim:WindPlantReactiveControlIEC.kp>
-    <cim:WindPlantReactiveControlIEC.kqi>0.0</cim:WindPlantReactiveControlIEC.kqi>
-    <cim:WindPlantReactiveControlIEC.kqp>0.0</cim:WindPlantReactiveControlIEC.kqp>
-    <cim:WindPlantReactiveControlIEC.kuu>0.0</cim:WindPlantReactiveControlIEC.kuu>
-    <cim:WindPlantReactiveControlIEC.twpfiltp>30.0</cim:WindPlantReactiveControlIEC.twpfiltp>
     <cim:WindPlantReactiveControlIEC.twppfilt>30.0</cim:WindPlantReactiveControlIEC.twppfilt>
     <cim:WindPlantReactiveControlIEC.twpqfilt>30.0</cim:WindPlantReactiveControlIEC.twpqfilt>
     <cim:WindPlantReactiveControlIEC.twpufilt>30.0</cim:WindPlantReactiveControlIEC.twpufilt>
-    <cim:WindPlantReactiveControlIEC.txfp>0.0</cim:WindPlantReactiveControlIEC.txfp>
     <cim:WindPlantReactiveControlIEC.txft>0.0</cim:WindPlantReactiveControlIEC.txft>
     <cim:WindPlantReactiveControlIEC.uwpqdip>0.9</cim:WindPlantReactiveControlIEC.uwpqdip>
     <cim:WindPlantReactiveControlIEC.xrefmax>0.0</cim:WindPlantReactiveControlIEC.xrefmax>
     <cim:WindPlantReactiveControlIEC.xrefmin>0.0</cim:WindPlantReactiveControlIEC.xrefmin>
+    <cim:WindPlantReactiveControlIEC.kiwpx>0.5</cim:WindPlantReactiveControlIEC.kiwpx>
+    <cim:WindPlantReactiveControlIEC.kpwpx>1.0</cim:WindPlantReactiveControlIEC.kpwpx>
+    <cim:WindPlantReactiveControlIEC.kwpqu>0.1</cim:WindPlantReactiveControlIEC.kwpqu>
+    <cim:WindPlantReactiveControlIEC.mwppf>0.0</cim:WindPlantReactiveControlIEC.mwppf>
+    <cim:WindPlantReactiveControlIEC.mwpu>0.0</cim:WindPlantReactiveControlIEC.mwpu>
+    <cim:WindPlantReactiveControlIEC.txfv>0.1</cim:WindPlantReactiveControlIEC.txfv>
   </cim:WindPlantReactiveControlIEC>
   <cim:WindPitchContEmulIEC rdf:ID="_wpitchemul">
     <cim:WindPitchContEmulIEC.kdroop>0.0</cim:WindPitchContEmulIEC.kdroop>
     <cim:WindPitchContEmulIEC.kipce>3.0</cim:WindPitchContEmulIEC.kipce>
     <cim:WindPitchContEmulIEC.kppce>0.0</cim:WindPitchContEmulIEC.kppce>
-    <cim:WindPitchContEmulIEC.omegatr>1.0</cim:WindPitchContEmulIEC.omegatr>
     <cim:WindPitchContEmulIEC.pimax>1.0</cim:WindPitchContEmulIEC.pimax>
     <cim:WindPitchContEmulIEC.pimin>0.0</cim:WindPitchContEmulIEC.pimin>
     <cim:WindPitchContEmulIEC.t1>0.5</cim:WindPitchContEmulIEC.t1>
     <cim:WindPitchContEmulIEC.t2>0.1</cim:WindPitchContEmulIEC.t2>
-    <cim:WindPitchContEmulIEC.t3>0.0</cim:WindPitchContEmulIEC.t3>
-    <cim:WindPitchContEmulIEC.thetamax>30.0</cim:WindPitchContEmulIEC.thetamax>
-    <cim:WindPitchContEmulIEC.thetamin>0.0</cim:WindPitchContEmulIEC.thetamin>
+    <cim:WindPitchContEmulIEC.komegaaero>0.1</cim:WindPitchContEmulIEC.komegaaero>
+    <cim:WindPitchContEmulIEC.omegaref>1.0</cim:WindPitchContEmulIEC.omegaref>
+    <cim:WindPitchContEmulIEC.tpe>0.05</cim:WindPitchContEmulIEC.tpe>
   </cim:WindPitchContEmulIEC>
   <cim:WindPlantIEC rdf:ID="_wplant">
     <cim:WindPlantIEC.windPlantFreqPcontrolIECId rdf:resource="#_wplantfreq"/>
@@ -247,10 +253,11 @@
     <cim:WindGenTurbineType3bIEC.windMechIECId rdf:resource="#_wmech"/>
     <cim:WindGenTurbineType3bIEC.windContCurrLimIECId rdf:resource="#_wcurrlim"/>
     <cim:WindGenTurbineType3bIEC.windProtectionIECId rdf:resource="#_wprot"/>
-    <cim:WindGenTurbineType3bIEC.fthres>0.02</cim:WindGenTurbineType3bIEC.fthres>
     <cim:WindGenTurbineType3bIEC.mwtcwp>0.0</cim:WindGenTurbineType3bIEC.mwtcwp>
     <cim:WindGenTurbineType3bIEC.tg>0.02</cim:WindGenTurbineType3bIEC.tg>
     <cim:WindGenTurbineType3bIEC.two>0.05</cim:WindGenTurbineType3bIEC.two>
+    <cim:WindGenTurbineType3bIEC.fducw>0.02</cim:WindGenTurbineType3bIEC.fducw>
+    <cim:WindGenTurbineType3bIEC.xs>0.2</cim:WindGenTurbineType3bIEC.xs>
   </cim:WindGenTurbineType3bIEC>
   <cim:WindGenTurbineType4aIEC rdf:ID="_wt4a">
     <cim:WindTurbineType3or4Dynamics.WindPlantDynamics rdf:resource="#_wplant"/>
@@ -279,14 +286,12 @@
     <cim:LoadStatic.kp2>0.0</cim:LoadStatic.kp2>
     <cim:LoadStatic.kp3>0.0</cim:LoadStatic.kp3>
     <cim:LoadStatic.kp4>1.0</cim:LoadStatic.kp4>
-    <cim:LoadStatic.kp5>0.0</cim:LoadStatic.kp5>
-    <cim:LoadStatic.kp6>0.0</cim:LoadStatic.kp6>
+    <cim:LoadStatic.kpf>0.0</cim:LoadStatic.kpf>
     <cim:LoadStatic.kq1>0.0</cim:LoadStatic.kq1>
     <cim:LoadStatic.kq2>0.0</cim:LoadStatic.kq2>
     <cim:LoadStatic.kq3>0.0</cim:LoadStatic.kq3>
     <cim:LoadStatic.kq4>1.0</cim:LoadStatic.kq4>
-    <cim:LoadStatic.kq5>0.0</cim:LoadStatic.kq5>
-    <cim:LoadStatic.kq6>0.0</cim:LoadStatic.kq6>
+    <cim:LoadStatic.kqf>0.0</cim:LoadStatic.kqf>
     <cim:LoadStatic.ep1>1.0</cim:LoadStatic.ep1>
     <cim:LoadStatic.ep2>2.0</cim:LoadStatic.ep2>
     <cim:LoadStatic.ep3>3.0</cim:LoadStatic.ep3>
@@ -305,22 +310,9 @@
     <cim:LoadComposite.epfd>1.5</cim:LoadComposite.epfd>
     <cim:LoadComposite.eqvd>2.0</cim:LoadComposite.eqvd>
     <cim:LoadComposite.eqfd>2.5</cim:LoadComposite.eqfd>
-    <cim:LoadComposite.mv>0.5</cim:LoadComposite.mv>
-    <cim:LoadComposite.mf>0.3</cim:LoadComposite.mf>
-    <cim:LoadComposite.lfmac>0.2</cim:LoadComposite.lfmac>
-    <cim:LoadComposite.lfs>0.3</cim:LoadComposite.lfs>
+    <cim:LoadComposite.h>2.0</cim:LoadComposite.h>
     <cim:LoadComposite.lfrac>0.5</cim:LoadComposite.lfrac>
     <cim:LoadComposite.pfrac>0.5</cim:LoadComposite.pfrac>
-    <cim:LoadComposite.td>0.05</cim:LoadComposite.td>
-    <cim:LoadComposite.tf>0.05</cim:LoadComposite.tf>
-    <cim:LoadComposite.tc>0.05</cim:LoadComposite.tc>
-    <cim:LoadComposite.xm>3.0</cim:LoadComposite.xm>
-    <cim:LoadComposite.xp>0.2</cim:LoadComposite.xp>
-    <cim:LoadComposite.xpp>0.12</cim:LoadComposite.xpp>
-    <cim:LoadComposite.ls>3.0</cim:LoadComposite.ls>
-    <cim:LoadComposite.ra>0.01</cim:LoadComposite.ra>
-    <cim:LoadComposite.tpo>1.5</cim:LoadComposite.tpo>
-    <cim:LoadComposite.tppo>0.02</cim:LoadComposite.tppo>
   </cim:LoadComposite>
   <cim:LoadMotor rdf:ID="_load-motor">
     <cim:LoadMotor.pfrac>0.5</cim:LoadMotor.pfrac>
@@ -336,12 +328,6 @@
     <cim:LoadMotor.tv>0.05</cim:LoadMotor.tv>
     <cim:LoadMotor.tbkr>0.08</cim:LoadMotor.tbkr>
     <cim:LoadMotor.lfac>0.0</cim:LoadMotor.lfac>
-    <cim:LoadMotor.compPF>0.8</cim:LoadMotor.compPF>
-    <cim:LoadMotor.vbrkr>0.86</cim:LoadMotor.vbrkr>
-    <cim:LoadMotor.vc1off>0.45</cim:LoadMotor.vc1off>
-    <cim:LoadMotor.vc2off>0.35</cim:LoadMotor.vc2off>
-    <cim:LoadMotor.vc1on>0.55</cim:LoadMotor.vc1on>
-    <cim:LoadMotor.vc2on>0.45</cim:LoadMotor.vc2on>
   </cim:LoadMotor>
   <cim:LoadAggregate rdf:ID="_load-aggregate">
     <cim:LoadAggregate.energyConsumerId rdf:resource="#_ec-3"/>
@@ -479,20 +465,13 @@
   </cim:UnderexcLimX1>
   <cim:UnderexcLimX2 rdf:ID="_prot-uel-x2">
     <cim:UnderexcitationLimiterDynamics.ExcitationSystemDynamics rdf:resource="#_exc-misc-4"/>
-    <cim:UnderexcLimX2.ki>0.0</cim:UnderexcLimX2.ki>
-    <cim:UnderexcLimX2.kuf>3.3</cim:UnderexcLimX2.kuf>
-    <cim:UnderexcLimX2.kui>0.0</cim:UnderexcLimX2.kui>
-    <cim:UnderexcLimX2.kul>100.0</cim:UnderexcLimX2.kul>
-    <cim:UnderexcLimX2.p0>0.0</cim:UnderexcLimX2.p0>
-    <cim:UnderexcLimX2.p1>0.0</cim:UnderexcLimX2.p1>
-    <cim:UnderexcLimX2.q0>-0.31</cim:UnderexcLimX2.q0>
-    <cim:UnderexcLimX2.q1>0.0</cim:UnderexcLimX2.q1>
-    <cim:UnderexcLimX2.tu1>0.0</cim:UnderexcLimX2.tu1>
-    <cim:UnderexcLimX2.tu2>0.0</cim:UnderexcLimX2.tu2>
-    <cim:UnderexcLimX2.tu3>0.0</cim:UnderexcLimX2.tu3>
-    <cim:UnderexcLimX2.tu4>0.0</cim:UnderexcLimX2.tu4>
-    <cim:UnderexcLimX2.vuimax>0.0</cim:UnderexcLimX2.vuimax>
-    <cim:UnderexcLimX2.vuimin>-5.8</cim:UnderexcLimX2.vuimin>
+    <cim:UnderexcLimX2.kf2>0.1</cim:UnderexcLimX2.kf2>
+    <cim:UnderexcLimX2.km>1.0</cim:UnderexcLimX2.km>
+    <cim:UnderexcLimX2.melmax>0.9</cim:UnderexcLimX2.melmax>
+    <cim:UnderexcLimX2.qo>-0.31</cim:UnderexcLimX2.qo>
+    <cim:UnderexcLimX2.r>0.05</cim:UnderexcLimX2.r>
+    <cim:UnderexcLimX2.tf2>0.5</cim:UnderexcLimX2.tf2>
+    <cim:UnderexcLimX2.tm>0.02</cim:UnderexcLimX2.tm>
   </cim:UnderexcLimX2>
   <cim:VoltageAdjusterIEEE rdf:ID="_prot-voltadj">
     <cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics rdf:resource="#_exc-misc-1"/>

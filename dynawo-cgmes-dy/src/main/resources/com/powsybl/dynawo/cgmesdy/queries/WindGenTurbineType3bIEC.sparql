@@ -21,8 +21,9 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windMechIECId ?windMechIECId . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windContCurrLimIECId ?windContCurrLimIECId . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windProtectionIECId ?windProtectionIECId . }
-  OPTIONAL { ?id cim:WindGenTurbineType3bIEC.fthres ?fthres . }
+  OPTIONAL { ?id cim:WindGenTurbineType3bIEC.fducw ?fducw . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.mwtcwp ?mwtcwp . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.tg ?tg . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.two ?two . }
+  OPTIONAL { ?id cim:WindGenTurbineType3bIEC.xs ?xs . }
 }

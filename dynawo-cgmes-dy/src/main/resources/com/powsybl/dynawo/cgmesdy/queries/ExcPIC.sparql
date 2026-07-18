@@ -11,25 +11,27 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcPIC .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcPIC.ka ?ka . }
-  OPTIONAL { ?id cim:ExcPIC.ta ?ta . }
-  OPTIONAL { ?id cim:ExcPIC.kf ?kf . }
-  OPTIONAL { ?id cim:ExcPIC.tf1 ?tf1 . }
-  OPTIONAL { ?id cim:ExcPIC.tf2 ?tf2 . }
   OPTIONAL { ?id cim:ExcPIC.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcPIC.se1 ?se1 . }
   OPTIONAL { ?id cim:ExcPIC.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcPIC.se2 ?se2 . }
   OPTIONAL { ?id cim:ExcPIC.efdmax ?efdmax . }
   OPTIONAL { ?id cim:ExcPIC.efdmin ?efdmin . }
-  OPTIONAL { ?id cim:ExcPIC.ka2 ?ka2 . }
+  OPTIONAL { ?id cim:ExcPIC.ka ?ka . }
+  OPTIONAL { ?id cim:ExcPIC.kc ?kc . }
+  OPTIONAL { ?id cim:ExcPIC.ke ?ke . }
+  OPTIONAL { ?id cim:ExcPIC.kf ?kf . }
+  OPTIONAL { ?id cim:ExcPIC.ki ?ki . }
+  OPTIONAL { ?id cim:ExcPIC.kp ?kp . }
+  OPTIONAL { ?id cim:ExcPIC.se1 ?se1 . }
+  OPTIONAL { ?id cim:ExcPIC.se2 ?se2 . }
+  OPTIONAL { ?id cim:ExcPIC.ta1 ?ta1 . }
+  OPTIONAL { ?id cim:ExcPIC.ta2 ?ta2 . }
+  OPTIONAL { ?id cim:ExcPIC.ta3 ?ta3 . }
+  OPTIONAL { ?id cim:ExcPIC.ta4 ?ta4 . }
+  OPTIONAL { ?id cim:ExcPIC.te ?te . }
+  OPTIONAL { ?id cim:ExcPIC.tf1 ?tf1 . }
+  OPTIONAL { ?id cim:ExcPIC.tf2 ?tf2 . }
   OPTIONAL { ?id cim:ExcPIC.vr1 ?vr1 . }
   OPTIONAL { ?id cim:ExcPIC.vr2 ?vr2 . }
-  OPTIONAL { ?id cim:ExcPIC.t1 ?t1 . }
-  OPTIONAL { ?id cim:ExcPIC.t2 ?t2 . }
-  OPTIONAL { ?id cim:ExcPIC.t3 ?t3 . }
-  OPTIONAL { ?id cim:ExcPIC.t4 ?t4 . }
-  OPTIONAL { ?id cim:ExcPIC.t5 ?t5 . }
   OPTIONAL { ?id cim:ExcPIC.vrmax ?vrmax . }
   OPTIONAL { ?id cim:ExcPIC.vrmin ?vrmin . }
 }

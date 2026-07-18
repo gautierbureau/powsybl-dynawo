@@ -11,6 +11,14 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindPlantFreqPcontrolIEC(
     String id,
-    double dpref, double ki, double kp, double prefmax, double prefmin, double tft, double tlag,
-    double twpfiltp, double twpfiltu
+    double dprefmax,
+    double dprefmin,
+    double kiwpp,
+    double kpwpp,
+    double prefmax,
+    double prefmin,
+    double tpft,
+    double tpfv,
+    double twpffilt,
+    double twppfilt
 ) { }

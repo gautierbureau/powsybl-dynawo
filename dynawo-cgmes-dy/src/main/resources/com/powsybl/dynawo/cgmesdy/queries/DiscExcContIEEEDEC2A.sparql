@@ -15,4 +15,5 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:DiscExcContIEEEDEC2A.td2 ?td2 . }
   OPTIONAL { ?id cim:DiscExcContIEEEDEC2A.vdmax ?vdmax . }
   OPTIONAL { ?id cim:DiscExcContIEEEDEC2A.vdmin ?vdmin . }
+  OPTIONAL { ?id cim:DiscExcContIEEEDEC2A.vk ?vk . }
 }

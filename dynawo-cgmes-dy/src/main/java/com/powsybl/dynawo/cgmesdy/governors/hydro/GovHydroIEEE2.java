@@ -6,16 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.hydro;
-/** GovHydroIEEE2 – IEEE hydro governor (detailed). CIM: GovHydroIEEE2
+/** GovHydroIEEE2 – IEEE type 3 speed-governor model (IEEEG3). CIM: GovHydroIEEE2
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovHydroIEEE2(
     String id, String synchronousMachineId,
-    double mwbase, double r, double tr, double tf, double tg,
-    double velm, double pmax, double pmin, double tw,
-    double at, double dturb, double qnl,
-    double rperm, double rtemp, double tp, double hdam,
-    double ki, double gv1, double pgv1, double gv2, double pgv2,
-    double gv3, double pgv3, double gv4, double pgv4,
-    double gv5, double pgv5, double gv6, double pgv6
+    double aturb, double bturb,
+    double gv1, double gv2, double gv3, double gv4, double gv5, double gv6,
+    double kturb, double mwbase,
+    double pgv1, double pgv2, double pgv3, double pgv4, double pgv5, double pgv6,
+    double pmax, double pmin, double rperm, double rtemp,
+    double tg, double tp, double tr, double tw, double uc, double uo
 ) { }

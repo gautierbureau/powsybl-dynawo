@@ -37,16 +37,12 @@ package com.powsybl.dynawo.cgmesdy.synchronous;
  * <table>
  *   <tr><th>Java field</th><th>CIM attribute</th></tr>
  *   <tr><td>r1d, x1d</td><td>SynchronousMachineEquivalentCircuit.r1d / x1d</td></tr>
- *   <tr><td>r2d, x2d</td><td>SynchronousMachineEquivalentCircuit.r2d / x2d</td></tr>
  *   <tr><td>rfd, xfd</td><td>SynchronousMachineEquivalentCircuit.rfd / xfd</td></tr>
  *   <tr><td>r1q, x1q</td><td>SynchronousMachineEquivalentCircuit.r1q / x1q</td></tr>
  *   <tr><td>r2q, x2q</td><td>SynchronousMachineEquivalentCircuit.r2q / x2q</td></tr>
  *   <tr><td>xad</td><td>SynchronousMachineEquivalentCircuit.xad  (d-axis mutual Xad)</td></tr>
  *   <tr><td>xaq</td><td>SynchronousMachineEquivalentCircuit.xaq  (q-axis mutual Xaq)</td></tr>
  *   <tr><td>xf1d</td><td>SynchronousMachineEquivalentCircuit.xf1d (field–damper1 mutual)</td></tr>
- *   <tr><td>xmd</td><td>SynchronousMachineEquivalentCircuit.xmd  (d-axis magnetising)</td></tr>
- *   <tr><td>xmq</td><td>SynchronousMachineEquivalentCircuit.xmq  (q-axis magnetising)</td></tr>
- *   <tr><td>xl</td><td>SynchronousMachineEquivalentCircuit.xl    (armature leakage)</td></tr>
  * </table>
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
@@ -71,10 +67,6 @@ public record SynchronousMachineEquivalentCircuit(
     double r1d,
     /** d-axis 1st damper reactance X1d (PU). */
     double x1d,
-    /** d-axis 2nd damper resistance R2d (PU); 0 if not present. */
-    double r2d,
-    /** d-axis 2nd damper reactance X2d (PU); 0 if not present. */
-    double x2d,
     /** Field winding resistance Rfd (PU). */
     double rfd,
     /** Field winding reactance Xfd (PU). */
@@ -96,11 +88,5 @@ public record SynchronousMachineEquivalentCircuit(
     /** q-axis mutual reactance Xaq (PU). */
     double xaq,
     /** Mutual reactance between field and d-axis damper Xf1d (PU). */
-    double xf1d,
-    /** d-axis magnetising reactance Xmd (PU). */
-    double xmd,
-    /** q-axis magnetising reactance Xmq (PU). */
-    double xmq,
-    /** Armature leakage reactance Xl (PU). */
-    double xl
+    double xf1d
 ) { }

@@ -70,12 +70,12 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssIEEE4B.tl7 ?tl7 . }
   OPTIONAL { ?id cim:PssIEEE4B.tl8 ?tl8 . }
   OPTIONAL { ?id cim:PssIEEE4B.tl9 ?tl9 . }
-  OPTIONAL { ?id cim:PssIEEE4B.vsmax ?vsmax . }
-  OPTIONAL { ?id cim:PssIEEE4B.vsmin ?vsmin . }
-  OPTIONAL { ?id cim:PssIEEE4B.vshmax ?vshmax . }
-  OPTIONAL { ?id cim:PssIEEE4B.vshmin ?vshmin . }
-  OPTIONAL { ?id cim:PssIEEE4B.vsimax ?vsimax . }
-  OPTIONAL { ?id cim:PssIEEE4B.vsimin ?vsimin . }
-  OPTIONAL { ?id cim:PssIEEE4B.vslmax ?vslmax . }
-  OPTIONAL { ?id cim:PssIEEE4B.vslmin ?vslmin . }
+  OPTIONAL { ?id cim:PssIEEE4B.vstmax ?vsmax . }
+  OPTIONAL { ?id cim:PssIEEE4B.vstmin ?vsmin . }
+  OPTIONAL { ?id cim:PssIEEE4B.vhmax ?vshmax . }
+  OPTIONAL { ?id cim:PssIEEE4B.vhmin ?vshmin . }
+  OPTIONAL { ?id cim:PssIEEE4B.vimax ?vsimax . }
+  OPTIONAL { ?id cim:PssIEEE4B.vimin ?vsimin . }
+  OPTIONAL { ?id cim:PssIEEE4B.vlmax ?vslmax . }
+  OPTIONAL { ?id cim:PssIEEE4B.vlmin ?vslmin . }
 }

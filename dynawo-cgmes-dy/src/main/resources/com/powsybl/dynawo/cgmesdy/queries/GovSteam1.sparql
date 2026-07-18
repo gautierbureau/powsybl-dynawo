@@ -35,6 +35,9 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovSteam1.db1 ?db1 . }
   OPTIONAL { ?id cim:GovSteam1.eps ?eps . }
   OPTIONAL { ?id cim:GovSteam1.db2 ?db2 . }
+  # deadband-selector and nonlinear-valve flags
+  OPTIONAL { ?id cim:GovSteam1.sdb1 ?sdb1 . }
+  OPTIONAL { ?id cim:GovSteam1.sdb2 ?sdb2 . }
   OPTIONAL { ?id cim:GovSteam1.gv1 ?gv1 . }
   OPTIONAL { ?id cim:GovSteam1.pgv1 ?pgv1 . }
   OPTIONAL { ?id cim:GovSteam1.gv2 ?gv2 . }
@@ -47,4 +50,5 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovSteam1.pgv5 ?pgv5 . }
   OPTIONAL { ?id cim:GovSteam1.gv6 ?gv6 . }
   OPTIONAL { ?id cim:GovSteam1.pgv6 ?pgv6 . }
+  OPTIONAL { ?id cim:GovSteam1.valve ?valve . }
 }

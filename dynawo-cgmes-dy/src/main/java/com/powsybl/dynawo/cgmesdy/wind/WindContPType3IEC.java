@@ -11,9 +11,25 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindContPType3IEC(
     String id,
-    double dpmax, double dprefmax, double dprefmin, double dthetamx, double kdtd, double kip,
-    double kpp, double mplvrt, double omegaoffset, double pdtdmax, double rramp,
-    double tdvs, double temin, double tpord, double tufilt, double tuscale,
-    double twref, double udvs, double updip, double wdtd,
-    double zeta, boolean recrossflag
+    double dpmax,
+    double dtrisemaxlvrt,
+    double kdtd,
+    double kip,
+    double kpp,
+    double mplvrt,
+    double omegaoffset,
+    double pdtdmax,
+    double rramp,
+    double tdvs,
+    double temin,
+    double tomegafilt,
+    double tpfilt,
+    double tpord,
+    double tufilt,
+    double tuscale,
+    double twref,
+    double udvs,
+    double updip,
+    double wdtd,
+    double zeta
 ) { }

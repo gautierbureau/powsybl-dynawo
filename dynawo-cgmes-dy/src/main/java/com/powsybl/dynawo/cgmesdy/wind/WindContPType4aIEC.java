@@ -11,5 +11,7 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindContPType4aIEC(
     String id,
-    double dpmax, double dpmin, double tpord, double tufilt
+    double dpmax,
+    double tpord,
+    double tufilt
 ) { }

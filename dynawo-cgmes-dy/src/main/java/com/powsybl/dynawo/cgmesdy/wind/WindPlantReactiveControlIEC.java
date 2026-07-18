@@ -11,7 +11,17 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindPlantReactiveControlIEC(
     String id,
-    double ki, double kp, double kqi, double kqp, double kuu,
-    double twpfiltp, double twppfilt, double twpqfilt, double twpufilt,
-    double txfp, double txft, double uwpqdip, double xrefmax, double xrefmin
+    double kiwpx,
+    double kpwpx,
+    double kwpqu,
+    double mwppf,
+    double mwpu,
+    double twppfilt,
+    double twpqfilt,
+    double twpufilt,
+    double txft,
+    double txfv,
+    double uwpqdip,
+    double xrefmax,
+    double xrefmin
 ) { }

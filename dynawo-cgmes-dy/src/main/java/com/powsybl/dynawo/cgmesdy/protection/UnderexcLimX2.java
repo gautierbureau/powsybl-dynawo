@@ -11,8 +11,11 @@ package com.powsybl.dynawo.cgmesdy.protection;
  */
 public record UnderexcLimX2(
     String id, String excitationSystemId,
-    double ki, double kuf, double kui, double kul,
-    double p0, double p1, double q0, double q1,
-    double tu1, double tu2, double tu3, double tu4,
-    double vuimax, double vuimin
+    double kf2,
+    double km,
+    double melmax,
+    double qo,
+    double r,
+    double tf2,
+    double tm
 ) { }

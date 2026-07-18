@@ -20,7 +20,9 @@ public record GovSteam1(
     double t6, double k5, double k6,
     double t7, double k7, double k8,
     double db1, double eps, double db2,
+    boolean sdb1, boolean sdb2,
     double gv1, double pgv1, double gv2, double pgv2,
     double gv3, double pgv3, double gv4, double pgv4,
-    double gv5, double pgv5, double gv6, double pgv6
+    double gv5, double pgv5, double gv6, double pgv6,
+    boolean valve
 ) { }

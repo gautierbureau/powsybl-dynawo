@@ -29,18 +29,20 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssPTIST3.dtc ?dtc . }
   OPTIONAL { ?id cim:PssPTIST3.dtf ?dtf . }
   OPTIONAL { ?id cim:PssPTIST3.dtp ?dtp . }
-  OPTIONAL { ?id cim:PssPTIST3.isfreq ?isfreq . }
+  OPTIONAL { ?id cim:PssPTIST3.isw ?isw . }
   OPTIONAL { ?id cim:PssPTIST3.k ?k . }
   OPTIONAL { ?id cim:PssPTIST3.lthres ?lthres . }
   OPTIONAL { ?id cim:PssPTIST3.m ?m . }
   OPTIONAL { ?id cim:PssPTIST3.nav ?nav . }
   OPTIONAL { ?id cim:PssPTIST3.ncl ?ncl . }
+  OPTIONAL { ?id cim:PssPTIST3.ncr ?ncr . }
   OPTIONAL { ?id cim:PssPTIST3.pmin ?pmin . }
   OPTIONAL { ?id cim:PssPTIST3.t1 ?t1 . }
   OPTIONAL { ?id cim:PssPTIST3.t2 ?t2 . }
   OPTIONAL { ?id cim:PssPTIST3.t3 ?t3 . }
   OPTIONAL { ?id cim:PssPTIST3.t4 ?t4 . }
+  OPTIONAL { ?id cim:PssPTIST3.t5 ?t5 . }
+  OPTIONAL { ?id cim:PssPTIST3.t6 ?t6 . }
+  OPTIONAL { ?id cim:PssPTIST3.tf ?tf . }
   OPTIONAL { ?id cim:PssPTIST3.tp ?tp . }
-  OPTIONAL { ?id cim:PssPTIST3.vsmn ?vsmn . }
-  OPTIONAL { ?id cim:PssPTIST3.vsmx ?vsmx . }
 }

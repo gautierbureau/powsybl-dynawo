@@ -11,7 +11,6 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcIEEEAC7B .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.tr ?tr . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kpr ?kpr . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kir ?kir . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kdr ?kdr . }
@@ -20,8 +19,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcIEEEAC7B.vrmin ?vrmin . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kpa ?kpa . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kia ?kia . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.kda ?kda . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.tda ?tda . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.vamax ?vamax . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.vamin ?vamin . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kp ?kp . }
@@ -36,10 +33,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcIEEEAC7B.kf2 ?kf2 . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.kf3 ?kf3 . }
   OPTIONAL { ?id cim:ExcIEEEAC7B.tf ?tf . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.se1 ?se1 . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.se2 ?se2 . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.uelin ?uelin . }
-  OPTIONAL { ?id cim:ExcIEEEAC7B.oelin ?oelin . }
+  OPTIONAL { ?id cim:ExcIEEEAC7B.ve1 ?e1 . }
+  OPTIONAL { ?id cim:ExcIEEEAC7B.seve1 ?se1 . }
+  OPTIONAL { ?id cim:ExcIEEEAC7B.ve2 ?e2 . }
+  OPTIONAL { ?id cim:ExcIEEEAC7B.seve2 ?se2 . }
 }

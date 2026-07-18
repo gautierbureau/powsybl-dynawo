@@ -12,20 +12,20 @@ SELECT * WHERE {
   ?id rdf:type cim:GovSteamCC .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:GovSteamCC.mwbase ?mwbase . }
-  OPTIONAL { ?id cim:GovSteamCC.r ?r . }
-  OPTIONAL { ?id cim:GovSteamCC.t1 ?t1 . }
-  OPTIONAL { ?id cim:GovSteamCC.t2 ?t2 . }
-  OPTIONAL { ?id cim:GovSteamCC.t3 ?t3 . }
-  OPTIONAL { ?id cim:GovSteamCC.t4 ?t4 . }
-  OPTIONAL { ?id cim:GovSteamCC.pmax ?pmax . }
-  OPTIONAL { ?id cim:GovSteamCC.pmin ?pmin . }
-  OPTIONAL { ?id cim:GovSteamCC.uc ?uc . }
-  OPTIONAL { ?id cim:GovSteamCC.uo ?uo . }
-  OPTIONAL { ?id cim:GovSteamCC.dhp ?dhp . }
-  OPTIONAL { ?id cim:GovSteamCC.dlp ?dlp . }
+  OPTIONAL { ?id cim:GovSteamCC.rhp ?rhp . }
+  OPTIONAL { ?id cim:GovSteamCC.t1hp ?t1hp . }
+  OPTIONAL { ?id cim:GovSteamCC.t3hp ?t3hp . }
+  OPTIONAL { ?id cim:GovSteamCC.t4hp ?t4hp . }
+  OPTIONAL { ?id cim:GovSteamCC.t5hp ?t5hp . }
   OPTIONAL { ?id cim:GovSteamCC.fhp ?fhp . }
+  OPTIONAL { ?id cim:GovSteamCC.dhp ?dhp . }
+  OPTIONAL { ?id cim:GovSteamCC.pmaxhp ?pmaxhp . }
+  OPTIONAL { ?id cim:GovSteamCC.rlp ?rlp . }
+  OPTIONAL { ?id cim:GovSteamCC.t1lp ?t1lp . }
+  OPTIONAL { ?id cim:GovSteamCC.t3lp ?t3lp . }
+  OPTIONAL { ?id cim:GovSteamCC.t4lp ?t4lp . }
+  OPTIONAL { ?id cim:GovSteamCC.t5lp ?t5lp . }
   OPTIONAL { ?id cim:GovSteamCC.flp ?flp . }
-  OPTIONAL { ?id cim:GovSteamCC.fip ?fip . }
-  OPTIONAL { ?id cim:GovSteamCC.tip ?tip . }
-  OPTIONAL { ?id cim:GovSteamCC.tlp ?tlp . }
+  OPTIONAL { ?id cim:GovSteamCC.dlp ?dlp . }
+  OPTIONAL { ?id cim:GovSteamCC.pmaxlp ?pmaxlp . }
 }

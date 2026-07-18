@@ -11,8 +11,22 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcST1A(
     String id, String synchronousMachineId,
-    double tr, double vimax, double vimin, double tb, double tc,
-    double ka, double ta, double vamax, double vamin,
-    double vrmax, double vrmin, double kc, double kf, double tf,
-    boolean pssin, boolean ilr, double klr
+    double ilr,
+    double ka,
+    double kc,
+    double kf,
+    double klr,
+    double ta,
+    double tb,
+    double tb1,
+    double tc,
+    double tc1,
+    double tf,
+    double vamax,
+    double vamin,
+    double vimax,
+    double vimin,
+    double vrmax,
+    double vrmin,
+    double xe
 ) { }

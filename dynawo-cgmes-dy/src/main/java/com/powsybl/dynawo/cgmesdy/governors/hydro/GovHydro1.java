@@ -11,9 +11,9 @@ package com.powsybl.dynawo.cgmesdy.governors.hydro;
  */
 public record GovHydro1(
     String id, String synchronousMachineId,
-    double mwbase, double r, double tr, double tf, double tg,
-    double velm, double pmax, double pmin, double tw,
+    double mwbase, double tr, double tf, double tg,
+    double velm, double gmax, double gmin, double tw,
     double at, double dturb, double qnl,
-    double rperm, double rtemp, double tp,
+    double rperm, double rtemp,
     double hdam
 ) { }

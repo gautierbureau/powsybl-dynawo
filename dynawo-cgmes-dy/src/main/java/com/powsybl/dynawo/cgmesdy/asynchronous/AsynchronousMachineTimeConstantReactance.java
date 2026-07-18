@@ -7,17 +7,23 @@
  */
 package com.powsybl.dynawo.cgmesdy.asynchronous;
 /**
- * AsynchronousMachineTimeConstantReactance – Standard induction motor (T/X form).
- * CIM: AsynchronousMachineTimeConstantReactance
+ * AsynchronousMachineTimeConstantReactance – standard induction machine (time-constant/reactance
+ * form). CIM: AsynchronousMachineTimeConstantReactance
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public record AsynchronousMachineTimeConstantReactance(
     String id,
     String asynchronousMachineId,
-    double xs,      // Synchronous reactance (PU)
-    double xp,      // Transient reactance (PU)
-    double xpp,     // Subtransient reactance (PU)
-    double tpo,     // Transient rotor time constant (s)
-    double tppo,    // Subtransient rotor time constant (s)
-    double xl       // Leakage reactance (PU)
+    // RotatingMachineDynamics
+    double mBase,                   // Machine MVA rating (MVA)
+    double damping,                 // Damping torque coefficient D
+    double inertia,                 // Inertia constant H (s)
+    double statorLeakageReactance,  // Stator leakage reactance Xl (PU)
+    double statorResistance,        // Stator resistance Rs (PU)
+    // AsynchronousMachineTimeConstantReactance
+    double tpo,                     // Transient rotor time constant T' (s)
+    double tppo,                    // Subtransient rotor time constant T'' (s)
+    double xp,                      // Transient reactance X' (PU)
+    double xpp,                     // Subtransient reactance X'' (PU)
+    double xs                       // Synchronous reactance X (PU)
 ) { }

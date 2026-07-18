@@ -11,5 +11,9 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindAeroLinearIEC(
     String id,
-    double dpomega, double dptheta, double omegazero, double pavail
+    double dpomega,
+    double dptheta,
+    double omegazero,
+    double pavail,
+    double thetazero
 ) { }

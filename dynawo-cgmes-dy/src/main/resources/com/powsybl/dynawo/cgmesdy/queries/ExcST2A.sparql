@@ -11,16 +11,19 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcST2A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcST2A.tr ?tr . }
+  OPTIONAL { ?id cim:ExcST2A.efdmax ?efdmax . }
   OPTIONAL { ?id cim:ExcST2A.ka ?ka . }
+  OPTIONAL { ?id cim:ExcST2A.kc ?kc . }
+  OPTIONAL { ?id cim:ExcST2A.ke ?ke . }
+  OPTIONAL { ?id cim:ExcST2A.kf ?kf . }
+  OPTIONAL { ?id cim:ExcST2A.ki ?ki . }
+  OPTIONAL { ?id cim:ExcST2A.kp ?kp . }
   OPTIONAL { ?id cim:ExcST2A.ta ?ta . }
+  OPTIONAL { ?id cim:ExcST2A.tb ?tb . }
+  OPTIONAL { ?id cim:ExcST2A.tc ?tc . }
+  OPTIONAL { ?id cim:ExcST2A.te ?te . }
+  OPTIONAL { ?id cim:ExcST2A.tf ?tf . }
+  OPTIONAL { ?id cim:ExcST2A.uelin ?uelin . }
   OPTIONAL { ?id cim:ExcST2A.vrmax ?vrmax . }
   OPTIONAL { ?id cim:ExcST2A.vrmin ?vrmin . }
-  OPTIONAL { ?id cim:ExcST2A.te ?te . }
-  OPTIONAL { ?id cim:ExcST2A.kf ?kf . }
-  OPTIONAL { ?id cim:ExcST2A.tf ?tf . }
-  OPTIONAL { ?id cim:ExcST2A.kp ?kp . }
-  OPTIONAL { ?id cim:ExcST2A.ki ?ki . }
-  OPTIONAL { ?id cim:ExcST2A.kc ?kc . }
-  OPTIONAL { ?id cim:ExcST2A.efdmax ?efdmax . }
 }

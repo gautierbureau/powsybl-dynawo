@@ -81,7 +81,6 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             hasId(e.id(), "excieeedc1a");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(0.01, e.tr(), T);
             assertEquals(46.0, e.ka(), T);
             assertEquals(0.06, e.ta(), T);
             assertEquals(1.0, e.vrmax(), T);
@@ -90,8 +89,6 @@ class ExciterLoaderTest {
             assertEquals(0.46, e.te(), T);
             assertEquals(0.1, e.kf(), T);
             assertEquals(1.0, e.tf(), T);
-            assertEquals(0.09, e.kc(), T);
-            assertEquals(0.48, e.kd(), T);
             assertEquals(3.1, e.efd1(), T);
             assertEquals(0.33, e.seefd1(), T);
             assertEquals(2.3, e.efd2(), T);
@@ -129,7 +126,7 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(0.05, e.trh(), T);
             assertEquals(1.0, e.kv(), T);
-            assertEquals(1.0, e.vmax(), T);
+            assertEquals(1.0, e.vrmax(), T);
             assertEquals(1.33, e.te(), T);
             assertEquals(3.375, e.efd1(), T);
             assertTrue(e.exclim());
@@ -169,7 +166,6 @@ class ExciterLoaderTest {
             assertEquals(-14.5, e.vamin(), T);
             assertEquals(0.8, e.te(), T);
             assertEquals(0.03, e.kf(), T);
-            assertEquals(6.24, e.vfemax(), T);
             assertEquals(4.18, e.e1(), T);
             assertEquals(0.1, e.se1(), T);
         }
@@ -230,7 +226,8 @@ class ExciterLoaderTest {
             assertEquals(7.3, e.vrmax(), T);
             assertEquals(1.0, e.tf1(), T);
             assertEquals(0.8, e.tf2(), T);
-            assertEquals(5.6, e.efdn(), T);
+            assertEquals(5.6, e.efd1(), T);
+            assertEquals(0.086, e.seefd1(), T);
         }
     }
 
@@ -245,7 +242,6 @@ class ExciterLoaderTest {
             assertEquals(0.18, e.tk(), T);
             assertEquals(75.0, e.vhmax(), T);
             assertEquals(92.0, e.kh(), T);
-            assertEquals(0.07, e.td(), T);
             assertEquals(19.0, e.vfelim(), T);
         }
     }
@@ -261,8 +257,6 @@ class ExciterLoaderTest {
             assertEquals(65.36, e.kpa(), T);
             assertEquals(6.0, e.vfemax(), T);
             assertEquals(0.0, e.vemin(), T);
-            assertFalse(e.uelin());
-            assertTrue(e.oelin());
         }
     }
 
@@ -277,7 +271,6 @@ class ExciterLoaderTest {
             assertEquals(35.0, e.vrmax(), T);
             assertEquals(-10.0, e.vrmin(), T);
             assertEquals(0.55, e.kc(), T);
-            assertTrue(e.uelin());
         }
     }
 
@@ -331,11 +324,10 @@ class ExciterLoaderTest {
             assertEquals(0.081, e.xl(), T);
             assertEquals(8.63, e.vbmax(), T);
             assertEquals(6.53, e.vgmax(), T);
-            assertTrue(e.uelin());
         }
     }
 
-    @Nested @DisplayName("ExcIEEEST4B – dual boolean") class ST4B {
+    @Nested @DisplayName("ExcIEEEST4B") class ST4B {
         @Test void count() {
             assertEquals(1, MODEL.excIEEEST4BList().size()); }
 
@@ -345,8 +337,6 @@ class ExciterLoaderTest {
             assertEquals(10.75, e.kpr(), T);
             assertEquals(9.3, e.kp(), T);
             assertEquals(11.63, e.vbmax(), T);
-            assertFalse(e.uelin());
-            assertTrue(e.oelin());
         }
     }
 
@@ -364,6 +354,7 @@ class ExciterLoaderTest {
             assertEquals(10.0, e.tub1(), T);
             assertEquals(2.0, e.tuc1(), T);
             assertEquals(0.0, e.kc(), T);
+            assertEquals(200.0, e.kr(), T);
         }
     }
 
@@ -374,7 +365,7 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcIEEEST6B e = one(MODEL.excIEEEST6BList(), "ExcIEEEST6B");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(0.7, e.vimax(), T);
+            assertEquals(1.0, e.kci(), T);
             assertEquals(45.0, e.kia(), T);
             assertEquals(17.33, e.klr(), T);
             assertEquals(0.02, e.tg(), T);
@@ -390,7 +381,6 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcIEEEST7B e = one(MODEL.excIEEEST7BList(), "ExcIEEEST7B");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(0.02, e.tr(), T);
             assertEquals(1.0, e.kh(), T);
             assertEquals(3.0, e.tia(), T);
             assertEquals(40.0, e.kpa(), T);
@@ -414,7 +404,8 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(400.0, e.ka(), T);
             assertEquals(14.5, e.vamax(), T);
-            assertEquals(4.18, e.e1(), T);
+            assertEquals(4.18, e.ve1(), T);
+            assertTrue(e.hvlvgates());
         }
     }
 
@@ -425,8 +416,11 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcAC2A e = one(MODEL.excAC2AList(), "ExcAC2A");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertEquals(400.0, e.ka(), T);
             assertEquals(25.0, e.kb(), T);
             assertEquals(1.0, e.kh(), T);
+            assertTrue(e.hvgate());
+            assertFalse(e.lvgate());
         }
     }
 
@@ -437,8 +431,10 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcAC3A e = one(MODEL.excAC3AList(), "ExcAC3A");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertEquals(2.36, e.efdn(), T);
             assertEquals(3.77, e.kr(), T);
             assertEquals(16.0, e.vfemax(), T);
+            assertEquals(0.1, e.vemin(), T);
         }
     }
 
@@ -451,6 +447,8 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(200.0, e.ka(), T);
             assertEquals(0.0, e.kc(), T);
+            assertEquals(10.0, e.vimax(), T);
+            assertEquals(5.64, e.vrmax(), T);
         }
     }
 
@@ -464,6 +462,7 @@ class ExciterLoaderTest {
             assertEquals(1.0, e.tf1(), T);
             assertEquals(0.8, e.tf2(), T);
             assertEquals(0.0, e.tf3(), T);
+            assertEquals(5.6, e.efd1(), T);
         }
     }
 
@@ -477,6 +476,7 @@ class ExciterLoaderTest {
             assertEquals(536.0, e.ka(), T);
             assertEquals(75.0, e.vhmax(), T);
             assertEquals(0.173, e.kc(), T);
+            assertEquals(19.0, e.vfelim(), T);
         }
     }
 
@@ -489,6 +489,8 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(80.0, e.kpr(), T);
             assertEquals(0.55, e.kc(), T);
+            assertTrue(e.inlim());
+            assertEquals(35.0, e.vpidmax(), T);
         }
     }
 
@@ -500,7 +502,8 @@ class ExciterLoaderTest {
             ExcAVR1 e = one(MODEL.excAVR1List(), "ExcAVR1");
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(500.0, e.ka(), T);
-            assertEquals(0.02, e.tr(), T);
+            assertEquals(0.05, e.kf(), T);
+            assertEquals(1.0, e.tf(), T);
             assertEquals(-5.0, e.vrmn(), T);
             assertEquals(5.0, e.vrmx(), T);
         }
@@ -518,7 +521,9 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcAVR2 e = one(MODEL.excAVR2List(), "ExcAVR2");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(0.5, e.tc(), T);
+            assertEquals(500.0, e.ka(), T);
+            assertEquals(0.05, e.kf(), T);
+            assertEquals(2.0, e.tf2(), T);
             assertEquals(-5.0, e.vrmn(), T);
         }
     }
@@ -530,7 +535,8 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcAVR3 e = one(MODEL.excAVR3List(), "ExcAVR3");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(5.0, e.efdn(), T);
+            assertEquals(0.1, e.t1(), T);
+            assertEquals(0.4, e.t4(), T);
             assertEquals(-5.0, e.vrmn(), T);
         }
     }
@@ -542,8 +548,10 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcAVR4 e = one(MODEL.excAVR4List(), "ExcAVR4");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertTrue(e.imul());
             assertEquals(1.0, e.ke(), T);
-            assertEquals(0.05, e.kf(), T);
+            assertEquals(0.5, e.kif(), T);
+            assertEquals(6.0, e.vfmx(), T);
         }
     }
 
@@ -581,6 +589,8 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcBBC e = one(MODEL.excBBCList(), "ExcBBC");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertEquals(1.0, e.k(), T);
+            assertFalse(e.switchDetector());
             assertEquals(5.0, e.t1(), T);
             assertEquals(99.0, e.efdmax(), T);
             assertEquals(-99.0, e.efdmin(), T);
@@ -597,7 +607,7 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(20.0, e.ka(), T);
             assertEquals(9.0, e.efdmax(), T);
-            assertEquals(0.02, e.krb(), T);
+            assertEquals(-9.0, e.efdmin(), T);
         }
     }
 
@@ -610,6 +620,7 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(46.0, e.ka(), T);
             assertEquals(3.1, e.efd1(), T);
+            assertEquals(99.0, e.efdmax(), T);
             assertTrue(e.exclim());
         }
     }
@@ -621,9 +632,10 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcDC2A e = one(MODEL.excDC2AList(), "ExcDC2A");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertEquals(50.0, e.ka(), T);
             assertEquals(-0.05, e.ke(), T);
-            assertEquals(-99.0, e.vlb(), T);
             assertFalse(e.exclim());
+            assertTrue(e.vtlim());
         }
     }
 
@@ -634,9 +646,10 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcDC3A e = one(MODEL.excDC3AList(), "ExcDC3A");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(0.675, e.tf1(), T);
+            assertEquals(0.05, e.trh(), T);
             assertEquals(3.375, e.efd1(), T);
             assertTrue(e.exclim());
+            assertTrue(e.efdlim());
         }
     }
 
@@ -647,10 +660,12 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcELIN1 e = one(MODEL.excELIN1List(), "ExcELIN1");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(100.0, e.ka(), T);
+            assertEquals(0.01, e.dpnf(), T);
             assertEquals(0.004, e.tfi(), T);
             assertEquals(99.0, e.efmax(), T);
             assertEquals(-99.0, e.efmin(), T);
+            assertEquals(3.0, e.smax(), T);
+            assertEquals(0.1, e.xe(), T);
         }
     }
 
@@ -662,9 +677,10 @@ class ExciterLoaderTest {
             ExcELIN2 e = one(MODEL.excELIN2List(), "ExcELIN2");
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(1.0, e.te(), T);
-            assertEquals(3.0, e.ermax(), T);
-            assertEquals(-3.0, e.ermin(), T);
+            assertEquals(3.0, e.upmax(), T);
+            assertEquals(-3.0, e.upmin(), T);
             assertEquals(1.0, e.iefmax(), T);
+            assertEquals(0.1, e.xp(), T);
         }
     }
 
@@ -688,8 +704,10 @@ class ExciterLoaderTest {
         @Test void fields() {
             ExcNI e = one(MODEL.excNIList(), "ExcNI");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertTrue(e.busFedSelector());
             assertEquals(100.0, e.ka(), T);
-            assertEquals(5.0, e.vrmx(), T);
+            assertEquals(0.05, e.kf(), T);
+            assertEquals(5.0, e.vrmax(), T);
         }
     }
 
@@ -720,17 +738,17 @@ class ExciterLoaderTest {
         }
     }
 
-    @Nested @DisplayName("ExcREXS – String feedbackSignal + boolean exclfb") class REXS {
+    @Nested @DisplayName("ExcREXS – String fbf enum") class REXS {
         @Test void count() {
             assertEquals(1, MODEL.excREXSList().size()); }
 
         @Test void fields() {
             ExcREXS e = one(MODEL.excREXSList(), "ExcREXS");
             hasSmId(e.synchronousMachineId(), "sm-exc");
-            assertEquals(46.0, e.ka(), T);
+            assertEquals(1.0, e.ke(), T);
             assertEquals(5.0, e.vrmax(), T);
-            assertFalse(e.feedbackSignal().isBlank());
-            assertTrue(e.exclfb());
+            assertEquals(6.0, e.vfmax(), T);
+            assertFalse(e.fbf().isBlank());
         }
     }
 
@@ -743,10 +761,11 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(5.0, e.ucmax(), T);
             assertEquals(-5.0, e.ucmin(), T);
+            assertEquals(1.0, e.te(), T);
         }
     }
 
-    @Nested @DisplayName("ExcSCRX – boolean rcmxFlag") class SCRX {
+    @Nested @DisplayName("ExcSCRX – boolean cswitch") class SCRX {
         @Test void count() {
             assertEquals(1, MODEL.excSCRXList().size()); }
 
@@ -754,9 +773,10 @@ class ExciterLoaderTest {
             ExcSCRX e = one(MODEL.excSCRXList(), "ExcSCRX");
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(200.0, e.k(), T);
+            assertEquals(0.05, e.te(), T);
             assertEquals(5.0, e.emax(), T);
             assertEquals(-5.0, e.emin(), T);
-            assertTrue(e.rcmxFlag());
+            assertTrue(e.cswitch());
         }
     }
 
@@ -781,13 +801,14 @@ class ExciterLoaderTest {
             ExcSK e = one(MODEL.excSKList(), "ExcSK");
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(1.0, e.k(), T);
+            assertEquals(9.0, e.efdmax(), T);
+            assertTrue(e.qconoff());
+            assertFalse(e.remote());
             assertEquals(100.0, e.sbase(), T);
-            assertEquals(5.0, e.uimax(), T);
-            assertEquals(-5.0, e.uimin(), T);
         }
     }
 
-    @Nested @DisplayName("ExcST1A – pssin and ilr booleans") class VendorST1A {
+    @Nested @DisplayName("ExcST1A") class VendorST1A {
         @Test void count() {
             assertEquals(1, MODEL.excST1AList().size()); }
 
@@ -796,8 +817,8 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(190.0, e.ka(), T);
             assertEquals(4.54, e.klr(), T);
-            assertFalse(e.pssin());
-            assertTrue(e.ilr());
+            assertEquals(4.4, e.ilr(), T);
+            assertEquals(0.0, e.xe(), T);
         }
     }
 
@@ -810,19 +831,22 @@ class ExciterLoaderTest {
             hasSmId(e.synchronousMachineId(), "sm-exc");
             assertEquals(120.0, e.ka(), T);
             assertEquals(99.0, e.efdmax(), T);
+            assertEquals(4.88, e.kp(), T);
+            assertFalse(e.uelin());
         }
     }
 
-    @Nested @DisplayName("ExcST3") class VendorST3 {
+    @Nested @DisplayName("ExcST3A") class VendorST3A {
         @Test void count() {
-            assertEquals(1, MODEL.excST3List().size()); }
+            assertEquals(1, MODEL.excST3AList().size()); }
 
         @Test void fields() {
-            ExcST3 e = one(MODEL.excST3List(), "ExcST3");
+            ExcST3A e = one(MODEL.excST3AList(), "ExcST3A");
             hasSmId(e.synchronousMachineId(), "sm-exc");
+            assertEquals(6.9, e.efdmax(), T);
             assertEquals(7.93, e.km(), T);
-            assertEquals(8.63, e.vbmax(), T);
-            // ExcST3 (vendor) does NOT have vgmax – verify it compiles without it
+            assertEquals(6.53, e.vgmax(), T);
+            assertEquals(0.081, e.xl(), T);
         }
     }
 
@@ -918,7 +942,7 @@ class ExciterLoaderTest {
                 MODEL.excSCRXList().size() + MODEL.excSEXSList().size() +
                 MODEL.excSKList().size() +
                 MODEL.excST1AList().size() + MODEL.excST2AList().size() +
-                MODEL.excST3List().size() + MODEL.excST4BList().size() +
+                MODEL.excST3AList().size() + MODEL.excST4BList().size() +
                 MODEL.excST6BList().size() + MODEL.excST7BList().size() +
                 MODEL.excSYMPTRList().size();
             assertEquals(55, total, "Expected exactly 55 exciter instances");

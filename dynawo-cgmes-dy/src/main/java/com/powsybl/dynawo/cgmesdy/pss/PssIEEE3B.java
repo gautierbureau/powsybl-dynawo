@@ -12,7 +12,8 @@ package com.powsybl.dynawo.cgmesdy.pss;
 public record PssIEEE3B(
     String id, String excitationSystemId,
     String inputSignal1Type, String inputSignal2Type,
-    double ks1, double ks2, double t1, double t2, double t3,
+    double ks1, double ks2, double t1, double t2,
+    double tw1, double tw2, double tw3,
     double a1, double a2, double a3, double a4, double a5, double a6, double a7, double a8,
-    double vsmax, double vsmin
+    double vstmax, double vstmin
 ) { }

@@ -27,4 +27,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssWECC.t10 ?t10 . }
   OPTIONAL { ?id cim:PssWECC.vsmax ?vsmax . }
   OPTIONAL { ?id cim:PssWECC.vsmin ?vsmin . }
+  OPTIONAL { ?id cim:PssWECC.vcl ?vcl . }
+  OPTIONAL { ?id cim:PssWECC.vcu ?vcu . }
 }

@@ -14,5 +14,5 @@ public record PssWECC(
     String inputSignal1Type, String inputSignal2Type,
     double k1, double k2, double t1, double t2, double t3, double t4,
     double t5, double t6, double t7, double t8, double t9, double t10,
-    double vsmax, double vsmin
+    double vsmax, double vsmin, double vcl, double vcu
 ) { }

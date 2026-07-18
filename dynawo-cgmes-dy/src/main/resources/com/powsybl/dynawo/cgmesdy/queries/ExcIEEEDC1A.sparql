@@ -11,7 +11,6 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcIEEEDC1A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcIEEEDC1A.tr ?tr . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.ka ?ka . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.ta ?ta . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.tb ?tb . }
@@ -22,9 +21,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcIEEEDC1A.te ?te . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.kf ?kf . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.tf ?tf . }
-  OPTIONAL { ?id cim:ExcIEEEDC1A.kc ?kc . }
-  OPTIONAL { ?id cim:ExcIEEEDC1A.kd ?kd . }
-  OPTIONAL { ?id cim:ExcIEEEDC1A.ki ?ki . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.efd1 ?efd1 . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.seefd1 ?seefd1 . }
   OPTIONAL { ?id cim:ExcIEEEDC1A.efd2 ?efd2 . }

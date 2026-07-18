@@ -11,28 +11,40 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcREXS .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcREXS.tr ?tr . }
+  OPTIONAL { ?id cim:ExcREXS.e1 ?e1 . }
+  OPTIONAL { ?id cim:ExcREXS.e2 ?e2 . }
+  OPTIONAL { ?id cim:ExcREXS.fbf ?fbf . }
+  OPTIONAL { ?id cim:ExcREXS.flimf ?flimf . }
+  OPTIONAL { ?id cim:ExcREXS.kc ?kc . }
+  OPTIONAL { ?id cim:ExcREXS.kd ?kd . }
+  OPTIONAL { ?id cim:ExcREXS.ke ?ke . }
+  OPTIONAL { ?id cim:ExcREXS.kefd ?kefd . }
+  OPTIONAL { ?id cim:ExcREXS.kf ?kf . }
+  OPTIONAL { ?id cim:ExcREXS.kh ?kh . }
+  OPTIONAL { ?id cim:ExcREXS.kii ?kii . }
+  OPTIONAL { ?id cim:ExcREXS.kip ?kip . }
+  OPTIONAL { ?id cim:ExcREXS.ks ?ks . }
+  OPTIONAL { ?id cim:ExcREXS.kvi ?kvi . }
+  OPTIONAL { ?id cim:ExcREXS.kvp ?kvp . }
+  OPTIONAL { ?id cim:ExcREXS.kvphz ?kvphz . }
+  OPTIONAL { ?id cim:ExcREXS.nvphz ?nvphz . }
+  OPTIONAL { ?id cim:ExcREXS.se1 ?se1 . }
+  OPTIONAL { ?id cim:ExcREXS.se2 ?se2 . }
   OPTIONAL { ?id cim:ExcREXS.ta ?ta . }
   OPTIONAL { ?id cim:ExcREXS.tb1 ?tb1 . }
   OPTIONAL { ?id cim:ExcREXS.tb2 ?tb2 . }
   OPTIONAL { ?id cim:ExcREXS.tc1 ?tc1 . }
   OPTIONAL { ?id cim:ExcREXS.tc2 ?tc2 . }
-  OPTIONAL { ?id cim:ExcREXS.ka ?ka . }
-  OPTIONAL { ?id cim:ExcREXS.vamax ?vamax . }
-  OPTIONAL { ?id cim:ExcREXS.vamin ?vamin . }
+  OPTIONAL { ?id cim:ExcREXS.te ?te . }
+  OPTIONAL { ?id cim:ExcREXS.tf ?tf . }
+  OPTIONAL { ?id cim:ExcREXS.tf1 ?tf1 . }
+  OPTIONAL { ?id cim:ExcREXS.tf2 ?tf2 . }
+  OPTIONAL { ?id cim:ExcREXS.tp ?tp . }
+  OPTIONAL { ?id cim:ExcREXS.vcmax ?vcmax . }
+  OPTIONAL { ?id cim:ExcREXS.vfmax ?vfmax . }
+  OPTIONAL { ?id cim:ExcREXS.vfmin ?vfmin . }
+  OPTIONAL { ?id cim:ExcREXS.vimax ?vimax . }
   OPTIONAL { ?id cim:ExcREXS.vrmax ?vrmax . }
   OPTIONAL { ?id cim:ExcREXS.vrmin ?vrmin . }
-  OPTIONAL { ?id cim:ExcREXS.te ?te . }
-  OPTIONAL { ?id cim:ExcREXS.ke ?ke . }
-  OPTIONAL { ?id cim:ExcREXS.kf ?kf . }
-  OPTIONAL { ?id cim:ExcREXS.tf ?tf . }
-  OPTIONAL { ?id cim:ExcREXS.kc ?kc . }
-  OPTIONAL { ?id cim:ExcREXS.kd ?kd . }
-  OPTIONAL { ?id cim:ExcREXS.ki ?ki . }
-  OPTIONAL { ?id cim:ExcREXS.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcREXS.se1 ?se1 . }
-  OPTIONAL { ?id cim:ExcREXS.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcREXS.se2 ?se2 . }
-  OPTIONAL { ?id cim:ExcREXS.feedbackSignal ?feedbackSignal . }
-  OPTIONAL { ?id cim:ExcREXS.exclfb ?exclfb . }
+  OPTIONAL { ?id cim:ExcREXS.xc ?xc . }
 }

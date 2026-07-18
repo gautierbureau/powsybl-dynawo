@@ -11,10 +11,9 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcST6B .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcST6B.tr ?tr . }
-  OPTIONAL { ?id cim:ExcST6B.vimax ?vimax . }
-  OPTIONAL { ?id cim:ExcST6B.vimin ?vimin . }
-  OPTIONAL { ?id cim:ExcST6B.kci ?kci . }
+  OPTIONAL { ?id cim:ExcST6B.ilr ?ilr . }
+  OPTIONAL { ?id cim:ExcST6B.k1 ?k1 . }
+  OPTIONAL { ?id cim:ExcST6B.kcl ?kcl . }
   OPTIONAL { ?id cim:ExcST6B.kff ?kff . }
   OPTIONAL { ?id cim:ExcST6B.kg ?kg . }
   OPTIONAL { ?id cim:ExcST6B.kia ?kia . }
@@ -22,12 +21,17 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcST6B.km ?km . }
   OPTIONAL { ?id cim:ExcST6B.kpa ?kpa . }
   OPTIONAL { ?id cim:ExcST6B.kvd ?kvd . }
-  OPTIONAL { ?id cim:ExcST6B.ilr ?ilr . }
+  OPTIONAL { ?id cim:ExcST6B.oelin ?oelin . }
   OPTIONAL { ?id cim:ExcST6B.tg ?tg . }
   OPTIONAL { ?id cim:ExcST6B.ts ?ts . }
   OPTIONAL { ?id cim:ExcST6B.tvd ?tvd . }
   OPTIONAL { ?id cim:ExcST6B.vamax ?vamax . }
   OPTIONAL { ?id cim:ExcST6B.vamin ?vamin . }
+  OPTIONAL { ?id cim:ExcST6B.vilim ?vilim . }
+  OPTIONAL { ?id cim:ExcST6B.vimax ?vimax . }
+  OPTIONAL { ?id cim:ExcST6B.vimin ?vimin . }
+  OPTIONAL { ?id cim:ExcST6B.vmult ?vmult . }
   OPTIONAL { ?id cim:ExcST6B.vrmax ?vrmax . }
   OPTIONAL { ?id cim:ExcST6B.vrmin ?vrmin . }
+  OPTIONAL { ?id cim:ExcST6B.xc ?xc . }
 }

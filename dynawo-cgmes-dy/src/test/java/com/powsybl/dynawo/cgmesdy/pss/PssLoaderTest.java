@@ -57,16 +57,19 @@ class PssLoaderTest {
             Pss1 p = one(MODEL.pss1List(), "Pss1");
             assertTrue(p.id().contains("pss1"));
             assertFalse(p.excitationSystemId().isBlank());
-            assertEquals(1.0, p.kx(), T);
-            assertEquals(0.3, p.t1(), T);
-            assertEquals(0.06, p.t2(), T);
-            assertEquals(1.0, p.t5(), T);
-            assertEquals(0.05, p.vsmax(), T);
-            assertEquals(-0.05, p.vsmin(), T);
+            assertEquals(5.0, p.kf(), T);
+            assertEquals(0.3, p.kpe(), T);
+            assertEquals(1.0, p.ks(), T);
+            assertEquals(0.25, p.pmin(), T);
+            assertEquals(3.5, p.t5(), T);
+            assertEquals(0.05, p.tpe(), T);
+            assertTrue(p.vadat());
+            assertEquals(0.06, p.vsmx(), T);
+            assertEquals(-0.06, p.vsmn(), T);
         }
 
         @Test void vsConstraint() {
-            Pss1 p = MODEL.pss1List().get(0); assertTrue(p.vsmax() >= p.vsmin()); }
+            Pss1 p = MODEL.pss1List().get(0); assertTrue(p.vsmx() >= p.vsmn()); }
     }
 
     @Nested @DisplayName("Pss1A – String inputSignalType") class P1A {
@@ -96,9 +99,9 @@ class PssLoaderTest {
             assertEquals(10.0, p.tw1(), T);
             assertEquals(0.12, p.t1(), T);
             assertEquals(2.0, p.t7(), T);
-            assertEquals(0.1, p.vsmax(), T);
-            assertEquals(1.0, p.n(), T);
-            assertEquals(5.0, p.m(), T);
+            assertEquals(0.1, p.vstmax(), T);
+            assertEquals(1, p.n());
+            assertEquals(5, p.m());
         }
     }
 
@@ -112,6 +115,8 @@ class PssLoaderTest {
             assertEquals(1.0, p.k1(), T);
             assertEquals(0.12, p.t1(), T);
             assertEquals(0.1, p.lsmax(), T);
+            assertEquals(0.05, p.vcl(), T);
+            assertEquals(1.2, p.vcu(), T);
         }
     }
 
@@ -123,7 +128,7 @@ class PssLoaderTest {
             Pss5 p = one(MODEL.pss5List(), "Pss5");
             assertEquals(10.0, p.kf(), T);
             assertEquals(5.0, p.kpe(), T);
-            assertEquals(0.05, p.pmin(), T);
+            assertEquals(0.05, p.pmm(), T);
             assertEquals(0.1, p.vsmx(), T);
         }
     }
@@ -147,10 +152,12 @@ class PssLoaderTest {
 
         @Test void fields() {
             PssIEEE1A p = one(MODEL.pssIEEE1AList(), "PssIEEE1A");
+            assertEquals(0.061, p.a1(), T);
+            assertEquals(0.0017, p.a2(), T);
             assertEquals(20.0, p.ks(), T);
             assertEquals(0.05, p.t1(), T);
             assertEquals(10.0, p.t5(), T);
-            assertEquals(0.2, p.vsmax(), T);
+            assertEquals(0.2, p.vrmax(), T);
         }
     }
 
@@ -178,7 +185,8 @@ class PssLoaderTest {
             assertFalse(p.inputSignal1Type().isBlank());
             assertEquals(2.0, p.ks1(), T);
             assertEquals(0.5, p.t1(), T);
-            assertEquals(0.1, p.vsmax(), T);
+            assertEquals(2.0, p.tw1(), T);
+            assertEquals(0.1, p.vstmax(), T);
         }
     }
 
@@ -220,7 +228,7 @@ class PssLoaderTest {
             assertEquals(9.0, p.k(), T);
             assertEquals(5.0, p.m(), T);
             assertEquals(0.06, p.dtc(), T);
-            assertEquals(0.1, p.vsmx(), T);
+            assertEquals(0.2, p.tf(), T);
         }
     }
 
@@ -236,10 +244,13 @@ class PssLoaderTest {
             PssPTIST3 p = one(MODEL.pssPTIST3List(), "PssPTIST3");
             assertEquals(9.0, p.k(), T);
             assertEquals(5.0, p.m(), T);
-            assertEquals(1.0, p.isfreq(), T);
+            assertTrue(p.isw());
             assertEquals(4.0, p.nav(), T);
             assertEquals(2.0, p.ncl(), T);
+            assertEquals(3.0, p.ncr(), T);
             assertEquals(0.05, p.pmin(), T);
+            assertEquals(0.3, p.t5(), T);
+            assertEquals(0.2, p.tf(), T);
         }
     }
 
@@ -262,6 +273,9 @@ class PssLoaderTest {
         @Test void fields() {
             PssSB4 p = one(MODEL.pssSB4List(), "PssSB4");
             assertEquals(1.0, p.kx(), T);
+            assertEquals(0.2, p.ta(), T);
+            assertEquals(0.3, p.tc(), T);
+            assertEquals(0.05, p.te(), T);
             assertEquals(0.5, p.tx1(), T);
             assertEquals(0.1, p.tx2(), T);
             assertEquals(0.1, p.vsmax(), T);
@@ -293,6 +307,8 @@ class PssLoaderTest {
             assertEquals(0.1, p.k2(), T);
             assertEquals(0.5, p.t1(), T);
             assertEquals(0.1, p.vsmax(), T);
+            assertEquals(0.05, p.vcl(), T);
+            assertEquals(1.2, p.vcu(), T);
         }
     }
 
@@ -323,8 +339,8 @@ class PssLoaderTest {
         }
 
         @Test void vsMaxGteVsMin() {
-            MODEL.pss1List().forEach(p -> assertTrue(p.vsmax() >= p.vsmin()));
-            MODEL.pss2BList().forEach(p -> assertTrue(p.vsmax() >= p.vsmin()));
+            MODEL.pss1List().forEach(p -> assertTrue(p.vsmx() >= p.vsmn()));
+            MODEL.pss2BList().forEach(p -> assertTrue(p.vstmax() >= p.vstmin()));
             MODEL.pssIEEE2BList().forEach(p -> assertTrue(p.vstmax() >= p.vstmin()));
             MODEL.pssSB4List().forEach(p -> assertTrue(p.vsmax() >= p.vsmin()));
             MODEL.pssSHList().forEach(p -> assertTrue(p.vsmax() >= p.vsmin()));

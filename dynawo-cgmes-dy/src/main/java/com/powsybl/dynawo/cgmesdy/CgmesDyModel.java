@@ -148,7 +148,7 @@ public final class CgmesDyModel {
     private final List<ExcSK> excSKList = new ArrayList<>();
     private final List<ExcST1A> excST1AList = new ArrayList<>();
     private final List<ExcST2A> excST2AList = new ArrayList<>();
-    private final List<ExcST3> excST3List = new ArrayList<>();
+    private final List<ExcST3A> excST3AList = new ArrayList<>();
     private final List<ExcST4B> excST4BList = new ArrayList<>();
     private final List<ExcST6B> excST6BList = new ArrayList<>();
     private final List<ExcST7B> excST7BList = new ArrayList<>();
@@ -523,8 +523,8 @@ public final class CgmesDyModel {
     public List<ExcST2A> excST2AList() {
         return Collections.unmodifiableList(excST2AList); }
 
-    public List<ExcST3> excST3List() {
-        return Collections.unmodifiableList(excST3List); }
+    public List<ExcST3A> excST3AList() {
+        return Collections.unmodifiableList(excST3AList); }
 
     public List<ExcST4B> excST4BList() {
         return Collections.unmodifiableList(excST4BList); }
@@ -1003,8 +1003,8 @@ public final class CgmesDyModel {
     public void add(ExcST2A m) {
         excST2AList.add(m); }
 
-    public void add(ExcST3 m) {
-        excST3List.add(m); }
+    public void add(ExcST3A m) {
+        excST3AList.add(m); }
 
     public void add(ExcST4B m) {
         excST4BList.add(m); }

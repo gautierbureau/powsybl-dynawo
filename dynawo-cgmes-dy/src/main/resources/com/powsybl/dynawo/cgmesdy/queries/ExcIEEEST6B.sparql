@@ -11,9 +11,7 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcIEEEST6B .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.tr ?tr . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.vimax ?vimax . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.vimin ?vimin . }
+  # CIM ST6B has no input filter Tr, no Vi limits, and no Kvd/Ts/Tvd voltage-detector block.
   OPTIONAL { ?id cim:ExcIEEEST6B.kci ?kci . }
   OPTIONAL { ?id cim:ExcIEEEST6B.kff ?kff . }
   OPTIONAL { ?id cim:ExcIEEEST6B.kg ?kg . }
@@ -21,11 +19,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcIEEEST6B.klr ?klr . }
   OPTIONAL { ?id cim:ExcIEEEST6B.km ?km . }
   OPTIONAL { ?id cim:ExcIEEEST6B.kpa ?kpa . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.kvd ?kvd . }
   OPTIONAL { ?id cim:ExcIEEEST6B.ilr ?ilr . }
   OPTIONAL { ?id cim:ExcIEEEST6B.tg ?tg . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.ts ?ts . }
-  OPTIONAL { ?id cim:ExcIEEEST6B.tvd ?tvd . }
   OPTIONAL { ?id cim:ExcIEEEST6B.vamax ?vamax . }
   OPTIONAL { ?id cim:ExcIEEEST6B.vamin ?vamin . }
   OPTIONAL { ?id cim:ExcIEEEST6B.vrmax ?vrmax . }

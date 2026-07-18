@@ -15,11 +15,10 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroPID.r ?r . }
   OPTIONAL { ?id cim:GovHydroPID.td ?td . }
   OPTIONAL { ?id cim:GovHydroPID.tf ?tf . }
-  OPTIONAL { ?id cim:GovHydroPID.tg ?tg . }
   OPTIONAL { ?id cim:GovHydroPID.tp ?tp . }
   OPTIONAL { ?id cim:GovHydroPID.tt ?tt . }
-  OPTIONAL { ?id cim:GovHydroPID.tr ?tr . }
-  OPTIONAL { ?id cim:GovHydroPID.velm ?velm . }
+  OPTIONAL { ?id cim:GovHydroPID.velcl ?velcl . }
+  OPTIONAL { ?id cim:GovHydroPID.velop ?velop . }
   OPTIONAL { ?id cim:GovHydroPID.pmax ?pmax . }
   OPTIONAL { ?id cim:GovHydroPID.pmin ?pmin . }
   OPTIONAL { ?id cim:GovHydroPID.aturb ?aturb . }
@@ -31,6 +30,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroPID.kp ?kp . }
   OPTIONAL { ?id cim:GovHydroPID.ki ?ki . }
   OPTIONAL { ?id cim:GovHydroPID.kd ?kd . }
+  OPTIONAL { ?id cim:GovHydroPID.kg ?kg . }
+  OPTIONAL { ?id cim:GovHydroPID.inputSignal ?inputSignal . }
   OPTIONAL { ?id cim:GovHydroPID.gv1 ?gv1 . }
   OPTIONAL { ?id cim:GovHydroPID.pgv1 ?pgv1 . }
   OPTIONAL { ?id cim:GovHydroPID.gv2 ?gv2 . }
@@ -41,4 +42,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroPID.pgv4 ?pgv4 . }
   OPTIONAL { ?id cim:GovHydroPID.gv5 ?gv5 . }
   OPTIONAL { ?id cim:GovHydroPID.pgv5 ?pgv5 . }
+  OPTIONAL { ?id cim:GovHydroPID.gv6 ?gv6 . }
+  OPTIONAL { ?id cim:GovHydroPID.pgv6 ?pgv6 . }
 }

@@ -16,6 +16,7 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroIEEE0.t1 ?t1 . }
   OPTIONAL { ?id cim:GovHydroIEEE0.t2 ?t2 . }
   OPTIONAL { ?id cim:GovHydroIEEE0.t3 ?t3 . }
+  OPTIONAL { ?id cim:GovHydroIEEE0.t4 ?t4 . }
   OPTIONAL { ?id cim:GovHydroIEEE0.pmax ?pmax . }
   OPTIONAL { ?id cim:GovHydroIEEE0.pmin ?pmin . }
 }

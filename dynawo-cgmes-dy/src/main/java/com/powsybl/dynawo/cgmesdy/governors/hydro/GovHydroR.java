@@ -6,14 +6,16 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.hydro;
-/** GovHydroR – Hydro governor with regulation. CIM: GovHydroR
+/** GovHydroR – Hydro turbine and governor (4th-order lead-lag). CIM: GovHydroR
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovHydroR(
     String id, String synchronousMachineId,
-    double mwbase, double r, double td, double tf, double tg, double tp, double tt, double tr,
-    double velm, double pmax, double pmin, double aturb, double bturb, double tturb,
-    double db1, double eps, double db2, double gv1, double pgv1,
-    double gv2, double pgv2, double gv3, double pgv3, double gv4, double pgv4,
-    double gv5, double pgv5
+    double at, double db1, double db2, double dturb, double eps,
+    double gmax, double gmin, double gv1, double gv2, double gv3, double gv4, double gv5, double gv6,
+    double h0, boolean inputSignal, double kg, double ki, double mwbase,
+    double pgv1, double pgv2, double pgv3, double pgv4, double pgv5, double pgv6,
+    double pmax, double pmin, double qnl, double r,
+    double t1, double t2, double t3, double t4, double t5, double t6, double t7, double t8,
+    double td, double tp, double tt, double tw, double velcl, double velop
 ) { }

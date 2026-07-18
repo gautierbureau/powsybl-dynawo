@@ -17,7 +17,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:WindContPType4aIEC.dpmax ?dpmax . }
-  OPTIONAL { ?id cim:WindContPType4aIEC.dpmin ?dpmin . }
   OPTIONAL { ?id cim:WindContPType4aIEC.tpord ?tpord . }
   OPTIONAL { ?id cim:WindContPType4aIEC.tufilt ?tufilt . }
 }

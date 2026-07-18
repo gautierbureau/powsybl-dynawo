@@ -6,13 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.gas;
-/** GovGAST2 – Gas turbine with compressor dynamics. CIM: GovGAST2
+/** GovGAST2 – Gas turbine (Rowen GAST2A) with temperature control. CIM: GovGAST2
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovGAST2(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double t2, double t3,
-    double at, double kt, double vmax, double vmin, double dturb,
-    double w, double x, double y, double z, double cd,
-    double tf, double etd, double tcd, double trate
+    double a, double af1, double af2, double b, double bf1, double bf2,
+    double c, double cf2, double ecr, double etd,
+    double k3, double k4, double k5, double k6, double kf, double mwbase,
+    double t, double t3, double t4, double t5, double tc, double tcd, double tf,
+    double tmax, double tmin, double tr, double trate, double tt,
+    double w, double x, double y, boolean z
 ) { }

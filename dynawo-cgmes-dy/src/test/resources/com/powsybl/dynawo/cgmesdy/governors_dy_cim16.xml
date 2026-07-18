@@ -94,6 +94,8 @@
     <cim:GovSteam1.db1>0.0</cim:GovSteam1.db1>
     <cim:GovSteam1.eps>0.0</cim:GovSteam1.eps>
     <cim:GovSteam1.db2>0.0</cim:GovSteam1.db2>
+    <cim:GovSteam1.sdb1>true</cim:GovSteam1.sdb1>
+    <cim:GovSteam1.sdb2>false</cim:GovSteam1.sdb2>
     <cim:GovSteam1.gv1>0.0</cim:GovSteam1.gv1>
     <cim:GovSteam1.pgv1>0.0</cim:GovSteam1.pgv1>
     <cim:GovSteam1.gv2>0.4</cim:GovSteam1.gv2>
@@ -106,108 +108,117 @@
     <cim:GovSteam1.pgv5>0.0</cim:GovSteam1.pgv5>
     <cim:GovSteam1.gv6>0.0</cim:GovSteam1.gv6>
     <cim:GovSteam1.pgv6>0.0</cim:GovSteam1.pgv6>
+    <cim:GovSteam1.valve>false</cim:GovSteam1.valve>
   </cim:GovSteam1>
 
   <!-- 3. GovSteam2 -->
   <cim:GovSteam2 rdf:ID="_gov-steam2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-3"/>
-    <cim:GovSteam2.mwbase>500.0</cim:GovSteam2.mwbase>
     <cim:GovSteam2.dbf>0.0</cim:GovSteam2.dbf>
     <cim:GovSteam2.k>20.0</cim:GovSteam2.k>
-    <cim:GovSteam2.r>0.05</cim:GovSteam2.r>
-    <cim:GovSteam2.t1>0.3</cim:GovSteam2.t1>
-    <cim:GovSteam2.t2>0.15</cim:GovSteam2.t2>
+    <cim:GovSteam2.mnef>-1.0</cim:GovSteam2.mnef>
+    <cim:GovSteam2.mxef>1.0</cim:GovSteam2.mxef>
     <cim:GovSteam2.pmax>1.0</cim:GovSteam2.pmax>
     <cim:GovSteam2.pmin>0.0</cim:GovSteam2.pmin>
-    <cim:GovSteam2.uo>0.17</cim:GovSteam2.uo>
-    <cim:GovSteam2.uc>-0.5</cim:GovSteam2.uc>
+    <cim:GovSteam2.t1>0.3</cim:GovSteam2.t1>
+    <cim:GovSteam2.t2>0.15</cim:GovSteam2.t2>
   </cim:GovSteam2>
 
   <!-- 4. GovSteamCC -->
   <cim:GovSteamCC rdf:ID="_gov-steamcc">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-4"/>
     <cim:GovSteamCC.mwbase>400.0</cim:GovSteamCC.mwbase>
-    <cim:GovSteamCC.r>0.05</cim:GovSteamCC.r>
-    <cim:GovSteamCC.t1>0.5</cim:GovSteamCC.t1>
-    <cim:GovSteamCC.t2>0.5</cim:GovSteamCC.t2>
-    <cim:GovSteamCC.t3>3.0</cim:GovSteamCC.t3>
-    <cim:GovSteamCC.t4>0.5</cim:GovSteamCC.t4>
-    <cim:GovSteamCC.pmax>1.0</cim:GovSteamCC.pmax>
-    <cim:GovSteamCC.pmin>0.0</cim:GovSteamCC.pmin>
-    <cim:GovSteamCC.uc>-0.1</cim:GovSteamCC.uc>
-    <cim:GovSteamCC.uo>0.1</cim:GovSteamCC.uo>
-    <cim:GovSteamCC.dhp>0.29</cim:GovSteamCC.dhp>
-    <cim:GovSteamCC.dlp>0.71</cim:GovSteamCC.dlp>
+    <cim:GovSteamCC.rhp>0.05</cim:GovSteamCC.rhp>
+    <cim:GovSteamCC.t1hp>0.5</cim:GovSteamCC.t1hp>
+    <cim:GovSteamCC.t3hp>3.0</cim:GovSteamCC.t3hp>
+    <cim:GovSteamCC.t4hp>0.5</cim:GovSteamCC.t4hp>
+    <cim:GovSteamCC.t5hp>8.0</cim:GovSteamCC.t5hp>
     <cim:GovSteamCC.fhp>0.3</cim:GovSteamCC.fhp>
+    <cim:GovSteamCC.dhp>0.29</cim:GovSteamCC.dhp>
+    <cim:GovSteamCC.pmaxhp>1.0</cim:GovSteamCC.pmaxhp>
+    <cim:GovSteamCC.rlp>0.05</cim:GovSteamCC.rlp>
+    <cim:GovSteamCC.t1lp>0.5</cim:GovSteamCC.t1lp>
+    <cim:GovSteamCC.t3lp>3.0</cim:GovSteamCC.t3lp>
+    <cim:GovSteamCC.t4lp>0.5</cim:GovSteamCC.t4lp>
+    <cim:GovSteamCC.t5lp>10.0</cim:GovSteamCC.t5lp>
     <cim:GovSteamCC.flp>0.7</cim:GovSteamCC.flp>
-    <cim:GovSteamCC.fip>0.0</cim:GovSteamCC.fip>
-    <cim:GovSteamCC.tip>0.0</cim:GovSteamCC.tip>
-    <cim:GovSteamCC.tlp>0.5</cim:GovSteamCC.tlp>
+    <cim:GovSteamCC.dlp>0.71</cim:GovSteamCC.dlp>
+    <cim:GovSteamCC.pmaxlp>1.0</cim:GovSteamCC.pmaxlp>
   </cim:GovSteamCC>
 
   <!-- 5. GovSteamEU -->
   <cim:GovSteamEU rdf:ID="_gov-steameu">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-5"/>
-    <cim:GovSteamEU.mwbase>660.0</cim:GovSteamEU.mwbase>
-    <cim:GovSteamEU.r>0.05</cim:GovSteamEU.r>
+    <cim:GovSteamEU.chc>-0.1</cim:GovSteamEU.chc>
+    <cim:GovSteamEU.cho>0.17</cim:GovSteamEU.cho>
+    <cim:GovSteamEU.cic>-0.2</cim:GovSteamEU.cic>
+    <cim:GovSteamEU.cio>0.18</cim:GovSteamEU.cio>
+    <cim:GovSteamEU.db1>0.011</cim:GovSteamEU.db1>
+    <cim:GovSteamEU.db2>0.022</cim:GovSteamEU.db2>
+    <cim:GovSteamEU.hhpmax>1.0</cim:GovSteamEU.hhpmax>
     <cim:GovSteamEU.ke>0.1</cim:GovSteamEU.ke>
     <cim:GovSteamEU.kfcor>20.0</cim:GovSteamEU.kfcor>
-    <cim:GovSteamEU.komegacor>20.0</cim:GovSteamEU.komegacor>
-    <cim:GovSteamEU.t1>0.01</cim:GovSteamEU.t1>
-    <cim:GovSteamEU.t2>0.45</cim:GovSteamEU.t2>
-    <cim:GovSteamEU.t3>8.0</cim:GovSteamEU.t3>
-    <cim:GovSteamEU.t4>0.15</cim:GovSteamEU.t4>
-    <cim:GovSteamEU.t5>0.15</cim:GovSteamEU.t5>
-    <cim:GovSteamEU.t6>1.5</cim:GovSteamEU.t6>
+    <cim:GovSteamEU.khp>0.35</cim:GovSteamEU.khp>
+    <cim:GovSteamEU.klp>0.65</cim:GovSteamEU.klp>
+    <cim:GovSteamEU.komegacor>15.0</cim:GovSteamEU.komegacor>
+    <cim:GovSteamEU.mwbase>660.0</cim:GovSteamEU.mwbase>
     <cim:GovSteamEU.pmax>1.0</cim:GovSteamEU.pmax>
-    <cim:GovSteamEU.pmin>0.0</cim:GovSteamEU.pmin>
-    <cim:GovSteamEU.te>0.5</cim:GovSteamEU.te>
+    <cim:GovSteamEU.prhmax>1.1</cim:GovSteamEU.prhmax>
+    <cim:GovSteamEU.simx>0.5</cim:GovSteamEU.simx>
+    <cim:GovSteamEU.tb>0.15</cim:GovSteamEU.tb>
+    <cim:GovSteamEU.tdp>0.2</cim:GovSteamEU.tdp>
+    <cim:GovSteamEU.ten>0.3</cim:GovSteamEU.ten>
+    <cim:GovSteamEU.tf>0.05</cim:GovSteamEU.tf>
     <cim:GovSteamEU.tfp>0.07</cim:GovSteamEU.tfp>
-    <cim:GovSteamEU.tvhp>0.1</cim:GovSteamEU.tvhp>
-    <cim:GovSteamEU.tvip>0.15</cim:GovSteamEU.tvip>
-    <cim:GovSteamEU.chc>0.1</cim:GovSteamEU.chc>
-    <cim:GovSteamEU.cho>0.17</cim:GovSteamEU.cho>
-    <cim:GovSteamEU.db1>0.0</cim:GovSteamEU.db1>
-    <cim:GovSteamEU.eps>0.0</cim:GovSteamEU.eps>
-    <cim:GovSteamEU.db2>0.0</cim:GovSteamEU.db2>
-    <cim:GovSteamEU.simX>0.0</cim:GovSteamEU.simX>
+    <cim:GovSteamEU.thp>0.1</cim:GovSteamEU.thp>
+    <cim:GovSteamEU.tip>0.12</cim:GovSteamEU.tip>
+    <cim:GovSteamEU.tlp>0.9</cim:GovSteamEU.tlp>
+    <cim:GovSteamEU.tp>0.08</cim:GovSteamEU.tp>
+    <cim:GovSteamEU.trh>8.0</cim:GovSteamEU.trh>
+    <cim:GovSteamEU.tvhp>0.11</cim:GovSteamEU.tvhp>
+    <cim:GovSteamEU.tvip>0.13</cim:GovSteamEU.tvip>
+    <cim:GovSteamEU.tw>1.0</cim:GovSteamEU.tw>
+    <cim:GovSteamEU.wfmax>1.2</cim:GovSteamEU.wfmax>
+    <cim:GovSteamEU.wfmin>-0.2</cim:GovSteamEU.wfmin>
+    <cim:GovSteamEU.wmax1>1.05</cim:GovSteamEU.wmax1>
+    <cim:GovSteamEU.wmax2>1.06</cim:GovSteamEU.wmax2>
+    <cim:GovSteamEU.wwmax>0.95</cim:GovSteamEU.wwmax>
+    <cim:GovSteamEU.wwmin>0.05</cim:GovSteamEU.wwmin>
   </cim:GovSteamEU>
 
   <!-- 6. GovSteamFV2 -->
   <cim:GovSteamFV2 rdf:ID="_gov-steamfv2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-6"/>
+    <cim:GovSteamFV2.dt>0.0</cim:GovSteamFV2.dt>
+    <cim:GovSteamFV2.k>0.7</cim:GovSteamFV2.k>
     <cim:GovSteamFV2.mwbase>350.0</cim:GovSteamFV2.mwbase>
     <cim:GovSteamFV2.r>0.05</cim:GovSteamFV2.r>
     <cim:GovSteamFV2.t1>0.5</cim:GovSteamFV2.t1>
-    <cim:GovSteamFV2.vamax>1.0</cim:GovSteamFV2.vamax>
-    <cim:GovSteamFV2.vamin>-1.0</cim:GovSteamFV2.vamin>
-    <cim:GovSteamFV2.k>20.0</cim:GovSteamFV2.k>
-    <cim:GovSteamFV2.t2>3.0</cim:GovSteamFV2.t2>
     <cim:GovSteamFV2.t3>10.0</cim:GovSteamFV2.t3>
-    <cim:GovSteamFV2.pmax>1.0</cim:GovSteamFV2.pmax>
-    <cim:GovSteamFV2.pmin>0.0</cim:GovSteamFV2.pmin>
-    <cim:GovSteamFV2.t4>0.3</cim:GovSteamFV2.t4>
-    <cim:GovSteamFV2.k1>0.2</cim:GovSteamFV2.k1>
-    <cim:GovSteamFV2.k2>0.0</cim:GovSteamFV2.k2>
-    <cim:GovSteamFV2.t5>10.0</cim:GovSteamFV2.t5>
-    <cim:GovSteamFV2.k3>0.3</cim:GovSteamFV2.k3>
-    <cim:GovSteamFV2.k4>0.0</cim:GovSteamFV2.k4>
-    <cim:GovSteamFV2.iFlag>1</cim:GovSteamFV2.iFlag>
+    <cim:GovSteamFV2.ta>0.2</cim:GovSteamFV2.ta>
+    <cim:GovSteamFV2.tb>0.5</cim:GovSteamFV2.tb>
+    <cim:GovSteamFV2.tc>1.0</cim:GovSteamFV2.tc>
+    <cim:GovSteamFV2.ti>0.05</cim:GovSteamFV2.ti>
+    <cim:GovSteamFV2.tt>2.0</cim:GovSteamFV2.tt>
+    <cim:GovSteamFV2.vmax>1.0</cim:GovSteamFV2.vmax>
+    <cim:GovSteamFV2.vmin>0.0</cim:GovSteamFV2.vmin>
   </cim:GovSteamFV2>
 
   <!-- 7. GovSteamFV3 -->
   <cim:GovSteamFV3 rdf:ID="_gov-steamfv3">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-7"/>
+    <cim:GovSteamFV3.k>20.0</cim:GovSteamFV3.k>
+    <cim:GovSteamFV3.k1>0.3</cim:GovSteamFV3.k1>
+    <cim:GovSteamFV3.k2>0.3</cim:GovSteamFV3.k2>
+    <cim:GovSteamFV3.k3>0.4</cim:GovSteamFV3.k3>
     <cim:GovSteamFV3.mwbase>800.0</cim:GovSteamFV3.mwbase>
-    <cim:GovSteamFV3.r>0.05</cim:GovSteamFV3.r>
+    <cim:GovSteamFV3.pmax>1.0</cim:GovSteamFV3.pmax>
+    <cim:GovSteamFV3.pmin>0.0</cim:GovSteamFV3.pmin>
+    <cim:GovSteamFV3.prmax>1.1</cim:GovSteamFV3.prmax>
     <cim:GovSteamFV3.t1>0.5</cim:GovSteamFV3.t1>
     <cim:GovSteamFV3.t2>3.0</cim:GovSteamFV3.t2>
     <cim:GovSteamFV3.t3>10.0</cim:GovSteamFV3.t3>
     <cim:GovSteamFV3.t4>0.3</cim:GovSteamFV3.t4>
-    <cim:GovSteamFV3.pmax>1.0</cim:GovSteamFV3.pmax>
-    <cim:GovSteamFV3.pmin>0.0</cim:GovSteamFV3.pmin>
-    <cim:GovSteamFV3.prmax>1.1</cim:GovSteamFV3.prmax>
-    <cim:GovSteamFV3.k>20.0</cim:GovSteamFV3.k>
     <cim:GovSteamFV3.t5>10.0</cim:GovSteamFV3.t5>
     <cim:GovSteamFV3.t6>0.5</cim:GovSteamFV3.t6>
     <cim:GovSteamFV3.ta>0.1</cim:GovSteamFV3.ta>
@@ -215,59 +226,70 @@
     <cim:GovSteamFV3.tc>0.1</cim:GovSteamFV3.tc>
     <cim:GovSteamFV3.uc>-1.0</cim:GovSteamFV3.uc>
     <cim:GovSteamFV3.uo>1.0</cim:GovSteamFV3.uo>
-    <cim:GovSteamFV3.gv1>0.0</cim:GovSteamFV3.gv1>  <cim:GovSteamFV3.pgv1>0.0</cim:GovSteamFV3.pgv1>
-    <cim:GovSteamFV3.gv2>0.4</cim:GovSteamFV3.gv2>  <cim:GovSteamFV3.pgv2>0.75</cim:GovSteamFV3.pgv2>
-    <cim:GovSteamFV3.gv3>0.0</cim:GovSteamFV3.gv3>  <cim:GovSteamFV3.pgv3>0.0</cim:GovSteamFV3.pgv3>
-    <cim:GovSteamFV3.gv4>0.0</cim:GovSteamFV3.gv4>  <cim:GovSteamFV3.pgv4>0.0</cim:GovSteamFV3.pgv4>
-    <cim:GovSteamFV3.gv5>0.0</cim:GovSteamFV3.gv5>  <cim:GovSteamFV3.pgv5>0.0</cim:GovSteamFV3.pgv5>
-    <cim:GovSteamFV3.gv6>0.0</cim:GovSteamFV3.gv6>  <cim:GovSteamFV3.pgv6>0.0</cim:GovSteamFV3.pgv6>
   </cim:GovSteamFV3>
 
   <!-- 8. GovSteamFV4 -->
   <cim:GovSteamFV4 rdf:ID="_gov-steamfv4">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-8"/>
-    <cim:GovSteamFV4.mwbase>660.0</cim:GovSteamFV4.mwbase>
-    <cim:GovSteamFV4.r>0.05</cim:GovSteamFV4.r>
-    <cim:GovSteamFV4.t1>0.5</cim:GovSteamFV4.t1>
-    <cim:GovSteamFV4.t2>3.0</cim:GovSteamFV4.t2>
-    <cim:GovSteamFV4.t3>10.0</cim:GovSteamFV4.t3>
-    <cim:GovSteamFV4.t4>0.3</cim:GovSteamFV4.t4>
-    <cim:GovSteamFV4.pmax>1.0</cim:GovSteamFV4.pmax>
-    <cim:GovSteamFV4.pmin>0.0</cim:GovSteamFV4.pmin>
-    <cim:GovSteamFV4.k>20.0</cim:GovSteamFV4.k>
-    <cim:GovSteamFV4.k1>0.4</cim:GovSteamFV4.k1>
-    <cim:GovSteamFV4.k2>0.0</cim:GovSteamFV4.k2>
-    <cim:GovSteamFV4.k3>0.35</cim:GovSteamFV4.k3>
-    <cim:GovSteamFV4.k4>0.0</cim:GovSteamFV4.k4>
-    <cim:GovSteamFV4.t5>10.0</cim:GovSteamFV4.t5>
-    <cim:GovSteamFV4.t6>0.5</cim:GovSteamFV4.t6>
-    <cim:GovSteamFV4.t7>0.0</cim:GovSteamFV4.t7>
-    <cim:GovSteamFV4.ta>0.1</cim:GovSteamFV4.ta>
-    <cim:GovSteamFV4.tc>0.1</cim:GovSteamFV4.tc>
-    <cim:GovSteamFV4.ty>0.1</cim:GovSteamFV4.ty>
-    <cim:GovSteamFV4.tt>0.01</cim:GovSteamFV4.tt>
-    <cim:GovSteamFV4.kf1>0.0</cim:GovSteamFV4.kf1>
-    <cim:GovSteamFV4.kf2>0.0</cim:GovSteamFV4.kf2>
-    <cim:GovSteamFV4.tf2>0.0</cim:GovSteamFV4.tf2>
-    <cim:GovSteamFV4.rsmimn>0.0</cim:GovSteamFV4.rsmimn>
-    <cim:GovSteamFV4.rsmimx>1.1</cim:GovSteamFV4.rsmimx>
-    <cim:GovSteamFV4.vvmax>0.1</cim:GovSteamFV4.vvmax>
-    <cim:GovSteamFV4.vvmin>-0.1</cim:GovSteamFV4.vvmin>
     <cim:GovSteamFV4.cpsmn>0.0</cim:GovSteamFV4.cpsmn>
     <cim:GovSteamFV4.cpsmx>1.0</cim:GovSteamFV4.cpsmx>
-    <cim:GovSteamFV4.dp>0.01</cim:GovSteamFV4.dp>
-    <cim:GovSteamFV4.lpsp>0.4</cim:GovSteamFV4.lpsp>
-    <cim:GovSteamFV4.ovex>0.5</cim:GovSteamFV4.ovex>
+    <cim:GovSteamFV4.crmn>0.0</cim:GovSteamFV4.crmn>
+    <cim:GovSteamFV4.crmx>1.0</cim:GovSteamFV4.crmx>
+    <cim:GovSteamFV4.kdc>1.0</cim:GovSteamFV4.kdc>
+    <cim:GovSteamFV4.kf1>0.0</cim:GovSteamFV4.kf1>
+    <cim:GovSteamFV4.kf3>0.0</cim:GovSteamFV4.kf3>
+    <cim:GovSteamFV4.khp>0.35</cim:GovSteamFV4.khp>
+    <cim:GovSteamFV4.kic>0.5</cim:GovSteamFV4.kic>
+    <cim:GovSteamFV4.kip>1.0</cim:GovSteamFV4.kip>
+    <cim:GovSteamFV4.kit>0.5</cim:GovSteamFV4.kit>
+    <cim:GovSteamFV4.kmp1>1.0</cim:GovSteamFV4.kmp1>
+    <cim:GovSteamFV4.kmp2>1.0</cim:GovSteamFV4.kmp2>
+    <cim:GovSteamFV4.kpc>1.0</cim:GovSteamFV4.kpc>
+    <cim:GovSteamFV4.kpp>1.0</cim:GovSteamFV4.kpp>
+    <cim:GovSteamFV4.kpt>1.0</cim:GovSteamFV4.kpt>
+    <cim:GovSteamFV4.krc>1.0</cim:GovSteamFV4.krc>
+    <cim:GovSteamFV4.ksh>1.0</cim:GovSteamFV4.ksh>
+    <cim:GovSteamFV4.lpi>0.0</cim:GovSteamFV4.lpi>
+    <cim:GovSteamFV4.lps>1.0</cim:GovSteamFV4.lps>
+    <cim:GovSteamFV4.mnef>0.0</cim:GovSteamFV4.mnef>
+    <cim:GovSteamFV4.mxef>1.1</cim:GovSteamFV4.mxef>
+    <cim:GovSteamFV4.pr1>0.3</cim:GovSteamFV4.pr1>
+    <cim:GovSteamFV4.pr2>0.6</cim:GovSteamFV4.pr2>
+    <cim:GovSteamFV4.psmn>0.0</cim:GovSteamFV4.psmn>
+    <cim:GovSteamFV4.rsmimn>0.0</cim:GovSteamFV4.rsmimn>
+    <cim:GovSteamFV4.rsmimx>1.1</cim:GovSteamFV4.rsmimx>
+    <cim:GovSteamFV4.rvgmn>-0.1</cim:GovSteamFV4.rvgmn>
+    <cim:GovSteamFV4.rvgmx>0.1</cim:GovSteamFV4.rvgmx>
+    <cim:GovSteamFV4.srmn>-0.1</cim:GovSteamFV4.srmn>
+    <cim:GovSteamFV4.srmx>0.1</cim:GovSteamFV4.srmx>
+    <cim:GovSteamFV4.srsmp>0.1</cim:GovSteamFV4.srsmp>
+    <cim:GovSteamFV4.svmn>0.0</cim:GovSteamFV4.svmn>
+    <cim:GovSteamFV4.svmx>1.0</cim:GovSteamFV4.svmx>
+    <cim:GovSteamFV4.ta>0.1</cim:GovSteamFV4.ta>
+    <cim:GovSteamFV4.tam>0.1</cim:GovSteamFV4.tam>
+    <cim:GovSteamFV4.tc>0.1</cim:GovSteamFV4.tc>
+    <cim:GovSteamFV4.tcm>0.1</cim:GovSteamFV4.tcm>
+    <cim:GovSteamFV4.tdc>0.05</cim:GovSteamFV4.tdc>
+    <cim:GovSteamFV4.tf1>0.1</cim:GovSteamFV4.tf1>
+    <cim:GovSteamFV4.tf2>0.0</cim:GovSteamFV4.tf2>
+    <cim:GovSteamFV4.thp>0.1</cim:GovSteamFV4.thp>
+    <cim:GovSteamFV4.tmp>0.1</cim:GovSteamFV4.tmp>
+    <cim:GovSteamFV4.trh>10.0</cim:GovSteamFV4.trh>
+    <cim:GovSteamFV4.tv>0.4</cim:GovSteamFV4.tv>
+    <cim:GovSteamFV4.ty>0.1</cim:GovSteamFV4.ty>
+    <cim:GovSteamFV4.y>0.0</cim:GovSteamFV4.y>
+    <cim:GovSteamFV4.yhpmn>0.0</cim:GovSteamFV4.yhpmn>
+    <cim:GovSteamFV4.yhpmx>1.0</cim:GovSteamFV4.yhpmx>
+    <cim:GovSteamFV4.ympmn>0.0</cim:GovSteamFV4.ympmn>
+    <cim:GovSteamFV4.ympmx>1.0</cim:GovSteamFV4.ympmx>
   </cim:GovSteamFV4>
 
   <!-- 9. GovSteamIEEE1 -->
   <cim:GovSteamIEEE1 rdf:ID="_gov-steamieee1">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-9"/>
     <cim:GovSteamIEEE1.mwbase>1000.0</cim:GovSteamIEEE1.mwbase>
-    <cim:GovSteamIEEE1.r>0.05</cim:GovSteamIEEE1.r>
+    <cim:GovSteamIEEE1.k>25.0</cim:GovSteamIEEE1.k>
     <cim:GovSteamIEEE1.t1>0.5</cim:GovSteamIEEE1.t1>
-    <cim:GovSteamIEEE1.vmax>1.0</cim:GovSteamIEEE1.vmax>
-    <cim:GovSteamIEEE1.vmin>0.0</cim:GovSteamIEEE1.vmin>
     <cim:GovSteamIEEE1.t2>3.0</cim:GovSteamIEEE1.t2>
     <cim:GovSteamIEEE1.t3>10.0</cim:GovSteamIEEE1.t3>
     <cim:GovSteamIEEE1.uo>0.1</cim:GovSteamIEEE1.uo>
@@ -276,35 +298,26 @@
     <cim:GovSteamIEEE1.pmin>0.0</cim:GovSteamIEEE1.pmin>
     <cim:GovSteamIEEE1.t4>0.3</cim:GovSteamIEEE1.t4>
     <cim:GovSteamIEEE1.k1>0.2</cim:GovSteamIEEE1.k1>
-    <cim:GovSteamIEEE1.k2>0.0</cim:GovSteamIEEE1.k2>
-    <cim:GovSteamIEEE1.t5>10.0</cim:GovSteamIEEE1.t5>
+    <cim:GovSteamIEEE1.k2>0.11</cim:GovSteamIEEE1.k2>
+    <cim:GovSteamIEEE1.t5>8.0</cim:GovSteamIEEE1.t5>
     <cim:GovSteamIEEE1.k3>0.3</cim:GovSteamIEEE1.k3>
-    <cim:GovSteamIEEE1.k4>0.0</cim:GovSteamIEEE1.k4>
+    <cim:GovSteamIEEE1.k4>0.12</cim:GovSteamIEEE1.k4>
     <cim:GovSteamIEEE1.t6>0.5</cim:GovSteamIEEE1.t6>
     <cim:GovSteamIEEE1.k5>0.5</cim:GovSteamIEEE1.k5>
-    <cim:GovSteamIEEE1.k6>0.0</cim:GovSteamIEEE1.k6>
-    <cim:GovSteamIEEE1.t7>0.0</cim:GovSteamIEEE1.t7>
-    <cim:GovSteamIEEE1.k7>0.0</cim:GovSteamIEEE1.k7>
-    <cim:GovSteamIEEE1.k8>0.0</cim:GovSteamIEEE1.k8>
-    <cim:GovSteamIEEE1.db1>0.0</cim:GovSteamIEEE1.db1>
-    <cim:GovSteamIEEE1.eps>0.0</cim:GovSteamIEEE1.eps>
-    <cim:GovSteamIEEE1.db2>0.0</cim:GovSteamIEEE1.db2>
-    <cim:GovSteamIEEE1.gv1>0.0</cim:GovSteamIEEE1.gv1>  <cim:GovSteamIEEE1.pgv1>0.0</cim:GovSteamIEEE1.pgv1>
-    <cim:GovSteamIEEE1.gv2>0.4</cim:GovSteamIEEE1.gv2>  <cim:GovSteamIEEE1.pgv2>0.75</cim:GovSteamIEEE1.pgv2>
-    <cim:GovSteamIEEE1.gv3>0.0</cim:GovSteamIEEE1.gv3>  <cim:GovSteamIEEE1.pgv3>0.0</cim:GovSteamIEEE1.pgv3>
-    <cim:GovSteamIEEE1.gv4>0.0</cim:GovSteamIEEE1.gv4>  <cim:GovSteamIEEE1.pgv4>0.0</cim:GovSteamIEEE1.pgv4>
-    <cim:GovSteamIEEE1.gv5>0.0</cim:GovSteamIEEE1.gv5>  <cim:GovSteamIEEE1.pgv5>0.0</cim:GovSteamIEEE1.pgv5>
-    <cim:GovSteamIEEE1.gv6>0.0</cim:GovSteamIEEE1.gv6>  <cim:GovSteamIEEE1.pgv6>0.0</cim:GovSteamIEEE1.pgv6>
+    <cim:GovSteamIEEE1.k6>0.13</cim:GovSteamIEEE1.k6>
+    <cim:GovSteamIEEE1.t7>0.4</cim:GovSteamIEEE1.t7>
+    <cim:GovSteamIEEE1.k7>0.14</cim:GovSteamIEEE1.k7>
+    <cim:GovSteamIEEE1.k8>0.15</cim:GovSteamIEEE1.k8>
   </cim:GovSteamIEEE1>
 
   <!-- 10. GovSteamSGO -->
   <cim:GovSteamSGO rdf:ID="_gov-steamsgo">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-10"/>
     <cim:GovSteamSGO.mwbase>750.0</cim:GovSteamSGO.mwbase>
-    <cim:GovSteamSGO.r>0.05</cim:GovSteamSGO.r>
+    <cim:GovSteamSGO.k1>0.3</cim:GovSteamSGO.k1>
+    <cim:GovSteamSGO.k2>0.25</cim:GovSteamSGO.k2>
+    <cim:GovSteamSGO.k3>0.2</cim:GovSteamSGO.k3>
     <cim:GovSteamSGO.t1>0.5</cim:GovSteamSGO.t1>
-    <cim:GovSteamSGO.vmax>1.0</cim:GovSteamSGO.vmax>
-    <cim:GovSteamSGO.vmin>0.0</cim:GovSteamSGO.vmin>
     <cim:GovSteamSGO.t2>3.0</cim:GovSteamSGO.t2>
     <cim:GovSteamSGO.t3>7.0</cim:GovSteamSGO.t3>
     <cim:GovSteamSGO.t4>0.4</cim:GovSteamSGO.t4>
@@ -322,162 +335,210 @@
   <cim:GovHydro1 rdf:ID="_gov-hydro1">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-11"/>
     <cim:GovHydro1.mwbase>200.0</cim:GovHydro1.mwbase>
-    <cim:GovHydro1.r>0.04</cim:GovHydro1.r>
     <cim:GovHydro1.tr>5.0</cim:GovHydro1.tr>
     <cim:GovHydro1.tf>0.5</cim:GovHydro1.tf>
     <cim:GovHydro1.tg>0.5</cim:GovHydro1.tg>
     <cim:GovHydro1.velm>0.2</cim:GovHydro1.velm>
-    <cim:GovHydro1.pmax>1.0</cim:GovHydro1.pmax>
-    <cim:GovHydro1.pmin>0.0</cim:GovHydro1.pmin>
+    <cim:GovHydro1.gmax>1.0</cim:GovHydro1.gmax>
+    <cim:GovHydro1.gmin>0.0</cim:GovHydro1.gmin>
     <cim:GovHydro1.tw>1.0</cim:GovHydro1.tw>
     <cim:GovHydro1.at>1.2</cim:GovHydro1.at>
     <cim:GovHydro1.dturb>0.5</cim:GovHydro1.dturb>
     <cim:GovHydro1.qnl>0.08</cim:GovHydro1.qnl>
     <cim:GovHydro1.rperm>0.05</cim:GovHydro1.rperm>
     <cim:GovHydro1.rtemp>0.3</cim:GovHydro1.rtemp>
-    <cim:GovHydro1.tp>0.07</cim:GovHydro1.tp>
     <cim:GovHydro1.hdam>1.0</cim:GovHydro1.hdam>
   </cim:GovHydro1>
 
   <!-- 12. GovHydro2 -->
   <cim:GovHydro2 rdf:ID="_gov-hydro2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-12"/>
+    <cim:GovHydro2.aturb>1.10</cim:GovHydro2.aturb>
+    <cim:GovHydro2.bturb>0.42</cim:GovHydro2.bturb>
+    <cim:GovHydro2.db1>0.011</cim:GovHydro2.db1>
+    <cim:GovHydro2.db2>0.022</cim:GovHydro2.db2>
+    <cim:GovHydro2.eps>0.033</cim:GovHydro2.eps>
+    <cim:GovHydro2.gv1>0.05</cim:GovHydro2.gv1>
+    <cim:GovHydro2.gv2>0.40</cim:GovHydro2.gv2>
+    <cim:GovHydro2.gv3>0.55</cim:GovHydro2.gv3>
+    <cim:GovHydro2.gv4>0.70</cim:GovHydro2.gv4>
+    <cim:GovHydro2.gv5>0.85</cim:GovHydro2.gv5>
+    <cim:GovHydro2.gv6>0.99</cim:GovHydro2.gv6>
+    <cim:GovHydro2.kturb>1.25</cim:GovHydro2.kturb>
     <cim:GovHydro2.mwbase>300.0</cim:GovHydro2.mwbase>
-    <cim:GovHydro2.r>0.05</cim:GovHydro2.r>
-    <cim:GovHydro2.tr>5.0</cim:GovHydro2.tr>
-    <cim:GovHydro2.pmax>1.0</cim:GovHydro2.pmax>
-    <cim:GovHydro2.pmin>0.0</cim:GovHydro2.pmin>
-    <cim:GovHydro2.ki>0.5</cim:GovHydro2.ki>
-    <cim:GovHydro2.kg>1.0</cim:GovHydro2.kg>
-    <cim:GovHydro2.tp>0.07</cim:GovHydro2.tp>
-    <cim:GovHydro2.td>0.05</cim:GovHydro2.td>
-    <cim:GovHydro2.aturb>1.2</cim:GovHydro2.aturb>
-    <cim:GovHydro2.bturb>0.4</cim:GovHydro2.bturb>
-    <cim:GovHydro2.tturb>0.8</cim:GovHydro2.tturb>
-    <cim:GovHydro2.velm>0.2</cim:GovHydro2.velm>
-    <cim:GovHydro2.tw>1.0</cim:GovHydro2.tw>
-    <cim:GovHydro2.db1>0.0</cim:GovHydro2.db1>
-    <cim:GovHydro2.eps>0.0</cim:GovHydro2.eps>
+    <cim:GovHydro2.pgv1>0.10</cim:GovHydro2.pgv1>
+    <cim:GovHydro2.pgv2>0.75</cim:GovHydro2.pgv2>
+    <cim:GovHydro2.pgv3>0.80</cim:GovHydro2.pgv3>
+    <cim:GovHydro2.pgv4>0.83</cim:GovHydro2.pgv4>
+    <cim:GovHydro2.pgv5>0.90</cim:GovHydro2.pgv5>
+    <cim:GovHydro2.pgv6>0.95</cim:GovHydro2.pgv6>
+    <cim:GovHydro2.pmax>1.05</cim:GovHydro2.pmax>
+    <cim:GovHydro2.pmin>0.02</cim:GovHydro2.pmin>
+    <cim:GovHydro2.rperm>0.051</cim:GovHydro2.rperm>
+    <cim:GovHydro2.rtemp>0.31</cim:GovHydro2.rtemp>
+    <cim:GovHydro2.tg>0.52</cim:GovHydro2.tg>
+    <cim:GovHydro2.tp>0.071</cim:GovHydro2.tp>
+    <cim:GovHydro2.tr>5.5</cim:GovHydro2.tr>
+    <cim:GovHydro2.tw>1.15</cim:GovHydro2.tw>
+    <cim:GovHydro2.uc>-0.16</cim:GovHydro2.uc>
+    <cim:GovHydro2.uo>0.17</cim:GovHydro2.uo>
   </cim:GovHydro2>
 
   <!-- 13. GovHydro3 -->
   <cim:GovHydro3 rdf:ID="_gov-hydro3">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-13"/>
+    <cim:GovHydro3.at>1.20</cim:GovHydro3.at>
+    <cim:GovHydro3.db1>0.011</cim:GovHydro3.db1>
+    <cim:GovHydro3.db2>0.022</cim:GovHydro3.db2>
+    <cim:GovHydro3.dturb>0.5</cim:GovHydro3.dturb>
+    <cim:GovHydro3.eps>0.033</cim:GovHydro3.eps>
+    <cim:GovHydro3.governorControl>true</cim:GovHydro3.governorControl>
+    <cim:GovHydro3.gv1>0.05</cim:GovHydro3.gv1>
+    <cim:GovHydro3.gv2>0.40</cim:GovHydro3.gv2>
+    <cim:GovHydro3.gv3>0.55</cim:GovHydro3.gv3>
+    <cim:GovHydro3.gv4>0.70</cim:GovHydro3.gv4>
+    <cim:GovHydro3.gv5>0.85</cim:GovHydro3.gv5>
+    <cim:GovHydro3.gv6>0.99</cim:GovHydro3.gv6>
+    <cim:GovHydro3.h0>1.0</cim:GovHydro3.h0>
+    <cim:GovHydro3.k1>0.20</cim:GovHydro3.k1>
+    <cim:GovHydro3.k2>0.10</cim:GovHydro3.k2>
+    <cim:GovHydro3.kg>1.0</cim:GovHydro3.kg>
+    <cim:GovHydro3.ki>0.5</cim:GovHydro3.ki>
     <cim:GovHydro3.mwbase>250.0</cim:GovHydro3.mwbase>
-    <cim:GovHydro3.r>0.05</cim:GovHydro3.r>
-    <cim:GovHydro3.tr>5.0</cim:GovHydro3.tr>
+    <cim:GovHydro3.pgv1>0.10</cim:GovHydro3.pgv1>
+    <cim:GovHydro3.pgv2>0.75</cim:GovHydro3.pgv2>
+    <cim:GovHydro3.pgv3>0.80</cim:GovHydro3.pgv3>
+    <cim:GovHydro3.pgv4>0.83</cim:GovHydro3.pgv4>
+    <cim:GovHydro3.pgv5>0.90</cim:GovHydro3.pgv5>
+    <cim:GovHydro3.pgv6>0.95</cim:GovHydro3.pgv6>
     <cim:GovHydro3.pmax>1.0</cim:GovHydro3.pmax>
     <cim:GovHydro3.pmin>0.0</cim:GovHydro3.pmin>
-    <cim:GovHydro3.ki>0.5</cim:GovHydro3.ki>
-    <cim:GovHydro3.kg>1.0</cim:GovHydro3.kg>
-    <cim:GovHydro3.tp>0.07</cim:GovHydro3.tp>
-    <cim:GovHydro3.td>0.05</cim:GovHydro3.td>
-    <cim:GovHydro3.aturb>1.2</cim:GovHydro3.aturb>
-    <cim:GovHydro3.bturb>0.4</cim:GovHydro3.bturb>
-    <cim:GovHydro3.tturb>0.8</cim:GovHydro3.tturb>
-    <cim:GovHydro3.velm>0.2</cim:GovHydro3.velm>
-    <cim:GovHydro3.tw>1.0</cim:GovHydro3.tw>
-    <cim:GovHydro3.db1>0.0</cim:GovHydro3.db1>
-    <cim:GovHydro3.eps>0.0</cim:GovHydro3.eps>
-    <cim:GovHydro3.db2>0.0</cim:GovHydro3.db2>
-    <cim:GovHydro3.tt>0.0</cim:GovHydro3.tt>
-    <cim:GovHydro3.t1>0.0</cim:GovHydro3.t1>
-    <cim:GovHydro3.t2>0.0</cim:GovHydro3.t2>
-    <cim:GovHydro3.t3>0.0</cim:GovHydro3.t3>
-    <cim:GovHydro3.t4>0.0</cim:GovHydro3.t4>
     <cim:GovHydro3.qnl>0.08</cim:GovHydro3.qnl>
-    <cim:GovHydro3.rperm>0.05</cim:GovHydro3.rperm>
-    <cim:GovHydro3.rtemp>0.3</cim:GovHydro3.rtemp>
-    <cim:GovHydro3.hdam>1.0</cim:GovHydro3.hdam>
-    <cim:GovHydro3.govtype>1</cim:GovHydro3.govtype>
+    <cim:GovHydro3.relec>0.06</cim:GovHydro3.relec>
+    <cim:GovHydro3.rgate>0.04</cim:GovHydro3.rgate>
+    <cim:GovHydro3.td>0.05</cim:GovHydro3.td>
+    <cim:GovHydro3.tf>0.1</cim:GovHydro3.tf>
+    <cim:GovHydro3.tp>0.07</cim:GovHydro3.tp>
+    <cim:GovHydro3.tt>0.3</cim:GovHydro3.tt>
+    <cim:GovHydro3.tw>1.0</cim:GovHydro3.tw>
+    <cim:GovHydro3.velcl>-0.2</cim:GovHydro3.velcl>
+    <cim:GovHydro3.velop>0.15</cim:GovHydro3.velop>
   </cim:GovHydro3>
 
   <!-- 14. GovHydro4 -->
   <cim:GovHydro4 rdf:ID="_gov-hydro4">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-14"/>
-    <cim:GovHydro4.mwbase>400.0</cim:GovHydro4.mwbase>
-    <cim:GovHydro4.r>0.05</cim:GovHydro4.r>
-    <cim:GovHydro4.tr>5.0</cim:GovHydro4.tr>
-    <cim:GovHydro4.pmax>1.0</cim:GovHydro4.pmax>
-    <cim:GovHydro4.pmin>0.0</cim:GovHydro4.pmin>
-    <cim:GovHydro4.rclose>-0.2</cim:GovHydro4.rclose>
-    <cim:GovHydro4.ropen>0.1</cim:GovHydro4.ropen>
-    <cim:GovHydro4.ta>0.1</cim:GovHydro4.ta>
-    <cim:GovHydro4.tc>0.0</cim:GovHydro4.tc>
-    <cim:GovHydro4.td>0.05</cim:GovHydro4.td>
-    <cim:GovHydro4.ts>0.1</cim:GovHydro4.ts>
-    <cim:GovHydro4.tp>0.07</cim:GovHydro4.tp>
-    <cim:GovHydro4.tw>1.0</cim:GovHydro4.tw>
+    <cim:GovHydro4.at>1.2</cim:GovHydro4.at>
+    <cim:GovHydro4.bgv0>0.0</cim:GovHydro4.bgv0>
+    <cim:GovHydro4.bgv1>0.0</cim:GovHydro4.bgv1>
+    <cim:GovHydro4.bgv2>0.0</cim:GovHydro4.bgv2>
+    <cim:GovHydro4.bgv3>0.0</cim:GovHydro4.bgv3>
+    <cim:GovHydro4.bgv4>0.0</cim:GovHydro4.bgv4>
+    <cim:GovHydro4.bgv5>0.0</cim:GovHydro4.bgv5>
+    <cim:GovHydro4.bmax>0.0</cim:GovHydro4.bmax>
+    <cim:GovHydro4.db1>0.0</cim:GovHydro4.db1>
+    <cim:GovHydro4.db2>0.0</cim:GovHydro4.db2>
     <cim:GovHydro4.dturb>0.5</cim:GovHydro4.dturb>
-    <cim:GovHydro4.qnl>0.08</cim:GovHydro4.qnl>
-    <cim:GovHydro4.gv1>0.0</cim:GovHydro4.gv1>  <cim:GovHydro4.pgv1>0.0</cim:GovHydro4.pgv1>
-    <cim:GovHydro4.gv2>0.4</cim:GovHydro4.gv2>  <cim:GovHydro4.pgv2>0.75</cim:GovHydro4.pgv2>
-    <cim:GovHydro4.gv3>0.0</cim:GovHydro4.gv3>  <cim:GovHydro4.pgv3>0.0</cim:GovHydro4.pgv3>
-    <cim:GovHydro4.gv4>0.0</cim:GovHydro4.gv4>  <cim:GovHydro4.pgv4>0.0</cim:GovHydro4.pgv4>
-    <cim:GovHydro4.gv5>0.0</cim:GovHydro4.gv5>  <cim:GovHydro4.pgv5>0.0</cim:GovHydro4.pgv5>
-    <cim:GovHydro4.gv6>0.0</cim:GovHydro4.gv6>  <cim:GovHydro4.pgv6>0.0</cim:GovHydro4.pgv6>
-    <cim:GovHydro4.atw>1.2</cim:GovHydro4.atw>
-    <cim:GovHydro4.velm>0.2</cim:GovHydro4.velm>
+    <cim:GovHydro4.eps>0.0</cim:GovHydro4.eps>
+    <cim:GovHydro4.gmax>1.0</cim:GovHydro4.gmax>
+    <cim:GovHydro4.gmin>0.0</cim:GovHydro4.gmin>
+    <cim:GovHydro4.gv0>0.0</cim:GovHydro4.gv0>
+    <cim:GovHydro4.gv1>0.2</cim:GovHydro4.gv1>
+    <cim:GovHydro4.gv2>0.4</cim:GovHydro4.gv2>
+    <cim:GovHydro4.gv3>0.6</cim:GovHydro4.gv3>
+    <cim:GovHydro4.gv4>0.8</cim:GovHydro4.gv4>
+    <cim:GovHydro4.gv5>1.0</cim:GovHydro4.gv5>
     <cim:GovHydro4.hdam>1.0</cim:GovHydro4.hdam>
+    <cim:GovHydro4.mwbase>400.0</cim:GovHydro4.mwbase>
+    <cim:GovHydro4.pgv0>0.0</cim:GovHydro4.pgv0>
+    <cim:GovHydro4.pgv1>0.2</cim:GovHydro4.pgv1>
+    <cim:GovHydro4.pgv2>0.4</cim:GovHydro4.pgv2>
+    <cim:GovHydro4.pgv3>0.6</cim:GovHydro4.pgv3>
+    <cim:GovHydro4.pgv4>0.8</cim:GovHydro4.pgv4>
+    <cim:GovHydro4.pgv5>1.0</cim:GovHydro4.pgv5>
+    <cim:GovHydro4.qn1>0.08</cim:GovHydro4.qn1>
+    <cim:GovHydro4.qnl>0.08</cim:GovHydro4.qnl>
+    <cim:GovHydro4.rperm>0.05</cim:GovHydro4.rperm>
+    <cim:GovHydro4.rtemp>0.3</cim:GovHydro4.rtemp>
+    <cim:GovHydro4.tblade>0.0</cim:GovHydro4.tblade>
+    <cim:GovHydro4.tg>0.5</cim:GovHydro4.tg>
+    <cim:GovHydro4.tp>0.07</cim:GovHydro4.tp>
+    <cim:GovHydro4.tr>5.0</cim:GovHydro4.tr>
+    <cim:GovHydro4.tw>1.0</cim:GovHydro4.tw>
+    <cim:GovHydro4.uc>-0.2</cim:GovHydro4.uc>
+    <cim:GovHydro4.uo>0.1</cim:GovHydro4.uo>
   </cim:GovHydro4>
 
   <!-- 15. GovHydroDD -->
   <cim:GovHydroDD rdf:ID="_gov-hydrodd">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-15"/>
+    <cim:GovHydroDD.aturb>1.15</cim:GovHydroDD.aturb>
+    <cim:GovHydroDD.bturb>0.42</cim:GovHydroDD.bturb>
+    <cim:GovHydroDD.db1>0.011</cim:GovHydroDD.db1>
+    <cim:GovHydroDD.db2>0.022</cim:GovHydroDD.db2>
+    <cim:GovHydroDD.eps>0.033</cim:GovHydroDD.eps>
+    <cim:GovHydroDD.gmax>1.0</cim:GovHydroDD.gmax>
+    <cim:GovHydroDD.gmin>0.0</cim:GovHydroDD.gmin>
+    <cim:GovHydroDD.gv1>0.05</cim:GovHydroDD.gv1>
+    <cim:GovHydroDD.gv2>0.40</cim:GovHydroDD.gv2>
+    <cim:GovHydroDD.gv3>0.55</cim:GovHydroDD.gv3>
+    <cim:GovHydroDD.gv4>0.70</cim:GovHydroDD.gv4>
+    <cim:GovHydroDD.gv5>0.85</cim:GovHydroDD.gv5>
+    <cim:GovHydroDD.gv6>0.99</cim:GovHydroDD.gv6>
+    <cim:GovHydroDD.inputSignal>false</cim:GovHydroDD.inputSignal>
+    <cim:GovHydroDD.k1>0.20</cim:GovHydroDD.k1>
+    <cim:GovHydroDD.k2>0.10</cim:GovHydroDD.k2>
+    <cim:GovHydroDD.kg>1.0</cim:GovHydroDD.kg>
+    <cim:GovHydroDD.ki>0.5</cim:GovHydroDD.ki>
     <cim:GovHydroDD.mwbase>180.0</cim:GovHydroDD.mwbase>
+    <cim:GovHydroDD.pgv1>0.10</cim:GovHydroDD.pgv1>
+    <cim:GovHydroDD.pgv2>0.75</cim:GovHydroDD.pgv2>
+    <cim:GovHydroDD.pgv3>0.80</cim:GovHydroDD.pgv3>
+    <cim:GovHydroDD.pgv4>0.83</cim:GovHydroDD.pgv4>
+    <cim:GovHydroDD.pgv5>0.90</cim:GovHydroDD.pgv5>
+    <cim:GovHydroDD.pgv6>0.95</cim:GovHydroDD.pgv6>
+    <cim:GovHydroDD.pmax>1.0</cim:GovHydroDD.pmax>
+    <cim:GovHydroDD.pmin>0.0</cim:GovHydroDD.pmin>
     <cim:GovHydroDD.r>0.05</cim:GovHydroDD.r>
     <cim:GovHydroDD.td>0.05</cim:GovHydroDD.td>
     <cim:GovHydroDD.tf>0.1</cim:GovHydroDD.tf>
-    <cim:GovHydroDD.tg>0.5</cim:GovHydroDD.tg>
     <cim:GovHydroDD.tp>0.07</cim:GovHydroDD.tp>
-    <cim:GovHydroDD.tt>0.0</cim:GovHydroDD.tt>
-    <cim:GovHydroDD.tr>5.0</cim:GovHydroDD.tr>
-    <cim:GovHydroDD.velm>0.2</cim:GovHydroDD.velm>
-    <cim:GovHydroDD.pmax>1.0</cim:GovHydroDD.pmax>
-    <cim:GovHydroDD.pmin>0.0</cim:GovHydroDD.pmin>
-    <cim:GovHydroDD.aturb>1.2</cim:GovHydroDD.aturb>
-    <cim:GovHydroDD.bturb>0.4</cim:GovHydroDD.bturb>
+    <cim:GovHydroDD.tt>0.3</cim:GovHydroDD.tt>
     <cim:GovHydroDD.tturb>0.8</cim:GovHydroDD.tturb>
-    <cim:GovHydroDD.db1>0.0</cim:GovHydroDD.db1>
-    <cim:GovHydroDD.eps>0.0</cim:GovHydroDD.eps>
-    <cim:GovHydroDD.db2>0.0</cim:GovHydroDD.db2>
-    <cim:GovHydroDD.gv1>0.0</cim:GovHydroDD.gv1>  <cim:GovHydroDD.pgv1>0.0</cim:GovHydroDD.pgv1>
-    <cim:GovHydroDD.gv2>0.4</cim:GovHydroDD.gv2>  <cim:GovHydroDD.pgv2>0.75</cim:GovHydroDD.pgv2>
-    <cim:GovHydroDD.gv3>0.0</cim:GovHydroDD.gv3>  <cim:GovHydroDD.pgv3>0.0</cim:GovHydroDD.pgv3>
-    <cim:GovHydroDD.gv4>0.0</cim:GovHydroDD.gv4>  <cim:GovHydroDD.pgv4>0.0</cim:GovHydroDD.pgv4>
-    <cim:GovHydroDD.gv5>0.0</cim:GovHydroDD.gv5>  <cim:GovHydroDD.pgv5>0.0</cim:GovHydroDD.pgv5>
+    <cim:GovHydroDD.velcl>-0.2</cim:GovHydroDD.velcl>
+    <cim:GovHydroDD.velop>0.15</cim:GovHydroDD.velop>
   </cim:GovHydroDD>
 
   <!-- 16. GovHydroFrancis -->
   <cim:GovHydroFrancis rdf:ID="_gov-hydrofrancis">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-16"/>
-    <cim:GovHydroFrancis.mwbase>320.0</cim:GovHydroFrancis.mwbase>
-    <cim:GovHydroFrancis.rs>0.05</cim:GovHydroFrancis.rs>
-    <cim:GovHydroFrancis.tg>0.5</cim:GovHydroFrancis.tg>
-    <cim:GovHydroFrancis.tp>0.07</cim:GovHydroFrancis.tp>
-    <cim:GovHydroFrancis.bp>0.05</cim:GovHydroFrancis.bp>
-    <cim:GovHydroFrancis.td>0.05</cim:GovHydroFrancis.td>
-    <cim:GovHydroFrancis.ta>0.1</cim:GovHydroFrancis.ta>
-    <cim:GovHydroFrancis.ts>0.0</cim:GovHydroFrancis.ts>
-    <cim:GovHydroFrancis.twnc>1.0</cim:GovHydroFrancis.twnc>
-    <cim:GovHydroFrancis.twng>0.5</cim:GovHydroFrancis.twng>
-    <cim:GovHydroFrancis.qn>0.9</cim:GovHydroFrancis.qn>
-    <cim:GovHydroFrancis.h0>1.0</cim:GovHydroFrancis.h0>
     <cim:GovHydroFrancis.am>0.95</cim:GovHydroFrancis.am>
     <cim:GovHydroFrancis.av0>0.95</cim:GovHydroFrancis.av0>
-    <cim:GovHydroFrancis.avsmnx>0.1</cim:GovHydroFrancis.avsmnx>
-    <cim:GovHydroFrancis.avsmx>0.1</cim:GovHydroFrancis.avsmx>
+    <cim:GovHydroFrancis.av1>0.5</cim:GovHydroFrancis.av1>
+    <cim:GovHydroFrancis.bp>0.05</cim:GovHydroFrancis.bp>
+    <cim:GovHydroFrancis.db1>0.01</cim:GovHydroFrancis.db1>
+    <cim:GovHydroFrancis.etamax>0.9</cim:GovHydroFrancis.etamax>
+    <cim:GovHydroFrancis.governorControl>FrancisGovernorControlKind.mechanicHydrolicTransientFeedback</cim:GovHydroFrancis.governorControl>
+    <cim:GovHydroFrancis.h1>1.0</cim:GovHydroFrancis.h1>
+    <cim:GovHydroFrancis.h2>1.0</cim:GovHydroFrancis.h2>
     <cim:GovHydroFrancis.hn>1.0</cim:GovHydroFrancis.hn>
     <cim:GovHydroFrancis.kc>0.0</cim:GovHydroFrancis.kc>
     <cim:GovHydroFrancis.kg>1.0</cim:GovHydroFrancis.kg>
-    <cim:GovHydroFrancis.ki>0.5</cim:GovHydroFrancis.ki>
-    <cim:GovHydroFrancis.knl>0.0</cim:GovHydroFrancis.knl>
+    <cim:GovHydroFrancis.kt>0.5</cim:GovHydroFrancis.kt>
     <cim:GovHydroFrancis.qc0>0.0</cim:GovHydroFrancis.qc0>
+    <cim:GovHydroFrancis.qn>0.9</cim:GovHydroFrancis.qn>
+    <cim:GovHydroFrancis.ta>0.1</cim:GovHydroFrancis.ta>
+    <cim:GovHydroFrancis.td>0.05</cim:GovHydroFrancis.td>
+    <cim:GovHydroFrancis.ts>0.0</cim:GovHydroFrancis.ts>
+    <cim:GovHydroFrancis.twnc>1.0</cim:GovHydroFrancis.twnc>
+    <cim:GovHydroFrancis.twng>0.5</cim:GovHydroFrancis.twng>
+    <cim:GovHydroFrancis.tx>0.2</cim:GovHydroFrancis.tx>
     <cim:GovHydroFrancis.va>0.1</cim:GovHydroFrancis.va>
     <cim:GovHydroFrancis.valvmax>1.0</cim:GovHydroFrancis.valvmax>
     <cim:GovHydroFrancis.valvmin>0.0</cim:GovHydroFrancis.valvmin>
     <cim:GovHydroFrancis.vc>-0.1</cim:GovHydroFrancis.vc>
-    <cim:GovHydroFrancis.waterTunnelSurgeChamberSimulation>FrancisGovernorControlKind.mechanicHydrolicTransientFeedback</cim:GovHydroFrancis.waterTunnelSurgeChamberSimulation>
+    <cim:GovHydroFrancis.waterTunnelSurgeChamberSimulation>true</cim:GovHydroFrancis.waterTunnelSurgeChamberSimulation>
+    <cim:GovHydroFrancis.zsfc>0.5</cim:GovHydroFrancis.zsfc>
   </cim:GovHydroFrancis>
 
   <!-- 17. GovHydroIEEE0 -->
@@ -488,6 +549,7 @@
     <cim:GovHydroIEEE0.t1>0.5</cim:GovHydroIEEE0.t1>
     <cim:GovHydroIEEE0.t2>1.5</cim:GovHydroIEEE0.t2>
     <cim:GovHydroIEEE0.t3>0.5</cim:GovHydroIEEE0.t3>
+    <cim:GovHydroIEEE0.t4>1.0</cim:GovHydroIEEE0.t4>
     <cim:GovHydroIEEE0.pmax>1.0</cim:GovHydroIEEE0.pmax>
     <cim:GovHydroIEEE0.pmin>0.0</cim:GovHydroIEEE0.pmin>
   </cim:GovHydroIEEE0>
@@ -495,35 +557,31 @@
   <!-- 18. GovHydroIEEE2 -->
   <cim:GovHydroIEEE2 rdf:ID="_gov-hydroieee2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-18"/>
+    <cim:GovHydroIEEE2.aturb>-1.0</cim:GovHydroIEEE2.aturb>
+    <cim:GovHydroIEEE2.bturb>0.5</cim:GovHydroIEEE2.bturb>
+    <cim:GovHydroIEEE2.kturb>1.0</cim:GovHydroIEEE2.kturb>
     <cim:GovHydroIEEE2.mwbase>250.0</cim:GovHydroIEEE2.mwbase>
-    <cim:GovHydroIEEE2.r>0.04</cim:GovHydroIEEE2.r>
-    <cim:GovHydroIEEE2.tr>5.0</cim:GovHydroIEEE2.tr>
-    <cim:GovHydroIEEE2.tf>0.5</cim:GovHydroIEEE2.tf>
-    <cim:GovHydroIEEE2.tg>0.5</cim:GovHydroIEEE2.tg>
-    <cim:GovHydroIEEE2.velm>0.2</cim:GovHydroIEEE2.velm>
     <cim:GovHydroIEEE2.pmax>1.0</cim:GovHydroIEEE2.pmax>
     <cim:GovHydroIEEE2.pmin>0.0</cim:GovHydroIEEE2.pmin>
-    <cim:GovHydroIEEE2.tw>1.0</cim:GovHydroIEEE2.tw>
-    <cim:GovHydroIEEE2.at>1.2</cim:GovHydroIEEE2.at>
-    <cim:GovHydroIEEE2.dturb>0.5</cim:GovHydroIEEE2.dturb>
-    <cim:GovHydroIEEE2.qnl>0.08</cim:GovHydroIEEE2.qnl>
     <cim:GovHydroIEEE2.rperm>0.05</cim:GovHydroIEEE2.rperm>
     <cim:GovHydroIEEE2.rtemp>0.3</cim:GovHydroIEEE2.rtemp>
+    <cim:GovHydroIEEE2.tg>0.5</cim:GovHydroIEEE2.tg>
     <cim:GovHydroIEEE2.tp>0.07</cim:GovHydroIEEE2.tp>
-    <cim:GovHydroIEEE2.hdam>1.0</cim:GovHydroIEEE2.hdam>
-    <cim:GovHydroIEEE2.ki>0.5</cim:GovHydroIEEE2.ki>
+    <cim:GovHydroIEEE2.tr>5.0</cim:GovHydroIEEE2.tr>
+    <cim:GovHydroIEEE2.tw>1.0</cim:GovHydroIEEE2.tw>
+    <cim:GovHydroIEEE2.uc>-0.1</cim:GovHydroIEEE2.uc>
+    <cim:GovHydroIEEE2.uo>0.1</cim:GovHydroIEEE2.uo>
     <cim:GovHydroIEEE2.gv1>0.0</cim:GovHydroIEEE2.gv1>  <cim:GovHydroIEEE2.pgv1>0.0</cim:GovHydroIEEE2.pgv1>
-    <cim:GovHydroIEEE2.gv2>0.4</cim:GovHydroIEEE2.gv2>  <cim:GovHydroIEEE2.pgv2>0.75</cim:GovHydroIEEE2.pgv2>
-    <cim:GovHydroIEEE2.gv3>0.0</cim:GovHydroIEEE2.gv3>  <cim:GovHydroIEEE2.pgv3>0.0</cim:GovHydroIEEE2.pgv3>
-    <cim:GovHydroIEEE2.gv4>0.0</cim:GovHydroIEEE2.gv4>  <cim:GovHydroIEEE2.pgv4>0.0</cim:GovHydroIEEE2.pgv4>
-    <cim:GovHydroIEEE2.gv5>0.0</cim:GovHydroIEEE2.gv5>  <cim:GovHydroIEEE2.pgv5>0.0</cim:GovHydroIEEE2.pgv5>
-    <cim:GovHydroIEEE2.gv6>0.0</cim:GovHydroIEEE2.gv6>  <cim:GovHydroIEEE2.pgv6>0.0</cim:GovHydroIEEE2.pgv6>
+    <cim:GovHydroIEEE2.gv2>0.2</cim:GovHydroIEEE2.gv2>  <cim:GovHydroIEEE2.pgv2>0.2</cim:GovHydroIEEE2.pgv2>
+    <cim:GovHydroIEEE2.gv3>0.4</cim:GovHydroIEEE2.gv3>  <cim:GovHydroIEEE2.pgv3>0.4</cim:GovHydroIEEE2.pgv3>
+    <cim:GovHydroIEEE2.gv4>0.6</cim:GovHydroIEEE2.gv4>  <cim:GovHydroIEEE2.pgv4>0.6</cim:GovHydroIEEE2.pgv4>
+    <cim:GovHydroIEEE2.gv5>0.8</cim:GovHydroIEEE2.gv5>  <cim:GovHydroIEEE2.pgv5>0.8</cim:GovHydroIEEE2.pgv5>
+    <cim:GovHydroIEEE2.gv6>1.0</cim:GovHydroIEEE2.gv6>  <cim:GovHydroIEEE2.pgv6>1.0</cim:GovHydroIEEE2.pgv6>
   </cim:GovHydroIEEE2>
 
   <!-- 19. GovHydroPelton -->
   <cim:GovHydroPelton rdf:ID="_gov-hydropelton">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-19"/>
-    <cim:GovHydroPelton.mwbase>120.0</cim:GovHydroPelton.mwbase>
     <cim:GovHydroPelton.av0>0.95</cim:GovHydroPelton.av0>
     <cim:GovHydroPelton.av1>0.98</cim:GovHydroPelton.av1>
     <cim:GovHydroPelton.bp>0.05</cim:GovHydroPelton.bp>
@@ -536,11 +594,11 @@
     <cim:GovHydroPelton.kg>1.0</cim:GovHydroPelton.kg>
     <cim:GovHydroPelton.qc0>0.0</cim:GovHydroPelton.qc0>
     <cim:GovHydroPelton.qn>0.9</cim:GovHydroPelton.qn>
-    <cim:GovHydroPelton.simplifiedPelton>0.0</cim:GovHydroPelton.simplifiedPelton>
-    <cim:GovHydroPelton.staticCompensating>0.0</cim:GovHydroPelton.staticCompensating>
+    <cim:GovHydroPelton.simplifiedPelton>false</cim:GovHydroPelton.simplifiedPelton>
+    <cim:GovHydroPelton.staticCompensating>false</cim:GovHydroPelton.staticCompensating>
     <cim:GovHydroPelton.ta>0.1</cim:GovHydroPelton.ta>
-    <cim:GovHydroPelton.td>0.05</cim:GovHydroPelton.td>
     <cim:GovHydroPelton.ts>0.0</cim:GovHydroPelton.ts>
+    <cim:GovHydroPelton.tv>0.05</cim:GovHydroPelton.tv>
     <cim:GovHydroPelton.twnc>1.0</cim:GovHydroPelton.twnc>
     <cim:GovHydroPelton.twng>0.5</cim:GovHydroPelton.twng>
     <cim:GovHydroPelton.tx>0.0</cim:GovHydroPelton.tx>
@@ -550,8 +608,8 @@
     <cim:GovHydroPelton.vav>0.1</cim:GovHydroPelton.vav>
     <cim:GovHydroPelton.vc>-0.1</cim:GovHydroPelton.vc>
     <cim:GovHydroPelton.vcv>-0.1</cim:GovHydroPelton.vcv>
-    <cim:GovHydroPelton.cfrac>false</cim:GovHydroPelton.cfrac>
-    <cim:GovHydroPelton.sfrac>true</cim:GovHydroPelton.sfrac>
+    <cim:GovHydroPelton.waterTunnelSurgeChamberSimulation>false</cim:GovHydroPelton.waterTunnelSurgeChamberSimulation>
+    <cim:GovHydroPelton.zsfc>0.0</cim:GovHydroPelton.zsfc>
   </cim:GovHydroPelton>
 
   <!-- 20. GovHydroPID -->
@@ -561,11 +619,10 @@
     <cim:GovHydroPID.r>0.05</cim:GovHydroPID.r>
     <cim:GovHydroPID.td>0.05</cim:GovHydroPID.td>
     <cim:GovHydroPID.tf>0.1</cim:GovHydroPID.tf>
-    <cim:GovHydroPID.tg>0.5</cim:GovHydroPID.tg>
     <cim:GovHydroPID.tp>0.07</cim:GovHydroPID.tp>
     <cim:GovHydroPID.tt>0.0</cim:GovHydroPID.tt>
-    <cim:GovHydroPID.tr>5.0</cim:GovHydroPID.tr>
-    <cim:GovHydroPID.velm>0.2</cim:GovHydroPID.velm>
+    <cim:GovHydroPID.velcl>-0.2</cim:GovHydroPID.velcl>
+    <cim:GovHydroPID.velop>0.2</cim:GovHydroPID.velop>
     <cim:GovHydroPID.pmax>1.0</cim:GovHydroPID.pmax>
     <cim:GovHydroPID.pmin>0.0</cim:GovHydroPID.pmin>
     <cim:GovHydroPID.aturb>1.2</cim:GovHydroPID.aturb>
@@ -577,113 +634,148 @@
     <cim:GovHydroPID.kp>1.0</cim:GovHydroPID.kp>
     <cim:GovHydroPID.ki>0.5</cim:GovHydroPID.ki>
     <cim:GovHydroPID.kd>0.0</cim:GovHydroPID.kd>
+    <cim:GovHydroPID.kg>1.0</cim:GovHydroPID.kg>
+    <cim:GovHydroPID.inputSignal>false</cim:GovHydroPID.inputSignal>
     <cim:GovHydroPID.gv1>0.0</cim:GovHydroPID.gv1>  <cim:GovHydroPID.pgv1>0.0</cim:GovHydroPID.pgv1>
     <cim:GovHydroPID.gv2>0.4</cim:GovHydroPID.gv2>  <cim:GovHydroPID.pgv2>0.75</cim:GovHydroPID.pgv2>
     <cim:GovHydroPID.gv3>0.0</cim:GovHydroPID.gv3>  <cim:GovHydroPID.pgv3>0.0</cim:GovHydroPID.pgv3>
     <cim:GovHydroPID.gv4>0.0</cim:GovHydroPID.gv4>  <cim:GovHydroPID.pgv4>0.0</cim:GovHydroPID.pgv4>
     <cim:GovHydroPID.gv5>0.0</cim:GovHydroPID.gv5>  <cim:GovHydroPID.pgv5>0.0</cim:GovHydroPID.pgv5>
+    <cim:GovHydroPID.gv6>0.0</cim:GovHydroPID.gv6>  <cim:GovHydroPID.pgv6>0.0</cim:GovHydroPID.pgv6>
   </cim:GovHydroPID>
 
   <!-- 21. GovHydroPID2 -->
   <cim:GovHydroPID2 rdf:ID="_gov-hydropid2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-21"/>
     <cim:GovHydroPID2.mwbase>140.0</cim:GovHydroPID2.mwbase>
-    <cim:GovHydroPID2.r>0.05</cim:GovHydroPID2.r>
-    <cim:GovHydroPID2.pmax>1.0</cim:GovHydroPID2.pmax>
-    <cim:GovHydroPID2.pmin>0.0</cim:GovHydroPID2.pmin>
+    <cim:GovHydroPID2.rperm>0.05</cim:GovHydroPID2.rperm>
+    <cim:GovHydroPID2.treg>5.0</cim:GovHydroPID2.treg>
     <cim:GovHydroPID2.kp>1.0</cim:GovHydroPID2.kp>
     <cim:GovHydroPID2.ki>0.5</cim:GovHydroPID2.ki>
     <cim:GovHydroPID2.kd>0.0</cim:GovHydroPID2.kd>
     <cim:GovHydroPID2.ta>0.1</cim:GovHydroPID2.ta>
     <cim:GovHydroPID2.tb>0.2</cim:GovHydroPID2.tb>
-    <cim:GovHydroPID2.treg>5.0</cim:GovHydroPID2.treg>
     <cim:GovHydroPID2.tw>1.0</cim:GovHydroPID2.tw>
     <cim:GovHydroPID2.velmax>0.2</cim:GovHydroPID2.velmax>
     <cim:GovHydroPID2.velmin>-0.2</cim:GovHydroPID2.velmin>
     <cim:GovHydroPID2.gmax>1.0</cim:GovHydroPID2.gmax>
     <cim:GovHydroPID2.gmin>0.0</cim:GovHydroPID2.gmin>
-    <cim:GovHydroPID2.g0>0.5</cim:GovHydroPID2.g0>
+    <cim:GovHydroPID2.g0>0.0</cim:GovHydroPID2.g0>
+    <cim:GovHydroPID2.g1>0.4</cim:GovHydroPID2.g1>
+    <cim:GovHydroPID2.g2>0.7</cim:GovHydroPID2.g2>
+    <cim:GovHydroPID2.p1>0.3</cim:GovHydroPID2.p1>
+    <cim:GovHydroPID2.p2>0.6</cim:GovHydroPID2.p2>
+    <cim:GovHydroPID2.p3>1.0</cim:GovHydroPID2.p3>
+    <cim:GovHydroPID2.atw>1.0</cim:GovHydroPID2.atw>
+    <cim:GovHydroPID2.d>0.5</cim:GovHydroPID2.d>
+    <cim:GovHydroPID2.feedbackSignal>false</cim:GovHydroPID2.feedbackSignal>
   </cim:GovHydroPID2>
 
   <!-- 22. GovHydroR -->
   <cim:GovHydroR rdf:ID="_gov-hydror">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-22"/>
-    <cim:GovHydroR.mwbase>220.0</cim:GovHydroR.mwbase>
-    <cim:GovHydroR.r>0.05</cim:GovHydroR.r>
-    <cim:GovHydroR.td>0.05</cim:GovHydroR.td>
-    <cim:GovHydroR.tf>0.1</cim:GovHydroR.tf>
-    <cim:GovHydroR.tg>0.5</cim:GovHydroR.tg>
-    <cim:GovHydroR.tp>0.07</cim:GovHydroR.tp>
-    <cim:GovHydroR.tt>0.0</cim:GovHydroR.tt>
-    <cim:GovHydroR.tr>5.0</cim:GovHydroR.tr>
-    <cim:GovHydroR.velm>0.2</cim:GovHydroR.velm>
-    <cim:GovHydroR.pmax>1.0</cim:GovHydroR.pmax>
-    <cim:GovHydroR.pmin>0.0</cim:GovHydroR.pmin>
-    <cim:GovHydroR.aturb>1.2</cim:GovHydroR.aturb>
-    <cim:GovHydroR.bturb>0.4</cim:GovHydroR.bturb>
-    <cim:GovHydroR.tturb>0.8</cim:GovHydroR.tturb>
+    <cim:GovHydroR.at>1.2</cim:GovHydroR.at>
     <cim:GovHydroR.db1>0.0</cim:GovHydroR.db1>
-    <cim:GovHydroR.eps>0.0</cim:GovHydroR.eps>
     <cim:GovHydroR.db2>0.0</cim:GovHydroR.db2>
+    <cim:GovHydroR.dturb>0.5</cim:GovHydroR.dturb>
+    <cim:GovHydroR.eps>0.0</cim:GovHydroR.eps>
+    <cim:GovHydroR.gmax>1.0</cim:GovHydroR.gmax>
+    <cim:GovHydroR.gmin>0.0</cim:GovHydroR.gmin>
     <cim:GovHydroR.gv1>0.0</cim:GovHydroR.gv1>  <cim:GovHydroR.pgv1>0.0</cim:GovHydroR.pgv1>
     <cim:GovHydroR.gv2>0.4</cim:GovHydroR.gv2>  <cim:GovHydroR.pgv2>0.75</cim:GovHydroR.pgv2>
     <cim:GovHydroR.gv3>0.0</cim:GovHydroR.gv3>  <cim:GovHydroR.pgv3>0.0</cim:GovHydroR.pgv3>
     <cim:GovHydroR.gv4>0.0</cim:GovHydroR.gv4>  <cim:GovHydroR.pgv4>0.0</cim:GovHydroR.pgv4>
     <cim:GovHydroR.gv5>0.0</cim:GovHydroR.gv5>  <cim:GovHydroR.pgv5>0.0</cim:GovHydroR.pgv5>
+    <cim:GovHydroR.gv6>0.0</cim:GovHydroR.gv6>  <cim:GovHydroR.pgv6>0.0</cim:GovHydroR.pgv6>
+    <cim:GovHydroR.h0>1.0</cim:GovHydroR.h0>
+    <cim:GovHydroR.inputSignal>false</cim:GovHydroR.inputSignal>
+    <cim:GovHydroR.kg>1.0</cim:GovHydroR.kg>
+    <cim:GovHydroR.ki>0.5</cim:GovHydroR.ki>
+    <cim:GovHydroR.mwbase>220.0</cim:GovHydroR.mwbase>
+    <cim:GovHydroR.pmax>1.0</cim:GovHydroR.pmax>
+    <cim:GovHydroR.pmin>0.0</cim:GovHydroR.pmin>
+    <cim:GovHydroR.qnl>0.1</cim:GovHydroR.qnl>
+    <cim:GovHydroR.r>0.05</cim:GovHydroR.r>
+    <cim:GovHydroR.t1>0.1</cim:GovHydroR.t1>
+    <cim:GovHydroR.t2>5.0</cim:GovHydroR.t2>
+    <cim:GovHydroR.t3>0.5</cim:GovHydroR.t3>
+    <cim:GovHydroR.t4>0.05</cim:GovHydroR.t4>
+    <cim:GovHydroR.t5>0.0</cim:GovHydroR.t5>
+    <cim:GovHydroR.t6>0.0</cim:GovHydroR.t6>
+    <cim:GovHydroR.t7>0.0</cim:GovHydroR.t7>
+    <cim:GovHydroR.t8>0.0</cim:GovHydroR.t8>
+    <cim:GovHydroR.td>0.05</cim:GovHydroR.td>
+    <cim:GovHydroR.tp>0.07</cim:GovHydroR.tp>
+    <cim:GovHydroR.tt>0.0</cim:GovHydroR.tt>
+    <cim:GovHydroR.tw>1.0</cim:GovHydroR.tw>
+    <cim:GovHydroR.velcl>-0.2</cim:GovHydroR.velcl>
+    <cim:GovHydroR.velop>0.2</cim:GovHydroR.velop>
   </cim:GovHydroR>
 
   <!-- 23. GovHydroWEH -->
   <cim:GovHydroWEH rdf:ID="_gov-hydroweh">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-23"/>
-    <cim:GovHydroWEH.mwbase>280.0</cim:GovHydroWEH.mwbase>
-    <cim:GovHydroWEH.rpg>0.05</cim:GovHydroWEH.rpg>
-    <cim:GovHydroWEH.rpp>0.1</cim:GovHydroWEH.rpp>
-    <cim:GovHydroWEH.reg>0.05</cim:GovHydroWEH.reg>
-    <cim:GovHydroWEH.tg>0.5</cim:GovHydroWEH.tg>
-    <cim:GovHydroWEH.tp>0.07</cim:GovHydroWEH.tp>
-    <cim:GovHydroWEH.td>0.05</cim:GovHydroWEH.td>
-    <cim:GovHydroWEH.tf>0.1</cim:GovHydroWEH.tf>
-    <cim:GovHydroWEH.td2>0.05</cim:GovHydroWEH.td2>
-    <cim:GovHydroWEH.tw>1.0</cim:GovHydroWEH.tw>
-    <cim:GovHydroWEH.pmax>1.0</cim:GovHydroWEH.pmax>
-    <cim:GovHydroWEH.pmin>0.0</cim:GovHydroWEH.pmin>
-    <cim:GovHydroWEH.gtmxop>0.1</cim:GovHydroWEH.gtmxop>
+    <cim:GovHydroWEH.db>0.0</cim:GovHydroWEH.db>
+    <cim:GovHydroWEH.dicn>0.0</cim:GovHydroWEH.dicn>
+    <cim:GovHydroWEH.dpv>0.0</cim:GovHydroWEH.dpv>
+    <cim:GovHydroWEH.dturb>0.5</cim:GovHydroWEH.dturb>
+    <cim:GovHydroWEH.feedbackSignal>false</cim:GovHydroWEH.feedbackSignal>
+    <cim:GovHydroWEH.fl1>0.9</cim:GovHydroWEH.fl1>  <cim:GovHydroWEH.fl2>0.95</cim:GovHydroWEH.fl2>
+    <cim:GovHydroWEH.fl3>1.0</cim:GovHydroWEH.fl3>  <cim:GovHydroWEH.fl4>1.05</cim:GovHydroWEH.fl4>
+    <cim:GovHydroWEH.fl5>1.1</cim:GovHydroWEH.fl5>
+    <cim:GovHydroWEH.fp1>0.0</cim:GovHydroWEH.fp1>  <cim:GovHydroWEH.fp2>0.1</cim:GovHydroWEH.fp2>
+    <cim:GovHydroWEH.fp3>0.2</cim:GovHydroWEH.fp3>  <cim:GovHydroWEH.fp4>0.3</cim:GovHydroWEH.fp4>
+    <cim:GovHydroWEH.fp5>0.4</cim:GovHydroWEH.fp5>  <cim:GovHydroWEH.fp6>0.5</cim:GovHydroWEH.fp6>
+    <cim:GovHydroWEH.fp7>0.6</cim:GovHydroWEH.fp7>  <cim:GovHydroWEH.fp8>0.7</cim:GovHydroWEH.fp8>
+    <cim:GovHydroWEH.fp9>0.85</cim:GovHydroWEH.fp9>  <cim:GovHydroWEH.fp10>1.0</cim:GovHydroWEH.fp10>
+    <cim:GovHydroWEH.gmax>1.0</cim:GovHydroWEH.gmax>
+    <cim:GovHydroWEH.gmin>0.0</cim:GovHydroWEH.gmin>
     <cim:GovHydroWEH.gtmxcl>-0.1</cim:GovHydroWEH.gtmxcl>
+    <cim:GovHydroWEH.gtmxop>0.1</cim:GovHydroWEH.gtmxop>
+    <cim:GovHydroWEH.gv1>0.0</cim:GovHydroWEH.gv1>  <cim:GovHydroWEH.gv2>0.25</cim:GovHydroWEH.gv2>
+    <cim:GovHydroWEH.gv3>0.5</cim:GovHydroWEH.gv3>  <cim:GovHydroWEH.gv4>0.75</cim:GovHydroWEH.gv4>
+    <cim:GovHydroWEH.gv5>1.0</cim:GovHydroWEH.gv5>
+    <cim:GovHydroWEH.kd>0.1</cim:GovHydroWEH.kd>
+    <cim:GovHydroWEH.ki>1.0</cim:GovHydroWEH.ki>
+    <cim:GovHydroWEH.kp>3.0</cim:GovHydroWEH.kp>
+    <cim:GovHydroWEH.mwbase>280.0</cim:GovHydroWEH.mwbase>
     <cim:GovHydroWEH.pmss1>0.1</cim:GovHydroWEH.pmss1>  <cim:GovHydroWEH.pmss2>0.2</cim:GovHydroWEH.pmss2>
     <cim:GovHydroWEH.pmss3>0.3</cim:GovHydroWEH.pmss3>  <cim:GovHydroWEH.pmss4>0.4</cim:GovHydroWEH.pmss4>
     <cim:GovHydroWEH.pmss5>0.5</cim:GovHydroWEH.pmss5>  <cim:GovHydroWEH.pmss6>0.6</cim:GovHydroWEH.pmss6>
     <cim:GovHydroWEH.pmss7>0.7</cim:GovHydroWEH.pmss7>  <cim:GovHydroWEH.pmss8>0.8</cim:GovHydroWEH.pmss8>
     <cim:GovHydroWEH.pmss9>0.9</cim:GovHydroWEH.pmss9>  <cim:GovHydroWEH.pmss10>1.0</cim:GovHydroWEH.pmss10>
-    <cim:GovHydroWEH.gpmax>0.1</cim:GovHydroWEH.gpmax>
-    <cim:GovHydroWEH.gmax>1.0</cim:GovHydroWEH.gmax>
-    <cim:GovHydroWEH.gmin>0.0</cim:GovHydroWEH.gmin>
-    <cim:GovHydroWEH.dpv>0.0</cim:GovHydroWEH.dpv>
-    <cim:GovHydroWEH.dicn>0.0</cim:GovHydroWEH.dicn>
-    <cim:GovHydroWEH.dspv>0.0</cim:GovHydroWEH.dspv>
-    <cim:GovHydroWEH.feedbackSignal>0.0</cim:GovHydroWEH.feedbackSignal>
+    <cim:GovHydroWEH.rpg>0.05</cim:GovHydroWEH.rpg>
+    <cim:GovHydroWEH.rpp>0.1</cim:GovHydroWEH.rpp>
+    <cim:GovHydroWEH.td>0.05</cim:GovHydroWEH.td>
+    <cim:GovHydroWEH.tdv>0.05</cim:GovHydroWEH.tdv>
+    <cim:GovHydroWEH.tg>0.5</cim:GovHydroWEH.tg>
+    <cim:GovHydroWEH.tp>0.07</cim:GovHydroWEH.tp>
+    <cim:GovHydroWEH.tpe>0.1</cim:GovHydroWEH.tpe>
+    <cim:GovHydroWEH.tw>1.0</cim:GovHydroWEH.tw>
   </cim:GovHydroWEH>
 
   <!-- 24. GovHydroWPID -->
   <cim:GovHydroWPID rdf:ID="_gov-hydrowpid">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-24"/>
     <cim:GovHydroWPID.mwbase>190.0</cim:GovHydroWPID.mwbase>
-    <cim:GovHydroWPID.r>0.05</cim:GovHydroWPID.r>
+    <cim:GovHydroWPID.reg>0.05</cim:GovHydroWPID.reg>
     <cim:GovHydroWPID.treg>5.0</cim:GovHydroWPID.treg>
     <cim:GovHydroWPID.tw>1.0</cim:GovHydroWPID.tw>
     <cim:GovHydroWPID.ta>0.1</cim:GovHydroWPID.ta>
     <cim:GovHydroWPID.tb>0.2</cim:GovHydroWPID.tb>
-    <cim:GovHydroWPID.tc>0.0</cim:GovHydroWPID.tc>
     <cim:GovHydroWPID.pmax>1.0</cim:GovHydroWPID.pmax>
     <cim:GovHydroWPID.pmin>0.0</cim:GovHydroWPID.pmin>
-    <cim:GovHydroWPID.gmax>1.0</cim:GovHydroWPID.gmax>
-    <cim:GovHydroWPID.gmin>0.0</cim:GovHydroWPID.gmin>
-    <cim:GovHydroWPID.mastp>0.0</cim:GovHydroWPID.mastp>
+    <cim:GovHydroWPID.gatmax>1.0</cim:GovHydroWPID.gatmax>
+    <cim:GovHydroWPID.gatmin>0.0</cim:GovHydroWPID.gatmin>
     <cim:GovHydroWPID.d>0.5</cim:GovHydroWPID.d>
     <cim:GovHydroWPID.kd>0.0</cim:GovHydroWPID.kd>
     <cim:GovHydroWPID.ki>0.5</cim:GovHydroWPID.ki>
     <cim:GovHydroWPID.kp>1.0</cim:GovHydroWPID.kp>
     <cim:GovHydroWPID.velmax>0.2</cim:GovHydroWPID.velmax>
     <cim:GovHydroWPID.velmin>-0.2</cim:GovHydroWPID.velmin>
+    <cim:GovHydroWPID.gv1>0.0</cim:GovHydroWPID.gv1>  <cim:GovHydroWPID.pgv1>0.0</cim:GovHydroWPID.pgv1>
+    <cim:GovHydroWPID.gv2>0.5</cim:GovHydroWPID.gv2>  <cim:GovHydroWPID.pgv2>0.6</cim:GovHydroWPID.pgv2>
+    <cim:GovHydroWPID.gv3>1.0</cim:GovHydroWPID.gv3>  <cim:GovHydroWPID.pgv3>1.0</cim:GovHydroWPID.pgv3>
   </cim:GovHydroWPID>
 
   <!-- ================================================================
@@ -710,110 +802,156 @@
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-26"/>
     <cim:GovGAST1.mwbase>120.0</cim:GovGAST1.mwbase>
     <cim:GovGAST1.r>0.05</cim:GovGAST1.r>
+    <cim:GovGAST1.db1>0.0</cim:GovGAST1.db1>
+    <cim:GovGAST1.db2>0.0</cim:GovGAST1.db2>
+    <cim:GovGAST1.eps>0.0</cim:GovGAST1.eps>
     <cim:GovGAST1.t1>0.5</cim:GovGAST1.t1>
     <cim:GovGAST1.t2>3.0</cim:GovGAST1.t2>
     <cim:GovGAST1.t3>10.0</cim:GovGAST1.t3>
-    <cim:GovGAST1.at>1.0</cim:GovGAST1.at>
-    <cim:GovGAST1.kt>2.0</cim:GovGAST1.kt>
-    <cim:GovGAST1.vmax>1.0</cim:GovGAST1.vmax>
-    <cim:GovGAST1.vmin>0.0</cim:GovGAST1.vmin>
-    <cim:GovGAST1.dturb>0.18</cim:GovGAST1.dturb>
-    <cim:GovGAST1.fpv>0.0</cim:GovGAST1.fpv>
-    <cim:GovGAST1.ka>0.0</cim:GovGAST1.ka>
     <cim:GovGAST1.t4>0.0</cim:GovGAST1.t4>
     <cim:GovGAST1.t5>50.0</cim:GovGAST1.t5>
     <cim:GovGAST1.tltr>10.0</cim:GovGAST1.tltr>
-    <cim:GovGAST1.tac>3.0</cim:GovGAST1.tac>
-    <cim:GovGAST1.tv>0.05</cim:GovGAST1.tv>
+    <cim:GovGAST1.ka>0.0</cim:GovGAST1.ka>
+    <cim:GovGAST1.kt>2.0</cim:GovGAST1.kt>
+    <cim:GovGAST1.a>1.0</cim:GovGAST1.a>
     <cim:GovGAST1.b>0.04</cim:GovGAST1.b>
+    <cim:GovGAST1.lmax>1.0</cim:GovGAST1.lmax>
+    <cim:GovGAST1.loadinc>0.1</cim:GovGAST1.loadinc>
+    <cim:GovGAST1.ltrate>0.5</cim:GovGAST1.ltrate>
+    <cim:GovGAST1.rmax>1.1</cim:GovGAST1.rmax>
+    <cim:GovGAST1.fidle>-0.1</cim:GovGAST1.fidle>
+    <cim:GovGAST1.gv1>0.0</cim:GovGAST1.gv1>
+    <cim:GovGAST1.pgv1>0.0</cim:GovGAST1.pgv1>
+    <cim:GovGAST1.gv2>0.0</cim:GovGAST1.gv2>
+    <cim:GovGAST1.pgv2>0.0</cim:GovGAST1.pgv2>
+    <cim:GovGAST1.gv3>0.0</cim:GovGAST1.gv3>
+    <cim:GovGAST1.pgv3>0.0</cim:GovGAST1.pgv3>
+    <cim:GovGAST1.gv4>0.0</cim:GovGAST1.gv4>
+    <cim:GovGAST1.pgv4>0.0</cim:GovGAST1.pgv4>
+    <cim:GovGAST1.gv5>0.0</cim:GovGAST1.gv5>
+    <cim:GovGAST1.pgv5>0.0</cim:GovGAST1.pgv5>
+    <cim:GovGAST1.gv6>0.0</cim:GovGAST1.gv6>
+    <cim:GovGAST1.pgv6>0.0</cim:GovGAST1.pgv6>
+    <cim:GovGAST1.vmax>1.0</cim:GovGAST1.vmax>
+    <cim:GovGAST1.vmin>0.0</cim:GovGAST1.vmin>
   </cim:GovGAST1>
 
   <!-- 27. GovGAST2 -->
   <cim:GovGAST2 rdf:ID="_gov-gast2">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-27"/>
-    <cim:GovGAST2.mwbase>130.0</cim:GovGAST2.mwbase>
-    <cim:GovGAST2.r>0.05</cim:GovGAST2.r>
-    <cim:GovGAST2.t1>0.5</cim:GovGAST2.t1>
-    <cim:GovGAST2.t2>3.0</cim:GovGAST2.t2>
-    <cim:GovGAST2.t3>10.0</cim:GovGAST2.t3>
-    <cim:GovGAST2.at>1.0</cim:GovGAST2.at>
-    <cim:GovGAST2.kt>2.0</cim:GovGAST2.kt>
-    <cim:GovGAST2.vmax>1.0</cim:GovGAST2.vmax>
-    <cim:GovGAST2.vmin>0.0</cim:GovGAST2.vmin>
-    <cim:GovGAST2.dturb>0.18</cim:GovGAST2.dturb>
-    <cim:GovGAST2.w>0.25</cim:GovGAST2.w>
-    <cim:GovGAST2.x>0.05</cim:GovGAST2.x>
-    <cim:GovGAST2.y>1.0</cim:GovGAST2.y>
-    <cim:GovGAST2.z>0.0</cim:GovGAST2.z>
-    <cim:GovGAST2.cd>1.0</cim:GovGAST2.cd>
-    <cim:GovGAST2.tf>0.4</cim:GovGAST2.tf>
+    <cim:GovGAST2.a>1.0</cim:GovGAST2.a>
+    <cim:GovGAST2.af1>0.5</cim:GovGAST2.af1>
+    <cim:GovGAST2.af2>-0.3</cim:GovGAST2.af2>
+    <cim:GovGAST2.b>0.5</cim:GovGAST2.b>
+    <cim:GovGAST2.bf1>1.0</cim:GovGAST2.bf1>
+    <cim:GovGAST2.bf2>1.0</cim:GovGAST2.bf2>
+    <cim:GovGAST2.c>1.0</cim:GovGAST2.c>
+    <cim:GovGAST2.cf2>0.7</cim:GovGAST2.cf2>
+    <cim:GovGAST2.ecr>0.01</cim:GovGAST2.ecr>
     <cim:GovGAST2.etd>0.04</cim:GovGAST2.etd>
+    <cim:GovGAST2.k3>0.8</cim:GovGAST2.k3>
+    <cim:GovGAST2.k4>0.2</cim:GovGAST2.k4>
+    <cim:GovGAST2.k5>0.8</cim:GovGAST2.k5>
+    <cim:GovGAST2.k6>0.2</cim:GovGAST2.k6>
+    <cim:GovGAST2.kf>0.0</cim:GovGAST2.kf>
+    <cim:GovGAST2.mwbase>130.0</cim:GovGAST2.mwbase>
+    <cim:GovGAST2.t>0.4</cim:GovGAST2.t>
+    <cim:GovGAST2.t3>15.0</cim:GovGAST2.t3>
+    <cim:GovGAST2.t4>0.2</cim:GovGAST2.t4>
+    <cim:GovGAST2.t5>3.3</cim:GovGAST2.t5>
+    <cim:GovGAST2.tc>0.5</cim:GovGAST2.tc>
     <cim:GovGAST2.tcd>0.2</cim:GovGAST2.tcd>
-    <cim:GovGAST2.trate>0.0</cim:GovGAST2.trate>
+    <cim:GovGAST2.tf>0.4</cim:GovGAST2.tf>
+    <cim:GovGAST2.tmax>1.1</cim:GovGAST2.tmax>
+    <cim:GovGAST2.tmin>-0.1</cim:GovGAST2.tmin>
+    <cim:GovGAST2.tr>950.0</cim:GovGAST2.tr>
+    <cim:GovGAST2.trate>130.0</cim:GovGAST2.trate>
+    <cim:GovGAST2.tt>0.5</cim:GovGAST2.tt>
+    <cim:GovGAST2.w>20.0</cim:GovGAST2.w>
+    <cim:GovGAST2.x>0.6</cim:GovGAST2.x>
+    <cim:GovGAST2.y>1.0</cim:GovGAST2.y>
+    <cim:GovGAST2.z>true</cim:GovGAST2.z>
   </cim:GovGAST2>
 
   <!-- 28. GovGAST3 -->
   <cim:GovGAST3 rdf:ID="_gov-gast3">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-28"/>
-    <cim:GovGAST3.mwbase>140.0</cim:GovGAST3.mwbase>
-    <cim:GovGAST3.r>0.05</cim:GovGAST3.r>
-    <cim:GovGAST3.t1>0.5</cim:GovGAST3.t1>
-    <cim:GovGAST3.vmax>1.0</cim:GovGAST3.vmax>
-    <cim:GovGAST3.vmin>0.0</cim:GovGAST3.vmin>
-    <cim:GovGAST3.dturb>0.18</cim:GovGAST3.dturb>
     <cim:GovGAST3.bca>0.0</cim:GovGAST3.bca>
-    <cim:GovGAST3.kca>1.0</cim:GovGAST3.kca>
-    <cim:GovGAST3.tsi>0.15</cim:GovGAST3.tsi>
     <cim:GovGAST3.bp>1.0</cim:GovGAST3.bp>
-    <cim:GovGAST3.tsa>4.0</cim:GovGAST3.tsa>
-    <cim:GovGAST3.tsb>5.0</cim:GovGAST3.tsb>
+    <cim:GovGAST3.dtc>0.1</cim:GovGAST3.dtc>
+    <cim:GovGAST3.ka>1.0</cim:GovGAST3.ka>
+    <cim:GovGAST3.kac>0.9</cim:GovGAST3.kac>
+    <cim:GovGAST3.kca>1.0</cim:GovGAST3.kca>
+    <cim:GovGAST3.ksi>0.5</cim:GovGAST3.ksi>
+    <cim:GovGAST3.ky>1.0</cim:GovGAST3.ky>
+    <cim:GovGAST3.mnef>-1.0</cim:GovGAST3.mnef>
+    <cim:GovGAST3.mxef>1.0</cim:GovGAST3.mxef>
+    <cim:GovGAST3.rcmn>-0.1</cim:GovGAST3.rcmn>
+    <cim:GovGAST3.rcmx>0.1</cim:GovGAST3.rcmx>
+    <cim:GovGAST3.tac>4.0</cim:GovGAST3.tac>
+    <cim:GovGAST3.tc>5.0</cim:GovGAST3.tc>
+    <cim:GovGAST3.td>0.2</cim:GovGAST3.td>
+    <cim:GovGAST3.tfen>3.0</cim:GovGAST3.tfen>
+    <cim:GovGAST3.tg>0.05</cim:GovGAST3.tg>
+    <cim:GovGAST3.tsi>0.15</cim:GovGAST3.tsi>
+    <cim:GovGAST3.tt>0.1</cim:GovGAST3.tt>
+    <cim:GovGAST3.ttc>0.1</cim:GovGAST3.ttc>
+    <cim:GovGAST3.ty>0.1</cim:GovGAST3.ty>
   </cim:GovGAST3>
 
   <!-- 29. GovGAST4 -->
   <cim:GovGAST4 rdf:ID="_gov-gast4">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-29"/>
-    <cim:GovGAST4.mwbase>150.0</cim:GovGAST4.mwbase>
-    <cim:GovGAST4.r>0.05</cim:GovGAST4.r>
-    <cim:GovGAST4.t1>0.5</cim:GovGAST4.t1>
-    <cim:GovGAST4.t2>3.0</cim:GovGAST4.t2>
-    <cim:GovGAST4.t3>10.0</cim:GovGAST4.t3>
-    <cim:GovGAST4.at>1.0</cim:GovGAST4.at>
-    <cim:GovGAST4.kt>2.0</cim:GovGAST4.kt>
-    <cim:GovGAST4.vmax>1.0</cim:GovGAST4.vmax>
-    <cim:GovGAST4.vmin>0.0</cim:GovGAST4.vmin>
-    <cim:GovGAST4.dturb>0.18</cim:GovGAST4.dturb>
     <cim:GovGAST4.bp>1.0</cim:GovGAST4.bp>
-    <cim:GovGAST4.tr>0.0</cim:GovGAST4.tr>
-    <cim:GovGAST4.rLimMax>1.0</cim:GovGAST4.rLimMax>
-    <cim:GovGAST4.rLimMin>-1.0</cim:GovGAST4.rLimMin>
+    <cim:GovGAST4.ktm>1.0</cim:GovGAST4.ktm>
+    <cim:GovGAST4.mnef>-1.0</cim:GovGAST4.mnef>
+    <cim:GovGAST4.mxef>1.0</cim:GovGAST4.mxef>
+    <cim:GovGAST4.rymn>-0.1</cim:GovGAST4.rymn>
+    <cim:GovGAST4.rymx>0.1</cim:GovGAST4.rymx>
+    <cim:GovGAST4.ta>0.5</cim:GovGAST4.ta>
+    <cim:GovGAST4.tc>3.0</cim:GovGAST4.tc>
+    <cim:GovGAST4.tcm>0.2</cim:GovGAST4.tcm>
+    <cim:GovGAST4.tm>10.0</cim:GovGAST4.tm>
+    <cim:GovGAST4.tv>0.05</cim:GovGAST4.tv>
+    <cim:GovGAST4.ty>0.05</cim:GovGAST4.ty>
   </cim:GovGAST4>
 
   <!-- 30. GovGASTWD -->
   <cim:GovGASTWD rdf:ID="_gov-gastwd">
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-30"/>
-    <cim:GovGASTWD.mwbase>160.0</cim:GovGASTWD.mwbase>
-    <cim:GovGASTWD.r>0.05</cim:GovGASTWD.r>
-    <cim:GovGASTWD.rdown>-0.99</cim:GovGASTWD.rdown>
-    <cim:GovGASTWD.rup>99.0</cim:GovGASTWD.rup>
-    <cim:GovGASTWD.ta>0.01</cim:GovGASTWD.ta>
-    <cim:GovGASTWD.tact>0.4</cim:GovGASTWD.tact>
-    <cim:GovGASTWD.tb>3.0</cim:GovGASTWD.tb>
-    <cim:GovGASTWD.tc>2.0</cim:GovGASTWD.tc>
-    <cim:GovGASTWD.tf>1.0</cim:GovGASTWD.tf>
-    <cim:GovGASTWD.kdroop>0.05</cim:GovGASTWD.kdroop>
+    <cim:GovGASTWD.a>1.0</cim:GovGASTWD.a>
+    <cim:GovGASTWD.af1>0.5</cim:GovGASTWD.af1>
+    <cim:GovGASTWD.af2>-0.3</cim:GovGASTWD.af2>
+    <cim:GovGASTWD.b>0.5</cim:GovGASTWD.b>
+    <cim:GovGASTWD.bf1>1.0</cim:GovGASTWD.bf1>
+    <cim:GovGASTWD.bf2>1.0</cim:GovGASTWD.bf2>
+    <cim:GovGASTWD.c>1.0</cim:GovGASTWD.c>
+    <cim:GovGASTWD.cf2>0.7</cim:GovGASTWD.cf2>
+    <cim:GovGASTWD.ecr>0.01</cim:GovGASTWD.ecr>
     <cim:GovGASTWD.etd>0.04</cim:GovGASTWD.etd>
+    <cim:GovGASTWD.k3>0.8</cim:GovGASTWD.k3>
+    <cim:GovGASTWD.k4>0.2</cim:GovGASTWD.k4>
+    <cim:GovGASTWD.k5>0.8</cim:GovGASTWD.k5>
+    <cim:GovGASTWD.k6>0.2</cim:GovGASTWD.k6>
+    <cim:GovGASTWD.kd>0.1</cim:GovGASTWD.kd>
+    <cim:GovGASTWD.kdroop>0.05</cim:GovGASTWD.kdroop>
+    <cim:GovGASTWD.kf>0.0</cim:GovGASTWD.kf>
+    <cim:GovGASTWD.ki>0.45</cim:GovGASTWD.ki>
+    <cim:GovGASTWD.kp>1.0</cim:GovGASTWD.kp>
+    <cim:GovGASTWD.mwbase>160.0</cim:GovGASTWD.mwbase>
+    <cim:GovGASTWD.t>0.4</cim:GovGASTWD.t>
+    <cim:GovGASTWD.t3>15.0</cim:GovGASTWD.t3>
+    <cim:GovGASTWD.t4>0.2</cim:GovGASTWD.t4>
+    <cim:GovGASTWD.t5>3.3</cim:GovGASTWD.t5>
+    <cim:GovGASTWD.tc>0.5</cim:GovGASTWD.tc>
     <cim:GovGASTWD.tcd>0.2</cim:GovGASTWD.tcd>
-    <cim:GovGASTWD.trate>0.0</cim:GovGASTWD.trate>
-    <cim:GovGASTWD.teng>0.0</cim:GovGASTWD.teng>
     <cim:GovGASTWD.td>3.0</cim:GovGASTWD.td>
-    <cim:GovGASTWD.tltr>10.0</cim:GovGASTWD.tltr>
-    <cim:GovGASTWD.tsa>4.0</cim:GovGASTWD.tsa>
-    <cim:GovGASTWD.tsb>5.0</cim:GovGASTWD.tsb>
-    <cim:GovGASTWD.vmax>1.0</cim:GovGASTWD.vmax>
-    <cim:GovGASTWD.vmin>0.0</cim:GovGASTWD.vmin>
-    <cim:GovGASTWD.dpv>0.0</cim:GovGASTWD.dpv>
-    <cim:GovGASTWD.kpgov>1.0</cim:GovGASTWD.kpgov>
-    <cim:GovGASTWD.kigov>0.45</cim:GovGASTWD.kigov>
+    <cim:GovGASTWD.tf>1.0</cim:GovGASTWD.tf>
+    <cim:GovGASTWD.tmax>1.1</cim:GovGASTWD.tmax>
+    <cim:GovGASTWD.tmin>-0.1</cim:GovGASTWD.tmin>
+    <cim:GovGASTWD.tr>950.0</cim:GovGASTWD.tr>
+    <cim:GovGASTWD.trate>160.0</cim:GovGASTWD.trate>
+    <cim:GovGASTWD.tt>0.5</cim:GovGASTWD.tt>
   </cim:GovGASTWD>
 
   <!-- 31. GovCT1 -->
@@ -828,7 +966,10 @@
     <cim:GovCT1.tb>0.1</cim:GovCT1.tb>
     <cim:GovCT1.tc>0.0</cim:GovCT1.tc>
     <cim:GovCT1.teng>0.0</cim:GovCT1.teng>
-    <cim:GovCT1.tf>1.0</cim:GovCT1.tf>
+    <cim:GovCT1.rselect>1.0</cim:GovCT1.rselect>
+    <cim:GovCT1.tpelec>1.0</cim:GovCT1.tpelec>
+    <cim:GovCT1.tfload>3.0</cim:GovCT1.tfload>
+    <cim:GovCT1.kturb>1.9</cim:GovCT1.kturb>
     <cim:GovCT1.tsa>4.0</cim:GovCT1.tsa>
     <cim:GovCT1.tsb>5.0</cim:GovCT1.tsb>
     <cim:GovCT1.vmax>1.0</cim:GovCT1.vmax>
@@ -841,14 +982,14 @@
     <cim:GovCT1.kpload>1.0</cim:GovCT1.kpload>
     <cim:GovCT1.kiload>1.0</cim:GovCT1.kiload>
     <cim:GovCT1.tdgov>1.0</cim:GovCT1.tdgov>
-    <cim:GovCT1.tno>0.0</cim:GovCT1.tno>
+    <cim:GovCT1.maxerr>0.05</cim:GovCT1.maxerr>
+    <cim:GovCT1.minerr>-0.05</cim:GovCT1.minerr>
     <cim:GovCT1.ldref>1.0</cim:GovCT1.ldref>
     <cim:GovCT1.dm>0.0</cim:GovCT1.dm>
     <cim:GovCT1.db>0.0</cim:GovCT1.db>
     <cim:GovCT1.ropen>99.0</cim:GovCT1.ropen>
     <cim:GovCT1.rclose>-99.0</cim:GovCT1.rclose>
     <cim:GovCT1.kimw>0.0</cim:GovCT1.kimw>
-    <cim:GovCT1.pmwset>0.0</cim:GovCT1.pmwset>
     <cim:GovCT1.aset>10.0</cim:GovCT1.aset>
     <cim:GovCT1.ka>10.0</cim:GovCT1.ka>
   </cim:GovCT1>
@@ -858,6 +999,7 @@
     <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_sm-gov-32"/>
     <cim:GovCT2.mwbase>180.0</cim:GovCT2.mwbase>
     <cim:GovCT2.r>0.05</cim:GovCT2.r>
+    <cim:GovCT2.rselect>1.0</cim:GovCT2.rselect>
     <cim:GovCT2.rdown>-99.0</cim:GovCT2.rdown>
     <cim:GovCT2.rup>99.0</cim:GovCT2.rup>
     <cim:GovCT2.ta>0.01</cim:GovCT2.ta>
@@ -865,9 +1007,10 @@
     <cim:GovCT2.tb>0.1</cim:GovCT2.tb>
     <cim:GovCT2.tc>0.0</cim:GovCT2.tc>
     <cim:GovCT2.teng>0.0</cim:GovCT2.teng>
-    <cim:GovCT2.tf>1.0</cim:GovCT2.tf>
     <cim:GovCT2.tsa>4.0</cim:GovCT2.tsa>
     <cim:GovCT2.tsb>5.0</cim:GovCT2.tsb>
+    <cim:GovCT2.tpelec>1.0</cim:GovCT2.tpelec>
+    <cim:GovCT2.tfload>3.0</cim:GovCT2.tfload>
     <cim:GovCT2.vmax>1.0</cim:GovCT2.vmax>
     <cim:GovCT2.vmin>0.0</cim:GovCT2.vmin>
     <cim:GovCT2.wfnl>0.2</cim:GovCT2.wfnl>
@@ -878,14 +1021,15 @@
     <cim:GovCT2.kpload>1.0</cim:GovCT2.kpload>
     <cim:GovCT2.kiload>1.0</cim:GovCT2.kiload>
     <cim:GovCT2.tdgov>1.0</cim:GovCT2.tdgov>
-    <cim:GovCT2.tno>0.0</cim:GovCT2.tno>
     <cim:GovCT2.ldref>1.0</cim:GovCT2.ldref>
+    <cim:GovCT2.maxerr>0.05</cim:GovCT2.maxerr>
+    <cim:GovCT2.minerr>-0.05</cim:GovCT2.minerr>
     <cim:GovCT2.dm>0.0</cim:GovCT2.dm>
     <cim:GovCT2.db>0.0</cim:GovCT2.db>
+    <cim:GovCT2.kturb>1.9</cim:GovCT2.kturb>
     <cim:GovCT2.ropen>99.0</cim:GovCT2.ropen>
     <cim:GovCT2.rclose>-99.0</cim:GovCT2.rclose>
     <cim:GovCT2.kimw>0.0</cim:GovCT2.kimw>
-    <cim:GovCT2.pmwset>0.0</cim:GovCT2.pmwset>
     <cim:GovCT2.aset>10.0</cim:GovCT2.aset>
     <cim:GovCT2.ka>10.0</cim:GovCT2.ka>
     <cim:GovCT2.flim1>0.0</cim:GovCT2.flim1>   <cim:GovCT2.plim1>0.0</cim:GovCT2.plim1>
@@ -898,9 +1042,7 @@
     <cim:GovCT2.flim8>0.0</cim:GovCT2.flim8>   <cim:GovCT2.plim8>0.0</cim:GovCT2.plim8>
     <cim:GovCT2.flim9>0.0</cim:GovCT2.flim9>   <cim:GovCT2.plim9>0.0</cim:GovCT2.plim9>
     <cim:GovCT2.flim10>0.0</cim:GovCT2.flim10> <cim:GovCT2.plim10>0.0</cim:GovCT2.plim10>
-    <cim:GovCT2.prate>true</cim:GovCT2.prate>
-    <cim:GovCT2.uc>-99.0</cim:GovCT2.uc>
-    <cim:GovCT2.uo>99.0</cim:GovCT2.uo>
+    <cim:GovCT2.prate>0.017</cim:GovCT2.prate>
   </cim:GovCT2>
 
 </rdf:RDF>

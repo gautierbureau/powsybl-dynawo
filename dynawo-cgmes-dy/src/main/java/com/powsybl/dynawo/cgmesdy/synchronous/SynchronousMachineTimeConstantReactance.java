@@ -60,6 +60,12 @@ public record SynchronousMachineTimeConstantReactance(
      */
     String modelType,
     /**
+     * Rotor construction: {@code "roundRotor"} or {@code "salientPole"}. Selects the machine
+     * model family (GENROU vs GENSAL).
+     * CIM attribute: {@code SynchronousMachineTimeConstantReactance.rotorType}.
+     */
+    String rotorType,
+    /**
      * Saturation loading correction factor Ks (PU).
      * Shifts the saturation characteristic origin; typically 0.
      */
@@ -93,6 +99,6 @@ public record SynchronousMachineTimeConstantReactance(
     /** q-axis subtransient open-circuit time constant T''q0 (s). */
     double tppqo,
 
-    /** Armature leakage reactance Xl (PU). Must satisfy Xl ≤ Xd''. */
-    double xl
+    /** Damping/compensating time constant Tc (s). CIM {@code SynchronousMachineTimeConstantReactance.tc}. */
+    double tc
 ) { }

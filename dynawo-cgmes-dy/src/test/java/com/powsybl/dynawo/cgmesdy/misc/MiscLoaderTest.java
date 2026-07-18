@@ -99,21 +99,18 @@ class MiscLoaderTest {
             assertFalse(lc.energyConsumerId().isBlank());
             assertEquals(1.0, lc.epvs(), T);
             assertEquals(1.5, lc.epfs(), T);
+            assertEquals(2.0, lc.eqvs(), T);
+            assertEquals(1.0, lc.epvd(), T);
+            assertEquals(2.5, lc.eqfd(), T);
+            assertEquals(2.0, lc.h(), T);
             assertEquals(0.5, lc.lfrac(), T);
             assertEquals(0.5, lc.pfrac(), T);
-            assertEquals(0.05, lc.td(), T);
-            assertEquals(3.0, lc.xm(), T);
-            assertEquals(0.2, lc.xp(), T);
-            assertEquals(0.12, lc.xpp(), T);
-            assertEquals(1.5, lc.tpo(), T);
-            assertEquals(0.02, lc.tppo(), T);
         }
 
         @Test void fractionConstraints() {
             LoadComposite lc = MODEL.loadCompositeList().get(0);
-            assertTrue(lc.xm() >= lc.xp(), "xm >= xp");
-            assertTrue(lc.xp() >= lc.xpp(), "xp >= xpp");
-            assertTrue(lc.tpo() >= lc.tppo(), "tpo >= tppo");
+            assertTrue(lc.h() >= 0.0, "h >= 0");
+            assertTrue(lc.lfrac() >= 0.0 && lc.pfrac() >= 0.0, "load fractions >= 0");
         }
     }
 
@@ -125,21 +122,21 @@ class MiscLoaderTest {
         @Test void fields() {
             LoadMotor lm = one(MODEL.loadMotorList(), "LoadMotor");
             assertEquals(0.5, lm.pfrac(), T);
+            assertEquals(3.0, lm.ls(), T);
             assertEquals(0.01, lm.ra(), T);
+            assertEquals(0.19, lm.lp(), T);
+            assertEquals(0.14, lm.lpp(), T);
             assertEquals(1.0, lm.tpo(), T);
             assertEquals(0.02, lm.tppo(), T);
             assertEquals(0.5, lm.h(), T);
             assertEquals(2.0, lm.d(), T);
             assertEquals(0.9, lm.vt(), T);
-            assertEquals(0.86, lm.vbrkr(), T);
-            assertEquals(0.8, lm.compPF(), T);
         }
 
-        @Test void voltageSwitchpointsOrdered() {
+        @Test void reactancesOrdered() {
             LoadMotor lm = MODEL.loadMotorList().get(0);
-            // vc1off > vc2off (stall/trip ordering)
-            assertTrue(lm.vc1off() > lm.vc2off(), "vc1off > vc2off");
-            assertTrue(lm.vc1on() > lm.vc2on(), "vc1on  > vc2on");
+            // transient reactance >= subtransient reactance
+            assertTrue(lm.lp() >= lm.lpp(), "lp >= lpp");
         }
     }
 
@@ -254,7 +251,6 @@ class MiscLoaderTest {
             assertEquals(1.0, d.vtlmt(), T);
             assertEquals(0.3, d.vomax(), T);
             assertEquals(-0.3, d.vomin(), T);
-            assertEquals(0.9, d.vdis(), T);
             assertEquals(0.4, d.vanmax(), T);
             assertEquals(0.95, d.vtm(), T);
             assertEquals(1.05, d.vtn(), T);
@@ -395,10 +391,10 @@ class MiscLoaderTest {
 
         @Test void fields() {
             UnderexcLimX2 u = one(MODEL.uelX2List(), "UnderexcLimX2");
-            assertEquals(3.3, u.kuf(), T);
-            assertEquals(100.0, u.kul(), T);
-            assertEquals(-0.31, u.q0(), T);
-            assertEquals(-5.8, u.vuimin(), T);
+            assertEquals(1.0, u.km(), T);
+            assertEquals(0.9, u.melmax(), T);
+            assertEquals(-0.31, u.qo(), T);
+            assertEquals(0.5, u.tf2(), T);
         }
     }
 

@@ -6,32 +6,29 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.exciters.vendor;
-/** ExcAC6A – Non-IEEE AC6A stationary rectifier variant. CIM: ExcAC6A
- * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
+/** ExcST3A – IEEE ST3A static exciter (vendor variant). CIM: ExcST3A
+ * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-public record ExcAC6A(
+public record ExcST3A(
     String id, String synchronousMachineId,
-    double ka,
+    double efdmax,
     double kc,
-    double kd,
-    double ke,
-    double kh,
+    double kg,
+    double ki,
+    double kj,
+    double km,
+    double kp,
     double ks,
-    double seve1,
-    double seve2,
-    double ta,
+    double ks1,
     double tb,
     double tc,
-    double te,
-    double th,
-    double tj,
-    double tk,
-    double vamax,
-    double vamin,
-    double ve1,
-    double ve2,
-    double vfelim,
-    double vhmax,
+    double thetap,
+    double tm,
+    double vbmax,
+    double vgmax,
+    double vimax,
+    double vimin,
     double vrmax,
-    double vrmin
+    double vrmin,
+    double xl
 ) { }

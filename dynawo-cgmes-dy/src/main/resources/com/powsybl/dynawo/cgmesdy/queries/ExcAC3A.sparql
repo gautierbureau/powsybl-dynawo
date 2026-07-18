@@ -11,24 +11,30 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcAC3A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcAC3A.tr ?tr . }
-  OPTIONAL { ?id cim:ExcAC3A.tb ?tb . }
-  OPTIONAL { ?id cim:ExcAC3A.tc ?tc . }
+  OPTIONAL { ?id cim:ExcAC3A.efdn ?efdn . }
   OPTIONAL { ?id cim:ExcAC3A.ka ?ka . }
-  OPTIONAL { ?id cim:ExcAC3A.ta ?ta . }
-  OPTIONAL { ?id cim:ExcAC3A.vamax ?vamax . }
-  OPTIONAL { ?id cim:ExcAC3A.vamin ?vamin . }
-  OPTIONAL { ?id cim:ExcAC3A.te ?te . }
-  OPTIONAL { ?id cim:ExcAC3A.vemin ?vemin . }
-  OPTIONAL { ?id cim:ExcAC3A.kr ?kr . }
-  OPTIONAL { ?id cim:ExcAC3A.kf ?kf . }
-  OPTIONAL { ?id cim:ExcAC3A.tf ?tf . }
   OPTIONAL { ?id cim:ExcAC3A.kc ?kc . }
   OPTIONAL { ?id cim:ExcAC3A.kd ?kd . }
   OPTIONAL { ?id cim:ExcAC3A.ke ?ke . }
+  OPTIONAL { ?id cim:ExcAC3A.kf ?kf . }
+  OPTIONAL { ?id cim:ExcAC3A.kf1 ?kf1 . }
+  OPTIONAL { ?id cim:ExcAC3A.kf2 ?kf2 . }
+  OPTIONAL { ?id cim:ExcAC3A.klv ?klv . }
+  OPTIONAL { ?id cim:ExcAC3A.kn ?kn . }
+  OPTIONAL { ?id cim:ExcAC3A.kr ?kr . }
+  OPTIONAL { ?id cim:ExcAC3A.ks ?ks . }
+  OPTIONAL { ?id cim:ExcAC3A.seve1 ?seve1 . }
+  OPTIONAL { ?id cim:ExcAC3A.seve2 ?seve2 . }
+  OPTIONAL { ?id cim:ExcAC3A.ta ?ta . }
+  OPTIONAL { ?id cim:ExcAC3A.tb ?tb . }
+  OPTIONAL { ?id cim:ExcAC3A.tc ?tc . }
+  OPTIONAL { ?id cim:ExcAC3A.te ?te . }
+  OPTIONAL { ?id cim:ExcAC3A.tf ?tf . }
+  OPTIONAL { ?id cim:ExcAC3A.vamax ?vamax . }
+  OPTIONAL { ?id cim:ExcAC3A.vamin ?vamin . }
+  OPTIONAL { ?id cim:ExcAC3A.ve1 ?ve1 . }
+  OPTIONAL { ?id cim:ExcAC3A.ve2 ?ve2 . }
+  OPTIONAL { ?id cim:ExcAC3A.vemin ?vemin . }
   OPTIONAL { ?id cim:ExcAC3A.vfemax ?vfemax . }
-  OPTIONAL { ?id cim:ExcAC3A.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcAC3A.se1 ?se1 . }
-  OPTIONAL { ?id cim:ExcAC3A.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcAC3A.se2 ?se2 . }
+  OPTIONAL { ?id cim:ExcAC3A.vlv ?vlv . }
 }

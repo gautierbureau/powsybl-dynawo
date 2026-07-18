@@ -11,6 +11,7 @@ package com.powsybl.dynawo.cgmesdy.pss;
  */
 public record PssSB4(
     String id, String excitationSystemId,
-    double tt, double kx, double tx1, double tx2, double tx3, double tx4,
+    double kx, double ta, double tb, double tc, double td, double te,
+    double tt, double tx1, double tx2,
     double vsmax, double vsmin
 ) { }

@@ -20,6 +20,7 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:RotatingMachineDynamics.saturationFactor ?saturationFactor . }
   OPTIONAL { ?id cim:RotatingMachineDynamics.saturationFactor120 ?saturationFactor120 . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.modelType ?modelType . }
+  OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.rotorType ?rotorType . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.ks ?ks . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.xDirectSync ?xDirectSync . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.xDirectTrans ?xDirectTrans . }
@@ -31,5 +32,5 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.tppdo ?tppdo . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.tpqo ?tpqo . }
   OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.tppqo ?tppqo . }
-  OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.xl ?xl . }
+  OPTIONAL { ?id cim:SynchronousMachineTimeConstantReactance.tc ?tc . }
 }

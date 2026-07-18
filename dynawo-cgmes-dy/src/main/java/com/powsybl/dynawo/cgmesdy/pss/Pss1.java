@@ -6,11 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.pss;
-/** Pss1 – Simple single-input PSS. CIM: Pss1
+/** Pss1 – Italian three-input (speed / frequency / electric power) PSS. CIM: Pss1
+ *
+ * <p>{@code komega} carries the CIM17 speed-input gain (CIM16 name {@code kw}); both SPARQL paths
+ * bind it. {@code vadat} is the signal selector (true = closed, false = open).
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record Pss1(
     String id, String excitationSystemId,
-    double kx, double t1, double t2, double t3, double t4,
-    double t5, double t6, double vsmax, double vsmin
+    double kf, double komega, double kpe, double ks, double pmin,
+    double t5, double t6, double t7, double t8, double t9, double t10,
+    double tpe, boolean vadat, double vsmn, double vsmx
 ) { }

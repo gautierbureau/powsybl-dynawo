@@ -18,6 +18,7 @@
         <cim:RotatingMachineDynamics.saturationFactor>0.05</cim:RotatingMachineDynamics.saturationFactor>
         <cim:RotatingMachineDynamics.saturationFactor120>0.3</cim:RotatingMachineDynamics.saturationFactor120>
         <cim:SynchronousMachineTimeConstantReactance.modelType>subtransient</cim:SynchronousMachineTimeConstantReactance.modelType>
+        <cim:SynchronousMachineTimeConstantReactance.rotorType>roundRotor</cim:SynchronousMachineTimeConstantReactance.rotorType>
         <cim:SynchronousMachineTimeConstantReactance.ks>0.0</cim:SynchronousMachineTimeConstantReactance.ks>
         <cim:SynchronousMachineTimeConstantReactance.xDirectSync>1.81</cim:SynchronousMachineTimeConstantReactance.xDirectSync>
         <cim:SynchronousMachineTimeConstantReactance.xDirectTrans>0.3</cim:SynchronousMachineTimeConstantReactance.xDirectTrans>
@@ -29,7 +30,7 @@
         <cim:SynchronousMachineTimeConstantReactance.tppdo>0.053</cim:SynchronousMachineTimeConstantReactance.tppdo>
         <cim:SynchronousMachineTimeConstantReactance.tpqo>0.32</cim:SynchronousMachineTimeConstantReactance.tpqo>
         <cim:SynchronousMachineTimeConstantReactance.tppqo>0.05</cim:SynchronousMachineTimeConstantReactance.tppqo>
-        <cim:SynchronousMachineTimeConstantReactance.xl>0.15</cim:SynchronousMachineTimeConstantReactance.xl>
+        <cim:SynchronousMachineTimeConstantReactance.tc>0.0</cim:SynchronousMachineTimeConstantReactance.tc>
     </cim:SynchronousMachineTimeConstantReactance>
 
     <!-- ======================================================
@@ -54,7 +55,6 @@
     <cim:ExcIEEEDC1A rdf:ID="_exc_dc1a_1">
         <cim:IdentifiedObject.name>ExcDC1A_G1</cim:IdentifiedObject.name>
         <cim:ExcitationSystemDynamics.SynchronousMachineDynamics rdf:resource="#_sync_machine_dyn_1"/>
-        <cim:ExcIEEEDC1A.tr>0.0</cim:ExcIEEEDC1A.tr>
         <cim:ExcIEEEDC1A.ka>46.0</cim:ExcIEEEDC1A.ka>
         <cim:ExcIEEEDC1A.ta>0.06</cim:ExcIEEEDC1A.ta>
         <cim:ExcIEEEDC1A.tb>0.0</cim:ExcIEEEDC1A.tb>
@@ -65,9 +65,6 @@
         <cim:ExcIEEEDC1A.te>0.46</cim:ExcIEEEDC1A.te>
         <cim:ExcIEEEDC1A.kf>0.1</cim:ExcIEEEDC1A.kf>
         <cim:ExcIEEEDC1A.tf>1.0</cim:ExcIEEEDC1A.tf>
-        <cim:ExcIEEEDC1A.kc>0.0</cim:ExcIEEEDC1A.kc>
-        <cim:ExcIEEEDC1A.kd>0.0</cim:ExcIEEEDC1A.kd>
-        <cim:ExcIEEEDC1A.ki>0.0</cim:ExcIEEEDC1A.ki>
         <cim:ExcIEEEDC1A.efd1>3.1</cim:ExcIEEEDC1A.efd1>
         <cim:ExcIEEEDC1A.seefd1>0.33</cim:ExcIEEEDC1A.seefd1>
         <cim:ExcIEEEDC1A.efd2>2.3</cim:ExcIEEEDC1A.efd2>
@@ -103,6 +100,10 @@
         <cim:PssIEEE2B.t11>0.0</cim:PssIEEE2B.t11>
         <cim:PssIEEE2B.n>2</cim:PssIEEE2B.n>
         <cim:PssIEEE2B.m>5</cim:PssIEEE2B.m>
+        <cim:PssIEEE2B.vsi1max>2.0</cim:PssIEEE2B.vsi1max>
+        <cim:PssIEEE2B.vsi1min>-2.0</cim:PssIEEE2B.vsi1min>
+        <cim:PssIEEE2B.vsi2max>2.0</cim:PssIEEE2B.vsi2max>
+        <cim:PssIEEE2B.vsi2min>-2.0</cim:PssIEEE2B.vsi2min>
         <cim:PssIEEE2B.vstmax>0.1</cim:PssIEEE2B.vstmax>
         <cim:PssIEEE2B.vstmin>-0.1</cim:PssIEEE2B.vstmin>
     </cim:PssIEEE2B>
@@ -123,7 +124,6 @@
     <cim:ExcIEEEAC1A rdf:ID="_exc_ac1a_1">
         <cim:IdentifiedObject.name>ExcAC1A_G2</cim:IdentifiedObject.name>
         <cim:ExcitationSystemDynamics.SynchronousMachineDynamics rdf:resource="#_sync_machine_dyn_2"/>
-        <cim:ExcIEEEAC1A.tr>0.0</cim:ExcIEEEAC1A.tr>
         <cim:ExcIEEEAC1A.tb>0.0</cim:ExcIEEEAC1A.tb>
         <cim:ExcIEEEAC1A.tc>0.0</cim:ExcIEEEAC1A.tc>
         <cim:ExcIEEEAC1A.ka>400.0</cim:ExcIEEEAC1A.ka>
@@ -136,13 +136,12 @@
         <cim:ExcIEEEAC1A.kc>0.2</cim:ExcIEEEAC1A.kc>
         <cim:ExcIEEEAC1A.kd>0.38</cim:ExcIEEEAC1A.kd>
         <cim:ExcIEEEAC1A.ke>1.0</cim:ExcIEEEAC1A.ke>
-        <cim:ExcIEEEAC1A.vfemax>6.9</cim:ExcIEEEAC1A.vfemax>
         <cim:ExcIEEEAC1A.vrmax>6.03</cim:ExcIEEEAC1A.vrmax>
         <cim:ExcIEEEAC1A.vrmin>-5.43</cim:ExcIEEEAC1A.vrmin>
-        <cim:ExcIEEEAC1A.e1>4.18</cim:ExcIEEEAC1A.e1>
-        <cim:ExcIEEEAC1A.se1>0.1</cim:ExcIEEEAC1A.se1>
-        <cim:ExcIEEEAC1A.e2>3.14</cim:ExcIEEEAC1A.e2>
-        <cim:ExcIEEEAC1A.se2>0.03</cim:ExcIEEEAC1A.se2>
+        <cim:ExcIEEEAC1A.ve1>4.18</cim:ExcIEEEAC1A.ve1>
+        <cim:ExcIEEEAC1A.seve1>0.1</cim:ExcIEEEAC1A.seve1>
+        <cim:ExcIEEEAC1A.ve2>3.14</cim:ExcIEEEAC1A.ve2>
+        <cim:ExcIEEEAC1A.seve2>0.03</cim:ExcIEEEAC1A.seve2>
     </cim:ExcIEEEAC1A>
 
     <!-- ======================================================

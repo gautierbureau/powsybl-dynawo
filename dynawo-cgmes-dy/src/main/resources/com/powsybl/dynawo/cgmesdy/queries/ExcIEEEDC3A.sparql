@@ -13,12 +13,10 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.trh ?trh . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.kv ?kv . }
-  OPTIONAL { ?id cim:ExcIEEEDC3A.vmax ?vmax . }
-  OPTIONAL { ?id cim:ExcIEEEDC3A.vmin ?vmin . }
+  OPTIONAL { ?id cim:ExcIEEEDC3A.vrmax ?vrmax . }
+  OPTIONAL { ?id cim:ExcIEEEDC3A.vrmin ?vrmin . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.ke ?ke . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.te ?te . }
-  OPTIONAL { ?id cim:ExcIEEEDC3A.kf ?kf . }
-  OPTIONAL { ?id cim:ExcIEEEDC3A.tf ?tf . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.efd1 ?efd1 . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.seefd1 ?seefd1 . }
   OPTIONAL { ?id cim:ExcIEEEDC3A.efd2 ?efd2 . }

@@ -11,9 +11,11 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcREXS(
     String id, String synchronousMachineId,
-    double tr, double ta, double tb1, double tb2, double tc1, double tc2,
-    double ka, double vamax, double vamin, double vrmax, double vrmin,
-    double te, double ke, double kf, double tf, double kc, double kd, double ki,
-    double e1, double se1, double e2, double se2,
-    String feedbackSignal, boolean exclfb
+    double e1, double e2, String fbf, double flimf, double kc, double kd,
+    double ke, double kefd, double kf, double kh, double kii, double kip,
+    double ks, double kvi, double kvp, double kvphz, double nvphz,
+    double se1, double se2, double ta, double tb1, double tb2, double tc1,
+    double tc2, double te, double tf, double tf1, double tf2, double tp,
+    double vcmax, double vfmax, double vfmin, double vimax, double vrmax,
+    double vrmin, double xc
 ) { }

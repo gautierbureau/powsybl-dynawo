@@ -217,9 +217,11 @@ public final class CgmesDyModelLoader {
                         asDouble(b, "t4"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t5"), asDouble(b, "k3"), asDouble(b, "k4"),
                         asDouble(b, "t6"), asDouble(b, "k5"), asDouble(b, "k6"), asDouble(b, "t7"), asDouble(b, "k7"), asDouble(b, "k8"),
                         asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"),
+                        asBoolean(b, "sdb1"), asBoolean(b, "sdb2"),
                         asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
                         asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"),
-                        asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6")));
+                        asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6"),
+                        asBoolean(b, "valve")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteam1 {}: {}", resourceId(b), e.getMessage());
             }
@@ -231,9 +233,8 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteam2(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "dbf"), asDouble(b, "k"), asDouble(b, "r"),
-                        asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                        asDouble(b, "uo"), asDouble(b, "uc")));
+                        asDouble(b, "dbf"), asDouble(b, "k"), asDouble(b, "mnef"), asDouble(b, "mxef"),
+                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "t1"), asDouble(b, "t2")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteam2 {}: {}", resourceId(b), e.getMessage());
             }
@@ -245,10 +246,11 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamCC(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"),
-                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "uc"), asDouble(b, "uo"),
-                        asDouble(b, "dhp"), asDouble(b, "dlp"), asDouble(b, "fhp"), asDouble(b, "flp"),
-                        asDouble(b, "fip"), asDouble(b, "tip"), asDouble(b, "tlp")));
+                        asDouble(b, "mwbase"),
+                        asDouble(b, "rhp"), asDouble(b, "t1hp"), asDouble(b, "t3hp"), asDouble(b, "t4hp"), asDouble(b, "t5hp"),
+                        asDouble(b, "fhp"), asDouble(b, "dhp"), asDouble(b, "pmaxhp"),
+                        asDouble(b, "rlp"), asDouble(b, "t1lp"), asDouble(b, "t3lp"), asDouble(b, "t4lp"), asDouble(b, "t5lp"),
+                        asDouble(b, "flp"), asDouble(b, "dlp"), asDouble(b, "pmaxlp")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamCC {}: {}", resourceId(b), e.getMessage());
             }
@@ -260,11 +262,12 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamEU(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "ke"), asDouble(b, "kfcor"), asDouble(b, "komegacor"),
-                        asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"),
-                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "te"), asDouble(b, "tfp"),
-                        asDouble(b, "tvhp"), asDouble(b, "tvip"), asDouble(b, "chc"), asDouble(b, "cho"),
-                        asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"), asDouble(b, "simX")));
+                        asDouble(b, "chc"), asDouble(b, "cho"), asDouble(b, "cic"), asDouble(b, "cio"), asDouble(b, "db1"), asDouble(b, "db2"),
+                        asDouble(b, "hhpmax"), asDouble(b, "ke"), asDouble(b, "kfcor"), asDouble(b, "khp"), asDouble(b, "klp"), asDouble(b, "komegacor"),
+                        asDouble(b, "mwbase"), asDouble(b, "pmax"), asDouble(b, "prhmax"), asDouble(b, "simx"),
+                        asDouble(b, "tb"), asDouble(b, "tdp"), asDouble(b, "ten"), asDouble(b, "tf"), asDouble(b, "tfp"), asDouble(b, "thp"),
+                        asDouble(b, "tip"), asDouble(b, "tlp"), asDouble(b, "tp"), asDouble(b, "trh"), asDouble(b, "tvhp"), asDouble(b, "tvip"), asDouble(b, "tw"),
+                        asDouble(b, "wfmax"), asDouble(b, "wfmin"), asDouble(b, "wmax1"), asDouble(b, "wmax2"), asDouble(b, "wwmax"), asDouble(b, "wwmin")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamEU {}: {}", resourceId(b), e.getMessage());
             }
@@ -276,10 +279,9 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamFV2(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "vamax"), asDouble(b, "vamin"),
-                        asDouble(b, "k"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                        asDouble(b, "t4"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t5"), asDouble(b, "k3"), asDouble(b, "k4"),
-                        asInt(b, "iFlag")));
+                        asDouble(b, "dt"), asDouble(b, "k"), asDouble(b, "mwbase"), asDouble(b, "r"),
+                        asDouble(b, "t1"), asDouble(b, "t3"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
+                        asDouble(b, "ti"), asDouble(b, "tt"), asDouble(b, "vmax"), asDouble(b, "vmin")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamFV2 {}: {}", resourceId(b), e.getMessage());
             }
@@ -291,12 +293,10 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamFV3(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"),
-                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "prmax"), asDouble(b, "k"), asDouble(b, "t5"), asDouble(b, "t6"),
-                        asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "uc"), asDouble(b, "uo"),
-                        asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                        asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"),
-                        asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6")));
+                        asDouble(b, "k"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "k3"), asDouble(b, "mwbase"),
+                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "prmax"),
+                        asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"),
+                        asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "uc"), asDouble(b, "uo")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamFV3 {}: {}", resourceId(b), e.getMessage());
             }
@@ -308,12 +308,15 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamFV4(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"),
-                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "k"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "k3"), asDouble(b, "k4"),
-                        asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "ta"), asDouble(b, "tc"), asDouble(b, "ty"), asDouble(b, "tt"),
-                        asDouble(b, "kf1"), asDouble(b, "kf2"), asDouble(b, "tf2"),
-                        asDouble(b, "rsmimn"), asDouble(b, "rsmimx"), asDouble(b, "vvmax"), asDouble(b, "vvmin"),
-                        asDouble(b, "cpsmn"), asDouble(b, "cpsmx"), asDouble(b, "dp"), asDouble(b, "lpsp"), asDouble(b, "ovex")));
+                        asDouble(b, "cpsmn"), asDouble(b, "cpsmx"), asDouble(b, "crmn"), asDouble(b, "crmx"), asDouble(b, "kdc"),
+                        asDouble(b, "kf1"), asDouble(b, "kf3"), asDouble(b, "khp"), asDouble(b, "kic"), asDouble(b, "kip"), asDouble(b, "kit"),
+                        asDouble(b, "kmp1"), asDouble(b, "kmp2"), asDouble(b, "kpc"), asDouble(b, "kpp"), asDouble(b, "kpt"), asDouble(b, "krc"), asDouble(b, "ksh"),
+                        asDouble(b, "lpi"), asDouble(b, "lps"), asDouble(b, "mnef"), asDouble(b, "mxef"), asDouble(b, "pr1"), asDouble(b, "pr2"), asDouble(b, "psmn"),
+                        asDouble(b, "rsmimn"), asDouble(b, "rsmimx"), asDouble(b, "rvgmn"), asDouble(b, "rvgmx"),
+                        asDouble(b, "srmn"), asDouble(b, "srmx"), asDouble(b, "srsmp"), asDouble(b, "svmn"), asDouble(b, "svmx"),
+                        asDouble(b, "ta"), asDouble(b, "tam"), asDouble(b, "tc"), asDouble(b, "tcm"), asDouble(b, "tdc"), asDouble(b, "tf1"), asDouble(b, "tf2"),
+                        asDouble(b, "thp"), asDouble(b, "tmp"), asDouble(b, "trh"), asDouble(b, "tv"), asDouble(b, "ty"),
+                        asDouble(b, "y"), asDouble(b, "yhpmn"), asDouble(b, "yhpmx"), asDouble(b, "ympmn"), asDouble(b, "ympmx")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamFV4 {}: {}", resourceId(b), e.getMessage());
             }
@@ -325,14 +328,10 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamIEEE1(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                        asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "uo"), asDouble(b, "uc"), asDouble(b, "pmax"), asDouble(b, "pmin"),
+                        asDouble(b, "mwbase"), asDouble(b, "k"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"),
+                        asDouble(b, "uo"), asDouble(b, "uc"), asDouble(b, "pmax"), asDouble(b, "pmin"),
                         asDouble(b, "t4"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t5"), asDouble(b, "k3"), asDouble(b, "k4"),
-                        asDouble(b, "t6"), asDouble(b, "k5"), asDouble(b, "k6"), asDouble(b, "t7"), asDouble(b, "k7"), asDouble(b, "k8"),
-                        asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"),
-                        asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                        asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"),
-                        asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6")));
+                        asDouble(b, "t6"), asDouble(b, "k5"), asDouble(b, "k6"), asDouble(b, "t7"), asDouble(b, "k7"), asDouble(b, "k8")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamIEEE1 {}: {}", resourceId(b), e.getMessage());
             }
@@ -344,8 +343,8 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovSteamSGO(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                        asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"),
+                        asDouble(b, "mwbase"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "k3"),
+                        asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"),
                         asDouble(b, "pmax"), asDouble(b, "pmin")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovSteamSGO {}: {}", resourceId(b), e.getMessage());
@@ -362,10 +361,10 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovHydro1(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "tr"), asDouble(b, "tf"), asDouble(b, "tg"),
-                        asDouble(b, "velm"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "tw"),
+                        asDouble(b, "mwbase"), asDouble(b, "tr"), asDouble(b, "tf"), asDouble(b, "tg"),
+                        asDouble(b, "velm"), asDouble(b, "gmax"), asDouble(b, "gmin"), asDouble(b, "tw"),
                         asDouble(b, "at"), asDouble(b, "dturb"), asDouble(b, "qnl"),
-                        asDouble(b, "rperm"), asDouble(b, "rtemp"), asDouble(b, "tp"), asDouble(b, "hdam")));
+                        asDouble(b, "rperm"), asDouble(b, "rtemp"), asDouble(b, "hdam")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovHydro1 {}: {}", resourceId(b), e.getMessage());
             }
@@ -377,10 +376,12 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovHydro2(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "tr"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                        asDouble(b, "ki"), asDouble(b, "kg"), asDouble(b, "tp"), asDouble(b, "td"),
-                        asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "tturb"), asDouble(b, "velm"),
-                        asDouble(b, "tw"), asDouble(b, "db1"), asDouble(b, "eps")));
+                        asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "eps"),
+                        asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"), asDouble(b, "gv6"),
+                        asDouble(b, "kturb"), asDouble(b, "mwbase"),
+                        asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"), asDouble(b, "pgv6"),
+                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "rperm"), asDouble(b, "rtemp"),
+                        asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tr"), asDouble(b, "tw"), asDouble(b, "uc"), asDouble(b, "uo")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovHydro2 {}: {}", resourceId(b), e.getMessage());
             }
@@ -392,12 +393,14 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovHydro3(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "tr"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                        asDouble(b, "ki"), asDouble(b, "kg"), asDouble(b, "tp"), asDouble(b, "td"),
-                        asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "tturb"), asDouble(b, "velm"),
-                        asDouble(b, "tw"), asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"),
-                        asDouble(b, "tt"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"),
-                        asDouble(b, "qnl"), asDouble(b, "rperm"), asDouble(b, "rtemp"), asDouble(b, "hdam"), asInt(b, "govtype")));
+                        asDouble(b, "at"), asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "dturb"), asDouble(b, "eps"),
+                        asBoolean(b, "governorControl"),
+                        asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"), asDouble(b, "gv6"),
+                        asDouble(b, "h0"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "mwbase"),
+                        asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"), asDouble(b, "pgv6"),
+                        asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "qnl"), asDouble(b, "relec"), asDouble(b, "rgate"),
+                        asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tw"),
+                        asDouble(b, "velcl"), asDouble(b, "velop")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovHydro3 {}: {}", resourceId(b), e.getMessage());
             }
@@ -409,14 +412,14 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovHydro4(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "tr"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                        asDouble(b, "rclose"), asDouble(b, "ropen"),
-                        asDouble(b, "ta"), asDouble(b, "tc"), asDouble(b, "td"), asDouble(b, "ts"), asDouble(b, "tp"),
-                        asDouble(b, "tw"), asDouble(b, "dturb"), asDouble(b, "qnl"),
-                        asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                        asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"),
-                        asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6"),
-                        asDouble(b, "atw"), asDouble(b, "velm"), asDouble(b, "hdam")));
+                        asDouble(b, "at"),
+                        asDouble(b, "bgv0"), asDouble(b, "bgv1"), asDouble(b, "bgv2"), asDouble(b, "bgv3"), asDouble(b, "bgv4"), asDouble(b, "bgv5"), asDouble(b, "bmax"),
+                        asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "dturb"), asDouble(b, "eps"), asDouble(b, "gmax"), asDouble(b, "gmin"),
+                        asDouble(b, "gv0"), asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"),
+                        asDouble(b, "hdam"), asDouble(b, "mwbase"),
+                        asDouble(b, "pgv0"), asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"),
+                        asDouble(b, "qn1"), asDouble(b, "qnl"), asDouble(b, "rperm"), asDouble(b, "rtemp"), asDouble(b, "tblade"),
+                        asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tr"), asDouble(b, "tw"), asDouble(b, "uc"), asDouble(b, "uo")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovHydro4 {}: {}", resourceId(b), e.getMessage());
             }
@@ -468,63 +471,75 @@ public final class CgmesDyModelLoader {
         String sm = asAssocId(b, SYNC_MACHINE_ID);
         switch (cls) {
             case CLASS_GOV_HYDRO_DD -> m.add(new GovHydroDD(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tr"),
-                asDouble(b, "velm"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "tturb"),
-                asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"),
-                asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"), asDouble(b, "gv5"), asDouble(b, "pgv5")));
+                asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "eps"),
+                asDouble(b, "gmax"), asDouble(b, "gmin"),
+                asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"), asDouble(b, "gv6"),
+                asBoolean(b, "inputSignal"),
+                asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "mwbase"),
+                asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"), asDouble(b, "pgv6"),
+                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "r"),
+                asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tturb"),
+                asDouble(b, "velcl"), asDouble(b, "velop")));
             case CLASS_GOV_HYDRO_FRANCIS -> m.add(new GovHydroFrancis(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "rs"), asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "bp"), asDouble(b, "td"),
-                asDouble(b, "ta"), asDouble(b, "ts"), asDouble(b, "twnc"), asDouble(b, "twng"), asDouble(b, "qn"), asDouble(b, "h0"),
-                asDouble(b, "am"), asDouble(b, "av0"), asDouble(b, "avsmnx"), asDouble(b, "avsmx"), asDouble(b, "hn"),
-                asDouble(b, "kc"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "knl"), asDouble(b, "qc0"),
+                asDouble(b, "am"), asDouble(b, "av0"), asDouble(b, "av1"), asDouble(b, "bp"), asDouble(b, "db1"), asDouble(b, "etamax"),
+                asString(b, "governorControl"), asDouble(b, "h1"), asDouble(b, "h2"), asDouble(b, "hn"), asDouble(b, "kc"), asDouble(b, "kg"), asDouble(b, "kt"),
+                asDouble(b, "qc0"), asDouble(b, "qn"), asDouble(b, "ta"), asDouble(b, "td"), asDouble(b, "ts"), asDouble(b, "twnc"), asDouble(b, "twng"), asDouble(b, "tx"),
                 asDouble(b, "va"), asDouble(b, "valvmax"), asDouble(b, "valvmin"), asDouble(b, "vc"),
-                asString(b, "waterTunnelSurgeChamberSimulation")));
+                asBoolean(b, "waterTunnelSurgeChamberSimulation"), asDouble(b, "zsfc")));
             case CLASS_GOV_HYDRO_IEEE0 -> m.add(new GovHydroIEEE0(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "k"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "pmax"), asDouble(b, "pmin")));
+                asDouble(b, "mwbase"), asDouble(b, "k"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "pmax"), asDouble(b, "pmin")));
             case CLASS_GOV_HYDRO_IEEE2 -> m.add(new GovHydroIEEE2(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "tr"), asDouble(b, "tf"), asDouble(b, "tg"),
-                asDouble(b, "velm"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "tw"),
-                asDouble(b, "at"), asDouble(b, "dturb"), asDouble(b, "qnl"),
-                asDouble(b, "rperm"), asDouble(b, "rtemp"), asDouble(b, "tp"), asDouble(b, "hdam"), asDouble(b, "ki"),
-                asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"),
-                asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6")));
+                asDouble(b, "aturb"), asDouble(b, "bturb"),
+                asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"), asDouble(b, "gv6"),
+                asDouble(b, "kturb"), asDouble(b, "mwbase"),
+                asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"), asDouble(b, "pgv6"),
+                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "rperm"), asDouble(b, "rtemp"),
+                asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tr"), asDouble(b, "tw"), asDouble(b, "uc"), asDouble(b, "uo")));
             case CLASS_GOV_HYDRO_PELTON -> m.add(new GovHydroPelton(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "av0"), asDouble(b, "av1"), asDouble(b, "bp"), asDouble(b, "db1"),
-                asDouble(b, "db2"), asDouble(b, "h1"), asDouble(b, "h2"), asDouble(b, "hn"), asDouble(b, "kc"), asDouble(b, "kg"),
-                asDouble(b, "qc0"), asDouble(b, "qn"), asDouble(b, "simplifiedPelton"), asDouble(b, "staticCompensating"),
-                asDouble(b, "ta"), asDouble(b, "td"), asDouble(b, "ts"), asDouble(b, "twnc"), asDouble(b, "twng"), asDouble(b, "tx"),
+                asDouble(b, "av0"), asDouble(b, "av1"), asDouble(b, "bp"), asDouble(b, "db1"), asDouble(b, "db2"),
+                asDouble(b, "h1"), asDouble(b, "h2"), asDouble(b, "hn"), asDouble(b, "kc"), asDouble(b, "kg"),
+                asDouble(b, "qc0"), asDouble(b, "qn"), asBoolean(b, "simplifiedPelton"), asBoolean(b, "staticCompensating"),
+                asDouble(b, "ta"), asDouble(b, "ts"), asDouble(b, "tv"), asDouble(b, "twnc"), asDouble(b, "twng"), asDouble(b, "tx"),
                 asDouble(b, "va"), asDouble(b, "valvmax"), asDouble(b, "valvmin"), asDouble(b, "vav"), asDouble(b, "vc"), asDouble(b, "vcv"),
-                asBoolean(b, "cfrac"), asBoolean(b, "sfrac")));
+                asBoolean(b, "waterTunnelSurgeChamberSimulation"), asDouble(b, "zsfc")));
             case CLASS_GOV_HYDRO_PID -> m.add(new GovHydroPID(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tr"),
-                asDouble(b, "velm"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "tturb"),
-                asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"),
+                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tturb"),
+                asDouble(b, "velcl"), asDouble(b, "velop"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "aturb"), asDouble(b, "bturb"),
+                asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"), asDouble(b, "kg"),
+                asBoolean(b, "inputSignal"),
                 asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"), asDouble(b, "gv5"), asDouble(b, "pgv5")));
+                asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"), asDouble(b, "gv5"), asDouble(b, "pgv5"),
+                asDouble(b, "gv6"), asDouble(b, "pgv6")));
             case CLASS_GOV_HYDRO_PID2 -> m.add(new GovHydroPID2(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "pmax"), asDouble(b, "pmin"),
-                asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "treg"),
-                asDouble(b, "tw"), asDouble(b, "velmax"), asDouble(b, "velmin"), asDouble(b, "gmax"), asDouble(b, "gmin"), asDouble(b, "g0")));
+                asDouble(b, "mwbase"), asDouble(b, "rperm"), asDouble(b, "treg"),
+                asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"), asDouble(b, "ta"), asDouble(b, "tb"),
+                asDouble(b, "tw"), asDouble(b, "velmax"), asDouble(b, "velmin"), asDouble(b, "gmax"), asDouble(b, "gmin"),
+                asDouble(b, "g0"), asDouble(b, "g1"), asDouble(b, "g2"), asDouble(b, "p1"), asDouble(b, "p2"), asDouble(b, "p3"),
+                asDouble(b, "atw"), asDouble(b, "d"), asBoolean(b, "feedbackSignal")));
             case CLASS_GOV_HYDRO_R -> m.add(new GovHydroR(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tr"),
-                asDouble(b, "velm"), asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "aturb"), asDouble(b, "bturb"), asDouble(b, "tturb"),
-                asDouble(b, "db1"), asDouble(b, "eps"), asDouble(b, "db2"),
-                asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"),
-                asDouble(b, "gv3"), asDouble(b, "pgv3"), asDouble(b, "gv4"), asDouble(b, "pgv4"), asDouble(b, "gv5"), asDouble(b, "pgv5")));
+                asDouble(b, "at"), asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "dturb"), asDouble(b, "eps"),
+                asDouble(b, "gmax"), asDouble(b, "gmin"), asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"), asDouble(b, "gv6"),
+                asDouble(b, "h0"), asBoolean(b, "inputSignal"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "mwbase"),
+                asDouble(b, "pgv1"), asDouble(b, "pgv2"), asDouble(b, "pgv3"), asDouble(b, "pgv4"), asDouble(b, "pgv5"), asDouble(b, "pgv6"),
+                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "qnl"), asDouble(b, "r"),
+                asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"),
+                asDouble(b, "td"), asDouble(b, "tp"), asDouble(b, "tt"), asDouble(b, "tw"), asDouble(b, "velcl"), asDouble(b, "velop")));
             case CLASS_GOV_HYDRO_WEH -> m.add(new GovHydroWEH(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "rpg"), asDouble(b, "rpp"), asDouble(b, "reg"), asDouble(b, "tg"),
-                asDouble(b, "tp"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "td2"), asDouble(b, "tw"),
-                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "gtmxop"), asDouble(b, "gtmxcl"),
+                asDouble(b, "db"), asDouble(b, "dicn"), asDouble(b, "dpv"), asDouble(b, "dturb"), asBoolean(b, "feedbackSignal"),
+                asDouble(b, "fl1"), asDouble(b, "fl2"), asDouble(b, "fl3"), asDouble(b, "fl4"), asDouble(b, "fl5"),
+                asDouble(b, "fp1"), asDouble(b, "fp2"), asDouble(b, "fp3"), asDouble(b, "fp4"), asDouble(b, "fp5"),
+                asDouble(b, "fp6"), asDouble(b, "fp7"), asDouble(b, "fp8"), asDouble(b, "fp9"), asDouble(b, "fp10"),
+                asDouble(b, "gmax"), asDouble(b, "gmin"), asDouble(b, "gtmxcl"), asDouble(b, "gtmxop"),
+                asDouble(b, "gv1"), asDouble(b, "gv2"), asDouble(b, "gv3"), asDouble(b, "gv4"), asDouble(b, "gv5"),
+                asDouble(b, "kd"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "mwbase"),
                 asDouble(b, "pmss1"), asDouble(b, "pmss2"), asDouble(b, "pmss3"), asDouble(b, "pmss4"), asDouble(b, "pmss5"),
                 asDouble(b, "pmss6"), asDouble(b, "pmss7"), asDouble(b, "pmss8"), asDouble(b, "pmss9"), asDouble(b, "pmss10"),
-                asDouble(b, "gpmax"), asDouble(b, "gmax"), asDouble(b, "gmin"),
-                asDouble(b, "dpv"), asDouble(b, "dicn"), asDouble(b, "dspv"), asDouble(b, "feedbackSignal")));
+                asDouble(b, "rpg"), asDouble(b, "rpp"), asDouble(b, "td"), asDouble(b, "tdv"), asDouble(b, "tg"), asDouble(b, "tp"), asDouble(b, "tpe"), asDouble(b, "tw")));
             case CLASS_GOV_HYDRO_WPID -> m.add(new GovHydroWPID(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "treg"), asDouble(b, "tw"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
-                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "gmax"), asDouble(b, "gmin"), asDouble(b, "mastp"),
-                asDouble(b, "d"), asDouble(b, "kd"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "velmax"), asDouble(b, "velmin")));
+                asDouble(b, "mwbase"), asDouble(b, "reg"), asDouble(b, "treg"), asDouble(b, "tw"), asDouble(b, "ta"), asDouble(b, "tb"),
+                asDouble(b, "pmax"), asDouble(b, "pmin"), asDouble(b, "gatmax"), asDouble(b, "gatmin"),
+                asDouble(b, "d"), asDouble(b, "kd"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "velmax"), asDouble(b, "velmin"),
+                asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"), asDouble(b, "gv3"), asDouble(b, "pgv3")));
             default -> LOG.warn("Unhandled hydro class: {}", cls);
         }
     }
@@ -551,10 +566,13 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new GovGAST1(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"),
-                        asDouble(b, "at"), asDouble(b, "kt"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "dturb"),
-                        asDouble(b, "fpv"), asDouble(b, "ka"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "tltr"),
-                        asDouble(b, "tac"), asDouble(b, "tv"), asDouble(b, "b")));
+                        asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "db1"), asDouble(b, "db2"), asDouble(b, "eps"),
+                        asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "tltr"),
+                        asDouble(b, "ka"), asDouble(b, "kt"), asDouble(b, "a"), asDouble(b, "b"),
+                        asDouble(b, "lmax"), asDouble(b, "loadinc"), asDouble(b, "ltrate"), asDouble(b, "rmax"), asDouble(b, "fidle"),
+                        asDouble(b, "gv1"), asDouble(b, "pgv1"), asDouble(b, "gv2"), asDouble(b, "pgv2"), asDouble(b, "gv3"), asDouble(b, "pgv3"),
+                        asDouble(b, "gv4"), asDouble(b, "pgv4"), asDouble(b, "gv5"), asDouble(b, "pgv5"), asDouble(b, "gv6"), asDouble(b, "pgv6"),
+                        asDouble(b, "vmax"), asDouble(b, "vmin")));
             } catch (Exception e) {
                 LOG.warn("Skipping GovGAST1 {}: {}", resourceId(b), e.getMessage());
             }
@@ -595,45 +613,51 @@ public final class CgmesDyModelLoader {
         String sm = asAssocId(b, SYNC_MACHINE_ID);
         switch (cls) {
             case CLASS_GOV_GAST2 -> m.add(new GovGAST2(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"),
-                asDouble(b, "at"), asDouble(b, "kt"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "dturb"),
-                asDouble(b, "w"), asDouble(b, "x"), asDouble(b, "y"), asDouble(b, "z"), asDouble(b, "cd"),
-                asDouble(b, "tf"), asDouble(b, "etd"), asDouble(b, "tcd"), asDouble(b, "trate")));
+                asDouble(b, "a"), asDouble(b, "af1"), asDouble(b, "af2"), asDouble(b, "b"), asDouble(b, "bf1"), asDouble(b, "bf2"),
+                asDouble(b, "c"), asDouble(b, "cf2"), asDouble(b, "ecr"), asDouble(b, "etd"),
+                asDouble(b, "k3"), asDouble(b, "k4"), asDouble(b, "k5"), asDouble(b, "k6"), asDouble(b, "kf"), asDouble(b, "mwbase"),
+                asDouble(b, "t"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "tc"), asDouble(b, "tcd"), asDouble(b, "tf"),
+                asDouble(b, "tmax"), asDouble(b, "tmin"), asDouble(b, "tr"), asDouble(b, "trate"), asDouble(b, "tt"),
+                asDouble(b, "w"), asDouble(b, "x"), asDouble(b, "y"), asBoolean(b, "z")));
             case CLASS_GOV_GAST3 -> m.add(new GovGAST3(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                asDouble(b, "dturb"), asDouble(b, "bca"), asDouble(b, "kca"), asDouble(b, "tsi"), asDouble(b, "bp"), asDouble(b, "tsa"), asDouble(b, "tsb")));
+                asDouble(b, "bca"), asDouble(b, "bp"), asDouble(b, "dtc"), asDouble(b, "ka"), asDouble(b, "kac"), asDouble(b, "kca"),
+                asDouble(b, "ksi"), asDouble(b, "ky"), asDouble(b, "mnef"), asDouble(b, "mxef"), asDouble(b, "rcmn"), asDouble(b, "rcmx"),
+                asDouble(b, "tac"), asDouble(b, "tc"), asDouble(b, "td"), asDouble(b, "tfen"), asDouble(b, "tg"), asDouble(b, "tsi"),
+                asDouble(b, "tt"), asDouble(b, "ttc"), asDouble(b, "ty")));
             case CLASS_GOV_GAST4 -> m.add(new GovGAST4(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"),
-                asDouble(b, "at"), asDouble(b, "kt"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "dturb"),
-                asDouble(b, "bp"), asDouble(b, "tr"), asDouble(b, "rLimMax"), asDouble(b, "rLimMin")));
+                asDouble(b, "bp"), asDouble(b, "ktm"), asDouble(b, "mnef"), asDouble(b, "mxef"), asDouble(b, "rymn"), asDouble(b, "rymx"),
+                asDouble(b, "ta"), asDouble(b, "tc"), asDouble(b, "tcm"), asDouble(b, "tm"), asDouble(b, "tv"), asDouble(b, "ty")));
             case CLASS_GOV_GASTWD -> m.add(new GovGASTWD(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "rdown"), asDouble(b, "rup"),
-                asDouble(b, "ta"), asDouble(b, "tact"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tf"),
-                asDouble(b, "kdroop"), asDouble(b, "etd"), asDouble(b, "tcd"), asDouble(b, "trate"), asDouble(b, "teng"),
-                asDouble(b, "td"), asDouble(b, "tltr"), asDouble(b, "tsa"), asDouble(b, "tsb"),
-                asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "dpv"), asDouble(b, "kpgov"), asDouble(b, "kigov")));
+                asDouble(b, "a"), asDouble(b, "af1"), asDouble(b, "af2"), asDouble(b, "b"), asDouble(b, "bf1"), asDouble(b, "bf2"),
+                asDouble(b, "c"), asDouble(b, "cf2"), asDouble(b, "ecr"), asDouble(b, "etd"),
+                asDouble(b, "k3"), asDouble(b, "k4"), asDouble(b, "k5"), asDouble(b, "k6"), asDouble(b, "kd"), asDouble(b, "kdroop"),
+                asDouble(b, "kf"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "mwbase"),
+                asDouble(b, "t"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "tc"), asDouble(b, "tcd"), asDouble(b, "td"), asDouble(b, "tf"),
+                asDouble(b, "tmax"), asDouble(b, "tmin"), asDouble(b, "tr"), asDouble(b, "trate"), asDouble(b, "tt")));
             case CLASS_GOV_CT1 -> m.add(new GovCT1(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "rdown"), asDouble(b, "rup"),
-                asDouble(b, "ta"), asDouble(b, "tact"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "teng"), asDouble(b, "tf"),
-                asDouble(b, "tsa"), asDouble(b, "tsb"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                asDouble(b, "wfnl"), asBoolean(b, "wfspd"),
-                asDouble(b, "kdgov"), asDouble(b, "kigov"), asDouble(b, "kpgov"), asDouble(b, "kpload"), asDouble(b, "kiload"),
-                asDouble(b, "tdgov"), asDouble(b, "tno"), asDouble(b, "ldref"), asDouble(b, "dm"), asDouble(b, "db"),
-                asDouble(b, "ropen"), asDouble(b, "rclose"), asDouble(b, "kimw"), asDouble(b, "pmwset"), asDouble(b, "aset"), asDouble(b, "ka")));
+                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "rselect"), asDouble(b, "rdown"), asDouble(b, "rup"),
+                asDouble(b, "ta"), asDouble(b, "tact"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "teng"),
+                asDouble(b, "tsa"), asDouble(b, "tsb"), asDouble(b, "tpelec"), asDouble(b, "tfload"),
+                asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "wfnl"), asBoolean(b, "wfspd"),
+                asDouble(b, "kpgov"), asDouble(b, "kigov"), asDouble(b, "kdgov"), asDouble(b, "tdgov"),
+                asDouble(b, "kpload"), asDouble(b, "kiload"), asDouble(b, "ldref"),
+                asDouble(b, "maxerr"), asDouble(b, "minerr"), asDouble(b, "dm"), asDouble(b, "db"),
+                asDouble(b, "kturb"), asDouble(b, "ropen"), asDouble(b, "rclose"), asDouble(b, "kimw"), asDouble(b, "aset"), asDouble(b, "ka")));
             case CLASS_GOV_CT2 -> m.add(new GovCT2(id, sm,
-                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "rdown"), asDouble(b, "rup"),
-                asDouble(b, "ta"), asDouble(b, "tact"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "teng"), asDouble(b, "tf"),
-                asDouble(b, "tsa"), asDouble(b, "tsb"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                asDouble(b, "wfnl"), asBoolean(b, "wfspd"),
-                asDouble(b, "kdgov"), asDouble(b, "kigov"), asDouble(b, "kpgov"), asDouble(b, "kpload"), asDouble(b, "kiload"),
-                asDouble(b, "tdgov"), asDouble(b, "tno"), asDouble(b, "ldref"), asDouble(b, "dm"), asDouble(b, "db"),
-                asDouble(b, "ropen"), asDouble(b, "rclose"), asDouble(b, "kimw"), asDouble(b, "pmwset"), asDouble(b, "aset"), asDouble(b, "ka"),
+                asDouble(b, "mwbase"), asDouble(b, "r"), asDouble(b, "rselect"), asDouble(b, "rdown"), asDouble(b, "rup"),
+                asDouble(b, "ta"), asDouble(b, "tact"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "teng"),
+                asDouble(b, "tsa"), asDouble(b, "tsb"), asDouble(b, "tpelec"), asDouble(b, "tfload"),
+                asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "wfnl"), asBoolean(b, "wfspd"),
+                asDouble(b, "kpgov"), asDouble(b, "kigov"), asDouble(b, "kdgov"), asDouble(b, "tdgov"),
+                asDouble(b, "kpload"), asDouble(b, "kiload"), asDouble(b, "ldref"),
+                asDouble(b, "maxerr"), asDouble(b, "minerr"), asDouble(b, "dm"), asDouble(b, "db"),
+                asDouble(b, "kturb"), asDouble(b, "ropen"), asDouble(b, "rclose"), asDouble(b, "kimw"), asDouble(b, "aset"), asDouble(b, "ka"),
                 asDouble(b, "flim1"), asDouble(b, "plim1"), asDouble(b, "flim2"), asDouble(b, "plim2"),
                 asDouble(b, "flim3"), asDouble(b, "plim3"), asDouble(b, "flim4"), asDouble(b, "plim4"),
                 asDouble(b, "flim5"), asDouble(b, "plim5"), asDouble(b, "flim6"), asDouble(b, "plim6"),
                 asDouble(b, "flim7"), asDouble(b, "plim7"), asDouble(b, "flim8"), asDouble(b, "plim8"),
                 asDouble(b, "flim9"), asDouble(b, "plim9"), asDouble(b, "flim10"), asDouble(b, "plim10"),
-                asBoolean(b, "prate"), asDouble(b, "uc"), asDouble(b, "uo")));
+                asDouble(b, "prate")));
             default -> LOG.warn("Unhandled gas class: {}", cls);
         }
     }
@@ -648,9 +672,9 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new ExcIEEEDC1A(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
+                        asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
                         asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"),
-                        asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ki"),
+                        asDouble(b, "kf"), asDouble(b, "tf"),
                         asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"),
                         asBoolean(b, "uelin"), asBoolean(b, "exclim")));
             } catch (Exception e) {
@@ -665,9 +689,9 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new ExcIEEEDC2A(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
+                        asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"),
                         asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"),
-                        asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ki"),
+                        asDouble(b, "kf"), asDouble(b, "tf"),
                         asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"),
                         asBoolean(b, "uelin"), asBoolean(b, "exclim")));
             } catch (Exception e) {
@@ -682,8 +706,8 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new ExcIEEEDC3A(
                     resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                    asDouble(b, "trh"), asDouble(b, "kv"), asDouble(b, "vmax"), asDouble(b, "vmin"),
-                    asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"),
+                    asDouble(b, "trh"), asDouble(b, "kv"), asDouble(b, "vrmax"), asDouble(b, "vrmin"),
+                    asDouble(b, "ke"), asDouble(b, "te"),
                     asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"),
                     asBoolean(b, "exclim")));
             } catch (Exception e) {
@@ -698,9 +722,9 @@ public final class CgmesDyModelLoader {
             try {
                 m.add(new ExcIEEEDC4B(
                         resourceId(b), asAssocId(b, SYNC_MACHINE_ID),
-                        asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"), asDouble(b, "td"),
+                        asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kd"), asDouble(b, "td"),
                         asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"),
-                        asDouble(b, "kc"), asDouble(b, "ki2"), asDouble(b, "vfemax"), asDouble(b, "vemin"),
+                        asDouble(b, "vemin"),
                         asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"),
                         asBoolean(b, "uelin"), asBoolean(b, "oelin")));
             } catch (Exception e) {
@@ -787,21 +811,21 @@ public final class CgmesDyModelLoader {
         String id = resourceId(b);
         String sm = asAssocId(b, SYNC_MACHINE_ID);
         switch (cls) {
-            case CLASS_EXC_IEEE_AC1A -> m.add(new ExcIEEEAC1A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_IEEE_AC2A -> m.add(new ExcIEEEAC2A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "kb"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "vfemax"), asDouble(b, "kh"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_IEEE_AC3A -> m.add(new ExcIEEEAC3A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "vemin"), asDouble(b, "kr"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kn"), asDouble(b, "vfemax"), asDouble(b, "efdn"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_IEEE_AC4A -> m.add(new ExcIEEEAC4A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc")));
-            case CLASS_EXC_IEEE_AC5A -> m.add(new ExcIEEEAC5A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tf3"), asDouble(b, "efdn"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_IEEE_AC6A -> m.add(new ExcIEEEAC6A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "tk"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vhmax"), asDouble(b, "kh"), asDouble(b, "tj"), asDouble(b, "th"), asDouble(b, "td"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "vfelim"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_IEEE_AC7B -> m.add(new ExcIEEEAC7B(id, sm, asDouble(b, "tr"), asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "kdr"), asDouble(b, "tdr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kpa"), asDouble(b, "kia"), asDouble(b, "kda"), asDouble(b, "tda"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "kp"), asDouble(b, "kl"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vemin"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "kf1"), asDouble(b, "kf2"), asDouble(b, "kf3"), asDouble(b, "tf"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asBoolean(b, "uelin"), asBoolean(b, "oelin")));
-            case CLASS_EXC_IEEE_AC8B -> m.add(new ExcIEEEAC8B(id, sm, asDouble(b, "tr"), asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "kdr"), asDouble(b, "tdr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vemin"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asBoolean(b, "uelin")));
-            case CLASS_EXC_IEEE_ST1A -> m.add(new ExcIEEEST1A(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tb1"), asDouble(b, "tc1"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc"), asDouble(b, "kf"), asDouble(b, "tf"), asBoolean(b, "uelin"), asBoolean(b, "pssin"), asBoolean(b, "ilr"), asDouble(b, "klr")));
-            case CLASS_EXC_IEEE_ST2A -> m.add(new ExcIEEEST2A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "efdmax"), asBoolean(b, "uelin")));
-            case CLASS_EXC_IEEE_ST3A -> m.add(new ExcIEEEST3A(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "km"), asDouble(b, "tm"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax"), asDouble(b, "vgmax"), asBoolean(b, "uelin")));
-            case CLASS_EXC_IEEE_ST4B -> m.add(new ExcIEEEST4B(id, sm, asDouble(b, "tr"), asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kpm"), asDouble(b, "kim"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax"), asDouble(b, "kc"), asDouble(b, "xl2"), asBoolean(b, "uelin"), asBoolean(b, "oelin")));
-            case CLASS_EXC_IEEE_ST5B -> m.add(new ExcIEEEST5B(id, sm, asDouble(b, "tr"), asDouble(b, "kc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "t1"), asDouble(b, "tb1"), asDouble(b, "tc1"), asDouble(b, "tb2"), asDouble(b, "tc2"), asDouble(b, "tob1"), asDouble(b, "toc1"), asDouble(b, "tob2"), asDouble(b, "toc2"), asDouble(b, "tub1"), asDouble(b, "tuc1"), asDouble(b, "tub2"), asDouble(b, "tuc2")));
-            case CLASS_EXC_IEEE_ST6B -> m.add(new ExcIEEEST6B(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "kci"), asDouble(b, "kff"), asDouble(b, "kg"), asDouble(b, "kia"), asDouble(b, "klr"), asDouble(b, "km"), asDouble(b, "kpa"), asDouble(b, "kvd"), asDouble(b, "ilr"), asDouble(b, "tg"), asDouble(b, "ts"), asDouble(b, "tvd"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asString(b, "oelin")));
-            case CLASS_EXC_IEEE_ST7B -> m.add(new ExcIEEEST7B(id, sm, asDouble(b, "tr"), asDouble(b, "kh"), asDouble(b, "kia"), asDouble(b, "tia"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tf"), asDouble(b, "kl"), asDouble(b, "kpa"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "tg"), asString(b, "uelin"), asString(b, "oelin")));
+            case CLASS_EXC_IEEE_AC1A -> m.add(new ExcIEEEAC1A(id, sm, asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_AC2A -> m.add(new ExcIEEEAC2A(id, sm, asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "kb"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "vfemax"), asDouble(b, "kh"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_AC3A -> m.add(new ExcIEEEAC3A(id, sm, asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "vemin"), asDouble(b, "kr"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kn"), asDouble(b, "vfemax"), asDouble(b, "efdn"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_AC4A -> m.add(new ExcIEEEAC4A(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc")));
+            case CLASS_EXC_IEEE_AC5A -> m.add(new ExcIEEEAC5A(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tf3"), asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2")));
+            case CLASS_EXC_IEEE_AC6A -> m.add(new ExcIEEEAC6A(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "tk"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vhmax"), asDouble(b, "kh"), asDouble(b, "tj"), asDouble(b, "th"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "vfelim"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_AC7B -> m.add(new ExcIEEEAC7B(id, sm, asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "kdr"), asDouble(b, "tdr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kpa"), asDouble(b, "kia"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "kp"), asDouble(b, "kl"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vemin"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "kf1"), asDouble(b, "kf2"), asDouble(b, "kf3"), asDouble(b, "tf"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_AC8B -> m.add(new ExcIEEEAC8B(id, sm, asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "kdr"), asDouble(b, "tdr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vemin"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_IEEE_ST1A -> m.add(new ExcIEEEST1A(id, sm, asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tb1"), asDouble(b, "tc1"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc"), asDouble(b, "kf"), asDouble(b, "tf"), asBoolean(b, "uelin"), asBoolean(b, "pssin"), asBoolean(b, "ilr"), asDouble(b, "klr")));
+            case CLASS_EXC_IEEE_ST2A -> m.add(new ExcIEEEST2A(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "ke"), asDouble(b, "efdmax"), asBoolean(b, "uelin")));
+            case CLASS_EXC_IEEE_ST3A -> m.add(new ExcIEEEST3A(id, sm, asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "km"), asDouble(b, "tm"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax"), asDouble(b, "vgmax")));
+            case CLASS_EXC_IEEE_ST4B -> m.add(new ExcIEEEST4B(id, sm, asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kpm"), asDouble(b, "kim"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax"), asDouble(b, "kc")));
+            case CLASS_EXC_IEEE_ST5B -> m.add(new ExcIEEEST5B(id, sm, asDouble(b, "kc"), asDouble(b, "kr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "t1"), asDouble(b, "tb1"), asDouble(b, "tc1"), asDouble(b, "tb2"), asDouble(b, "tc2"), asDouble(b, "tob1"), asDouble(b, "toc1"), asDouble(b, "tob2"), asDouble(b, "toc2"), asDouble(b, "tub1"), asDouble(b, "tuc1"), asDouble(b, "tub2"), asDouble(b, "tuc2")));
+            case CLASS_EXC_IEEE_ST6B -> m.add(new ExcIEEEST6B(id, sm, asDouble(b, "kci"), asDouble(b, "kff"), asDouble(b, "kg"), asDouble(b, "kia"), asDouble(b, "klr"), asDouble(b, "km"), asDouble(b, "kpa"), asDouble(b, "ilr"), asDouble(b, "tg"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asString(b, "oelin")));
+            case CLASS_EXC_IEEE_ST7B -> m.add(new ExcIEEEST7B(id, sm, asDouble(b, "kh"), asDouble(b, "kia"), asDouble(b, "tia"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tf"), asDouble(b, "kl"), asDouble(b, "kpa"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "tg"), asString(b, "uelin"), asString(b, "oelin")));
             default -> LOG.warn("Unhandled IEEE exciter class: {}", cls);
         }
     }
@@ -859,7 +883,7 @@ public final class CgmesDyModelLoader {
         loadExcVendorGeneric(CLASS_EXC_SK, m); }
 
     private void loadExcSTVariants(CgmesDyModel m) {
-        for (String c : new String[]{CLASS_EXC_ST1A, CLASS_EXC_ST2A, CLASS_EXC_ST3, CLASS_EXC_ST4B, CLASS_EXC_ST6B, CLASS_EXC_ST7B}) {
+        for (String c : new String[]{CLASS_EXC_ST1A, CLASS_EXC_ST2A, CLASS_EXC_ST3A, CLASS_EXC_ST4B, CLASS_EXC_ST6B, CLASS_EXC_ST7B}) {
             loadExcVendorGeneric(c, m);
         }
     }
@@ -888,42 +912,42 @@ public final class CgmesDyModelLoader {
         String id = resourceId(b);
         String sm = asAssocId(b, SYNC_MACHINE_ID);
         switch (cls) {
-            case CLASS_EXC_AVR1 -> m.add(new ExcAVR1(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "te"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "tr"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
-            case CLASS_EXC_AVR2 -> m.add(new ExcAVR2(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "vrmn"), asDouble(b, "vrmx"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "tr")));
-            case CLASS_EXC_AVR3 -> m.add(new ExcAVR3(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "vrmn"), asDouble(b, "vrmx"), asDouble(b, "te"), asDouble(b, "efdn"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "tr")));
-            case CLASS_EXC_AVR4 -> m.add(new ExcAVR4(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmn"), asDouble(b, "vrmx"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "tr")));
-            case CLASS_EXC_AVR5 -> m.add(new ExcAVR5(id, sm, asDouble(b, "ka"), asDouble(b, "rex"), asDouble(b, "ta"), asDouble(b, "tr")));
+            case CLASS_EXC_AVR1 -> m.add(new ExcAVR1(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
+            case CLASS_EXC_AVR2 -> m.add(new ExcAVR2(id, sm, asDouble(b, "e1"), asDouble(b, "e2"), asDouble(b, "ka"), asDouble(b, "kf"), asDouble(b, "se1"), asDouble(b, "se2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "te"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
+            case CLASS_EXC_AVR3 -> m.add(new ExcAVR3(id, sm, asDouble(b, "e1"), asDouble(b, "e2"), asDouble(b, "ka"), asDouble(b, "se1"), asDouble(b, "se2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "te"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
+            case CLASS_EXC_AVR4 -> m.add(new ExcAVR4(id, sm, asBoolean(b, "imul"), asDouble(b, "ka"), asDouble(b, "ke"), asDouble(b, "kif"), asDouble(b, "t1"), asDouble(b, "t1if"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "tif"), asDouble(b, "vfmn"), asDouble(b, "vfmx"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
+            case CLASS_EXC_AVR5 -> m.add(new ExcAVR5(id, sm, asDouble(b, "ka"), asDouble(b, "rex"), asDouble(b, "ta")));
             case CLASS_EXC_AVR7 -> m.add(new ExcAVR7(id, sm, asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "a6"), asDouble(b, "k1"), asDouble(b, "k3"), asDouble(b, "k5"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "vmax1"), asDouble(b, "vmax3"), asDouble(b, "vmax5"), asDouble(b, "vmin1"), asDouble(b, "vmin3"), asDouble(b, "vmin5")));
-            case CLASS_EXC_BBC -> m.add(new ExcBBC(id, sm, asDouble(b, "ka"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "vrmin"), asDouble(b, "vrmax"), asDouble(b, "kn"), asDouble(b, "kp"), asDouble(b, "switch1"), asDouble(b, "efdmin"), asDouble(b, "efdmax"), asDouble(b, "xe")));
-            case CLASS_EXC_CZ -> m.add(new ExcCZ(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "krb"), asDouble(b, "kp"), asDouble(b, "tp"), asDouble(b, "efdmax")));
-            case CLASS_EXC_DC1A -> m.add(new ExcDC1A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"), asBoolean(b, "exclim")));
-            case CLASS_EXC_DC2A -> m.add(new ExcDC2A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"), asBoolean(b, "exclim"), asDouble(b, "vlb")));
-            case CLASS_EXC_DC3A -> m.add(new ExcDC3A(id, sm, asDouble(b, "trh"), asDouble(b, "kv"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "efd1"), asDouble(b, "seefd1"), asDouble(b, "efd2"), asDouble(b, "seefd2"), asBoolean(b, "exclim")));
-            case CLASS_EXC_ELIN1 -> m.add(new ExcELIN1(id, sm, asDouble(b, "tfi"), asDouble(b, "tnu"), asDouble(b, "ka"), asDouble(b, "ts1"), asDouble(b, "ts2"), asDouble(b, "dpnf"), asDouble(b, "vpu"), asDouble(b, "efmin"), asDouble(b, "efmax"), asDouble(b, "ks1"), asDouble(b, "ks2")));
-            case CLASS_EXC_ELIN2 -> m.add(new ExcELIN2(id, sm, asDouble(b, "tr4"), asDouble(b, "k1"), asDouble(b, "t1"), asDouble(b, "p1"), asDouble(b, "p2"), asDouble(b, "ti1"), asDouble(b, "ti3"), asDouble(b, "ti4"), asDouble(b, "te"), asDouble(b, "ermin"), asDouble(b, "ermax"), asDouble(b, "kcse"), asDouble(b, "kce"), asDouble(b, "tc4"), asDouble(b, "tb4"), asDouble(b, "efdbas"), asDouble(b, "iefmax"), asDouble(b, "iefmax2"), asDouble(b, "efmin2"), asDouble(b, "k2"), asDouble(b, "t2")));
+            case CLASS_EXC_BBC -> m.add(new ExcBBC(id, sm, asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "k"), asBoolean(b, "switchDetector"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xe")));
+            case CLASS_EXC_CZ -> m.add(new ExcCZ(id, sm, asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "ka"), asDouble(b, "ke"), asDouble(b, "kp"), asDouble(b, "ta"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_DC1A -> m.add(new ExcDC1A(id, sm, asDouble(b, "efd1"), asDouble(b, "efd2"), asDouble(b, "efdmax"), asDouble(b, "efdmin"), asBoolean(b, "exclim"), asDouble(b, "ka"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "ks"), asDouble(b, "seefd1"), asDouble(b, "seefd2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_DC2A -> m.add(new ExcDC2A(id, sm, asDouble(b, "efd1"), asDouble(b, "efd2"), asBoolean(b, "exclim"), asDouble(b, "ka"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "ks"), asDouble(b, "seefd1"), asDouble(b, "seefd2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "tf1"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asBoolean(b, "vtlim")));
+            case CLASS_EXC_DC3A -> m.add(new ExcDC3A(id, sm, asDouble(b, "efd1"), asDouble(b, "efd2"), asBoolean(b, "efdlim"), asDouble(b, "efdmax"), asDouble(b, "efdmin"), asBoolean(b, "exclim"), asDouble(b, "ke"), asDouble(b, "kr"), asDouble(b, "ks"), asDouble(b, "kv"), asDouble(b, "seefd1"), asDouble(b, "seefd2"), asDouble(b, "te"), asDouble(b, "trh"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_ELIN1 -> m.add(new ExcELIN1(id, sm, asDouble(b, "dpnf"), asDouble(b, "efmax"), asDouble(b, "efmin"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "smax"), asDouble(b, "tfi"), asDouble(b, "tnu"), asDouble(b, "ts1"), asDouble(b, "ts2"), asDouble(b, "tsw"), asDouble(b, "vpi"), asDouble(b, "vpnf"), asDouble(b, "vpu"), asDouble(b, "xe")));
+            case CLASS_EXC_ELIN2 -> m.add(new ExcELIN2(id, sm, asDouble(b, "efdbas"), asDouble(b, "iefmax"), asDouble(b, "iefmax2"), asDouble(b, "iefmin"), asDouble(b, "k1"), asDouble(b, "k1ec"), asDouble(b, "k2"), asDouble(b, "k3"), asDouble(b, "k4"), asDouble(b, "kd1"), asDouble(b, "ke2"), asDouble(b, "ketb"), asDouble(b, "pid1max"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "tb1"), asDouble(b, "te"), asDouble(b, "te2"), asDouble(b, "ti1"), asDouble(b, "ti3"), asDouble(b, "ti4"), asDouble(b, "tr4"), asDouble(b, "upmax"), asDouble(b, "upmin"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "xp")));
             case CLASS_EXC_HU -> m.add(new ExcHU(id, sm, asDouble(b, "ae"), asDouble(b, "ai"), asDouble(b, "atr"), asDouble(b, "emax"), asDouble(b, "emin"), asDouble(b, "imax"), asDouble(b, "imin"), asDouble(b, "ke"), asDouble(b, "ki"), asDouble(b, "te"), asDouble(b, "ti"), asDouble(b, "tr")));
-            case CLASS_EXC_NI -> m.add(new ExcNI(id, sm, asDouble(b, "busfedSelector"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "te"), asDouble(b, "vrmn"), asDouble(b, "vrmx")));
-            case CLASS_EXC_OEX3T -> m.add(new ExcOEX3T(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_PIC -> m.add(new ExcPIC(id, sm, asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "ka2"), asDouble(b, "vr1"), asDouble(b, "vr2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
-            case CLASS_EXC_REXS -> m.add(new ExcREXS(id, sm, asDouble(b, "tr"), asDouble(b, "ta"), asDouble(b, "tb1"), asDouble(b, "tb2"), asDouble(b, "tc1"), asDouble(b, "tc2"), asDouble(b, "ka"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ki"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2"), asString(b, "feedbackSignal"), asBoolean(b, "exclfb")));
-            case CLASS_EXC_RQB -> m.add(new ExcRQB(id, sm, asDouble(b, "clmt"), asDouble(b, "lsmin"), asDouble(b, "mesu"), asDouble(b, "t4m"), asDouble(b, "tc"), asDouble(b, "tf"), asDouble(b, "tout"), asDouble(b, "ucmax"), asDouble(b, "ucmin"), asDouble(b, "ki"), asDouble(b, "xp")));
-            case CLASS_EXC_SCRX -> m.add(new ExcSCRX(id, sm, asDouble(b, "tr"), asDouble(b, "k"), asDouble(b, "tatb"), asDouble(b, "tb"), asDouble(b, "emax"), asDouble(b, "emin"), asBoolean(b, "rcmxFlag")));
-            case CLASS_EXC_SEXS -> m.add(new ExcSEXS(id, sm, asDouble(b, "tr"), asDouble(b, "tatb"), asDouble(b, "tb"), asDouble(b, "k"), asDouble(b, "te"), asDouble(b, "emin"), asDouble(b, "emax")));
-            case CLASS_EXC_SK -> m.add(new ExcSK(id, sm, asDouble(b, "k"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kc"), asDouble(b, "kce"), asDouble(b, "kd"), asDouble(b, "kgob"), asDouble(b, "kp"), asDouble(b, "kqi"), asDouble(b, "kqob"), asDouble(b, "kqp"), asDouble(b, "nq"), asDouble(b, "qconoff"), asDouble(b, "qz"), asDouble(b, "remote"), asDouble(b, "sbase"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "ti"), asDouble(b, "tp"), asDouble(b, "tr"), asDouble(b, "uimax"), asDouble(b, "uimin"), asDouble(b, "urmax"), asDouble(b, "urmin"), asDouble(b, "vtmax"), asDouble(b, "vtmin"), asDouble(b, "yp")));
-            case CLASS_EXC_ST1A -> m.add(new ExcST1A(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc"), asDouble(b, "kf"), asDouble(b, "tf"), asBoolean(b, "pssin"), asBoolean(b, "ilr"), asDouble(b, "klr")));
-            case CLASS_EXC_ST2A -> m.add(new ExcST2A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "efdmax")));
-            case CLASS_EXC_ST3 -> m.add(new ExcST3(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "km"), asDouble(b, "tm"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "ki"), asDouble(b, "kc"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax")));
-            case CLASS_EXC_ST4B -> m.add(new ExcST4B(id, sm, asDouble(b, "tr"), asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kpm"), asDouble(b, "kim"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "kg"), asDouble(b, "kp"), asDouble(b, "xl"), asDouble(b, "thetap"), asDouble(b, "vbmax"), asDouble(b, "kc")));
-            case CLASS_EXC_ST6B -> m.add(new ExcST6B(id, sm, asDouble(b, "tr"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "kci"), asDouble(b, "kff"), asDouble(b, "kg"), asDouble(b, "kia"), asDouble(b, "klr"), asDouble(b, "km"), asDouble(b, "kpa"), asDouble(b, "kvd"), asDouble(b, "ilr"), asDouble(b, "tg"), asDouble(b, "ts"), asDouble(b, "tvd"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
-            case CLASS_EXC_ST7B -> m.add(new ExcST7B(id, sm, asDouble(b, "tr"), asDouble(b, "kh"), asDouble(b, "kia"), asDouble(b, "tia"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tf"), asDouble(b, "kl"), asDouble(b, "kpa"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "tg")));
+            case CLASS_EXC_NI -> m.add(new ExcNI(id, sm, asBoolean(b, "busFedSelector"), asDouble(b, "ka"), asDouble(b, "kf"), asDouble(b, "r"), asDouble(b, "ta"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tr"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_OEX3T -> m.add(new ExcOEX3T(id, sm, asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_PIC -> m.add(new ExcPIC(id, sm, asDouble(b, "e1"), asDouble(b, "e2"), asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "se1"), asDouble(b, "se2"), asDouble(b, "ta1"), asDouble(b, "ta2"), asDouble(b, "ta3"), asDouble(b, "ta4"), asDouble(b, "te"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "vr1"), asDouble(b, "vr2"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_REXS -> m.add(new ExcREXS(id, sm, asDouble(b, "e1"), asDouble(b, "e2"), asString(b, "fbf"), asDouble(b, "flimf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kefd"), asDouble(b, "kf"), asDouble(b, "kh"), asDouble(b, "kii"), asDouble(b, "kip"), asDouble(b, "ks"), asDouble(b, "kvi"), asDouble(b, "kvp"), asDouble(b, "kvphz"), asDouble(b, "nvphz"), asDouble(b, "se1"), asDouble(b, "se2"), asDouble(b, "ta"), asDouble(b, "tb1"), asDouble(b, "tb2"), asDouble(b, "tc1"), asDouble(b, "tc2"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tp"), asDouble(b, "vcmax"), asDouble(b, "vfmax"), asDouble(b, "vfmin"), asDouble(b, "vimax"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xc")));
+            case CLASS_EXC_RQB -> m.add(new ExcRQB(id, sm, asDouble(b, "ki0"), asDouble(b, "ki1"), asDouble(b, "klir"), asDouble(b, "klus"), asDouble(b, "lsat"), asDouble(b, "lus"), asDouble(b, "mesu"), asDouble(b, "t4m"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "ucmax"), asDouble(b, "ucmin")));
+            case CLASS_EXC_SCRX -> m.add(new ExcSCRX(id, sm, asDouble(b, "k"), asDouble(b, "tatb"), asDouble(b, "tb"), asDouble(b, "te"), asDouble(b, "emax"), asDouble(b, "emin"), asDouble(b, "rcrfd"), asBoolean(b, "cswitch")));
+            case CLASS_EXC_SEXS -> m.add(new ExcSEXS(id, sm, asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "emax"), asDouble(b, "emin"), asDouble(b, "k"), asDouble(b, "kc"), asDouble(b, "tatb"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te")));
+            case CLASS_EXC_SK -> m.add(new ExcSK(id, sm, asDouble(b, "efdmax"), asDouble(b, "efdmin"), asDouble(b, "emax"), asDouble(b, "emin"), asDouble(b, "k"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kc"), asDouble(b, "kce"), asDouble(b, "kd"), asDouble(b, "kgob"), asDouble(b, "kp"), asDouble(b, "kqi"), asDouble(b, "kqob"), asDouble(b, "kqp"), asDouble(b, "nq"), asBoolean(b, "qconoff"), asDouble(b, "qz"), asBoolean(b, "remote"), asDouble(b, "sbase"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "ti"), asDouble(b, "tp"), asDouble(b, "tr"), asDouble(b, "uimax"), asDouble(b, "uimin"), asDouble(b, "urmax"), asDouble(b, "urmin"), asDouble(b, "vtmax"), asDouble(b, "vtmin"), asDouble(b, "yp")));
+            case CLASS_EXC_ST1A -> m.add(new ExcST1A(id, sm, asDouble(b, "ilr"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kf"), asDouble(b, "klr"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tb1"), asDouble(b, "tc"), asDouble(b, "tc1"), asDouble(b, "tf"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xe")));
+            case CLASS_EXC_ST2A -> m.add(new ExcST2A(id, sm, asDouble(b, "efdmax"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asBoolean(b, "uelin"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_ST3A -> m.add(new ExcST3A(id, sm, asDouble(b, "efdmax"), asDouble(b, "kc"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "kj"), asDouble(b, "km"), asDouble(b, "kp"), asDouble(b, "ks"), asDouble(b, "ks1"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "thetap"), asDouble(b, "tm"), asDouble(b, "vbmax"), asDouble(b, "vgmax"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xl")));
+            case CLASS_EXC_ST4B -> m.add(new ExcST4B(id, sm, asDouble(b, "kc"), asDouble(b, "kg"), asDouble(b, "ki"), asDouble(b, "kim"), asDouble(b, "kir"), asDouble(b, "kp"), asDouble(b, "kpm"), asDouble(b, "kpr"), asBoolean(b, "lvgate"), asDouble(b, "ta"), asDouble(b, "thetap"), asBoolean(b, "uel"), asDouble(b, "vbmax"), asDouble(b, "vgmax"), asDouble(b, "vmmax"), asDouble(b, "vmmin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xl")));
+            case CLASS_EXC_ST6B -> m.add(new ExcST6B(id, sm, asDouble(b, "ilr"), asBoolean(b, "k1"), asDouble(b, "kcl"), asDouble(b, "kff"), asDouble(b, "kg"), asDouble(b, "kia"), asDouble(b, "klr"), asDouble(b, "km"), asDouble(b, "kpa"), asDouble(b, "kvd"), asString(b, "oelin"), asDouble(b, "tg"), asDouble(b, "ts"), asDouble(b, "tvd"), asDouble(b, "vamax"), asDouble(b, "vamin"), asBoolean(b, "vilim"), asDouble(b, "vimax"), asDouble(b, "vimin"), asBoolean(b, "vmult"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "xc")));
+            case CLASS_EXC_ST7B -> m.add(new ExcST7B(id, sm, asDouble(b, "kh"), asDouble(b, "kia"), asDouble(b, "kl"), asDouble(b, "kpa"), asString(b, "oelin"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "tf"), asDouble(b, "tg"), asDouble(b, "tia"), asDouble(b, "ts"), asString(b, "uelin"), asDouble(b, "vmax"), asDouble(b, "vmin"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
             case CLASS_EXC_SYMPTR -> m.add(new ExcSYMPTR(id, sm, asDouble(b, "efmx"), asDouble(b, "efmn"), asDouble(b, "vopi"), asDouble(b, "vres"), asDouble(b, "tr"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
-            case CLASS_EXC_AC1A -> m.add(new ExcAC1A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_AC2A -> m.add(new ExcAC2A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "kb"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "te"), asDouble(b, "vfemax"), asDouble(b, "kh"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_AC3A -> m.add(new ExcAC3A(id, sm, asDouble(b, "tr"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "vemin"), asDouble(b, "kr"), asDouble(b, "kf"), asDouble(b, "tf"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_AC4A -> m.add(new ExcAC4A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "kc")));
-            case CLASS_EXC_AC5A -> m.add(new ExcAC5A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ke"), asDouble(b, "te"), asDouble(b, "kf"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tf3"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_AC6A -> m.add(new ExcAC6A(id, sm, asDouble(b, "tr"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "tk"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vhmax"), asDouble(b, "kh"), asDouble(b, "tj"), asDouble(b, "th"), asDouble(b, "td"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
-            case CLASS_EXC_AC8B -> m.add(new ExcAC8B(id, sm, asDouble(b, "tr"), asDouble(b, "kpr"), asDouble(b, "kir"), asDouble(b, "kdr"), asDouble(b, "tdr"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asDouble(b, "ka"), asDouble(b, "ta"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "te"), asDouble(b, "ke"), asDouble(b, "vfemax"), asDouble(b, "vemin"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "e1"), asDouble(b, "se1"), asDouble(b, "e2"), asDouble(b, "se2")));
+            case CLASS_EXC_AC1A -> m.add(new ExcAC1A(id, sm, asBoolean(b, "hvlvgates"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "kf1"), asDouble(b, "kf2"), asDouble(b, "ks"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_AC2A -> m.add(new ExcAC2A(id, sm, asBoolean(b, "hvgate"), asDouble(b, "ka"), asDouble(b, "kb"), asDouble(b, "kb1"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "kh"), asDouble(b, "kl"), asDouble(b, "kl1"), asDouble(b, "ks"), asBoolean(b, "lvgate"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "vfemax"), asDouble(b, "vlr"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_AC3A -> m.add(new ExcAC3A(id, sm, asDouble(b, "efdn"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "kf1"), asDouble(b, "kf2"), asDouble(b, "klv"), asDouble(b, "kn"), asDouble(b, "kr"), asDouble(b, "ks"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "vemin"), asDouble(b, "vfemax"), asDouble(b, "vlv")));
+            case CLASS_EXC_AC4A -> m.add(new ExcAC4A(id, sm, asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_AC5A -> m.add(new ExcAC5A(id, sm, asDouble(b, "a"), asDouble(b, "efd1"), asDouble(b, "efd2"), asDouble(b, "ka"), asDouble(b, "ke"), asDouble(b, "kf"), asDouble(b, "ks"), asDouble(b, "seefd1"), asDouble(b, "seefd2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "tf1"), asDouble(b, "tf2"), asDouble(b, "tf3"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_AC6A -> m.add(new ExcAC6A(id, sm, asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "ke"), asDouble(b, "kh"), asDouble(b, "ks"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "te"), asDouble(b, "th"), asDouble(b, "tj"), asDouble(b, "tk"), asDouble(b, "vamax"), asDouble(b, "vamin"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "vfelim"), asDouble(b, "vhmax"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_EXC_AC8B -> m.add(new ExcAC8B(id, sm, asBoolean(b, "inlim"), asDouble(b, "ka"), asDouble(b, "kc"), asDouble(b, "kd"), asDouble(b, "kdr"), asDouble(b, "ke"), asDouble(b, "kir"), asDouble(b, "kpr"), asDouble(b, "ks"), asBoolean(b, "pidlim"), asDouble(b, "seve1"), asDouble(b, "seve2"), asDouble(b, "ta"), asDouble(b, "tdr"), asDouble(b, "te"), asBoolean(b, "telim"), asDouble(b, "ve1"), asDouble(b, "ve2"), asDouble(b, "vemin"), asDouble(b, "vfemax"), asDouble(b, "vimax"), asDouble(b, "vimin"), asDouble(b, "vpidmax"), asDouble(b, "vpidmin"), asDouble(b, "vrmax"), asDouble(b, "vrmin"), asBoolean(b, "vtmult")));
             default -> LOG.warn("Unhandled vendor exciter class: {}", cls);
         }
     }
@@ -996,10 +1020,10 @@ public final class CgmesDyModelLoader {
         String id = resourceId(b);
         String exc = asAssocId(b, EXCITER_ID);
         switch (cls) {
-            case CLASS_PSS_SB4 -> m.add(new PssSB4(id, exc, asDouble(b, "tt"), asDouble(b, "kx"), asDouble(b, "tx1"), asDouble(b, "tx2"), asDouble(b, "tx3"), asDouble(b, "tx4"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
-            case CLASS_PSS_IEEE1A -> m.add(new PssIEEE1A(id, exc, asDouble(b, "inputSignalType"), asDouble(b, "kx"), asDouble(b, "t6"), asDouble(b, "ks"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
-            case CLASS_PSS_IEEE2B -> m.add(new PssIEEE2B(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "ks3"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "tw3"), asDouble(b, "tw4"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "t11"), asDouble(b, "n"), asDouble(b, "m"), asDouble(b, "vstmax"), asDouble(b, "vstmin")));
-            case CLASS_PSS_IEEE3B -> m.add(new PssIEEE3B(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "a6"), asDouble(b, "a7"), asDouble(b, "a8"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
+            case CLASS_PSS_SB4 -> m.add(new PssSB4(id, exc, asDouble(b, "kx"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tc"), asDouble(b, "td"), asDouble(b, "te"), asDouble(b, "tt"), asDouble(b, "tx1"), asDouble(b, "tx2"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
+            case CLASS_PSS_IEEE1A -> m.add(new PssIEEE1A(id, exc, asDouble(b, "inputSignalType"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "ks"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_PSS_IEEE2B -> m.add(new PssIEEE2B(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "ks3"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "tw3"), asDouble(b, "tw4"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "t11"), asDouble(b, "n"), asDouble(b, "m"), asDouble(b, "vsi1max"), asDouble(b, "vsi1min"), asDouble(b, "vsi2max"), asDouble(b, "vsi2min"), asDouble(b, "vstmax"), asDouble(b, "vstmin")));
+            case CLASS_PSS_IEEE3B -> m.add(new PssIEEE3B(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "tw3"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "a6"), asDouble(b, "a7"), asDouble(b, "a8"), asDouble(b, "vstmax"), asDouble(b, "vstmin")));
             case CLASS_PSS_IEEE4B -> m.add(new PssIEEE4B(id, exc,
                 asDouble(b, "bwh1"), asDouble(b, "bwh2"), asDouble(b, "bwl1"), asDouble(b, "bwl2"),
                 asDouble(b, "kh"), asDouble(b, "kh1"), asDouble(b, "kh11"), asDouble(b, "kh17"), asDouble(b, "kh2"),
@@ -1010,16 +1034,16 @@ public final class CgmesDyModelLoader {
                 asDouble(b, "ti1"), asDouble(b, "ti10"), asDouble(b, "ti11"), asDouble(b, "ti12"), asDouble(b, "ti2"), asDouble(b, "ti3"), asDouble(b, "ti4"), asDouble(b, "ti5"), asDouble(b, "ti6"), asDouble(b, "ti7"), asDouble(b, "ti8"), asDouble(b, "ti9"),
                 asDouble(b, "tl1"), asDouble(b, "tl10"), asDouble(b, "tl11"), asDouble(b, "tl12"), asDouble(b, "tl2"), asDouble(b, "tl3"), asDouble(b, "tl4"), asDouble(b, "tl5"), asDouble(b, "tl6"), asDouble(b, "tl7"), asDouble(b, "tl8"), asDouble(b, "tl9"),
                 asDouble(b, "vsmax"), asDouble(b, "vsmin"), asDouble(b, "vshmax"), asDouble(b, "vshmin"), asDouble(b, "vsimax"), asDouble(b, "vsimin"), asDouble(b, "vslmax"), asDouble(b, "vslmin")));
-            case CLASS_PSS_1 -> m.add(new Pss1(id, exc, asDouble(b, "kx"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
-            case CLASS_PSS_1A -> m.add(new Pss1A(id, exc, asAssocId(b, "inputSignalType"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "ks"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "tdelay"), asDouble(b, "vcl"), asDouble(b, "vcu"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
-            case CLASS_PSS_2B -> m.add(new Pss2B(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "ks3"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "tw3"), asDouble(b, "tw4"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "t11"), asDouble(b, "n"), asDouble(b, "m"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
-            case CLASS_PSS_2ST -> m.add(new Pss2ST(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "lsmax"), asDouble(b, "lsmin")));
-            case CLASS_PSS_5 -> m.add(new Pss5(id, exc, asDouble(b, "deadband"), asDouble(b, "isfreq"), asDouble(b, "kf"), asDouble(b, "kpe"), asDouble(b, "kpss"), asDouble(b, "ktgov"), asDouble(b, "pmin"), asDouble(b, "tl1"), asDouble(b, "tl2"), asDouble(b, "tl3"), asDouble(b, "tl4"), asDouble(b, "tpe"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "vadat"), asDouble(b, "vsmn"), asDouble(b, "vsmx")));
-            case CLASS_PSS_PTIST1 -> m.add(new PssPTIST1(id, exc, asDouble(b, "dtc"), asDouble(b, "dtf"), asDouble(b, "dtp"), asDouble(b, "k"), asDouble(b, "m"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "tp"), asDouble(b, "vsmn"), asDouble(b, "vsmx")));
-            case CLASS_PSS_PTIST3 -> m.add(new PssPTIST3(id, exc, asDouble(b, "a0"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "al"), asDouble(b, "athres"), asDouble(b, "b0"), asDouble(b, "b1"), asDouble(b, "b2"), asDouble(b, "b3"), asDouble(b, "b4"), asDouble(b, "b5"), asDouble(b, "dl"), asDouble(b, "dtc"), asDouble(b, "dtf"), asDouble(b, "dtp"), asDouble(b, "isfreq"), asDouble(b, "k"), asDouble(b, "lthres"), asDouble(b, "m"), asDouble(b, "nav"), asDouble(b, "ncl"), asDouble(b, "pmin"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "tp"), asDouble(b, "vsmn"), asDouble(b, "vsmx")));
+            case CLASS_PSS_1 -> m.add(new Pss1(id, exc, asDouble(b, "kf"), asDouble(b, "komega"), asDouble(b, "kpe"), asDouble(b, "ks"), asDouble(b, "pmin"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "tpe"), asBoolean(b, "vadat"), asDouble(b, "vsmn"), asDouble(b, "vsmx")));
+            case CLASS_PSS_1A -> m.add(new Pss1A(id, exc, asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "a6"), asDouble(b, "a7"), asDouble(b, "a8"), asAssocId(b, "inputSignalType"), asBoolean(b, "kd"), asDouble(b, "ks"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "tdelay"), asDouble(b, "vcl"), asDouble(b, "vcu"), asDouble(b, "vrmax"), asDouble(b, "vrmin")));
+            case CLASS_PSS_2B -> m.add(new Pss2B(id, exc, asDouble(b, "a"), asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "ks3"), asDouble(b, "ks4"), asInt(b, "m"), asInt(b, "n"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "t11"), asDouble(b, "ta"), asDouble(b, "tb"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "tw3"), asDouble(b, "tw4"), asDouble(b, "vsi1max"), asDouble(b, "vsi1min"), asDouble(b, "vsi2max"), asDouble(b, "vsi2min"), asDouble(b, "vstmax"), asDouble(b, "vstmin")));
+            case CLASS_PSS_2ST -> m.add(new Pss2ST(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "lsmax"), asDouble(b, "lsmin"), asDouble(b, "vcl"), asDouble(b, "vcu")));
+            case CLASS_PSS_5 -> m.add(new Pss5(id, exc, asBoolean(b, "ctw2"), asDouble(b, "deadband"), asBoolean(b, "isfreq"), asDouble(b, "kf"), asDouble(b, "kpe"), asDouble(b, "kpss"), asDouble(b, "pmm"), asDouble(b, "tl1"), asDouble(b, "tl2"), asDouble(b, "tl3"), asDouble(b, "tl4"), asDouble(b, "tpe"), asDouble(b, "tw1"), asDouble(b, "tw2"), asDouble(b, "vadat"), asDouble(b, "vsmn"), asDouble(b, "vsmx")));
+            case CLASS_PSS_PTIST1 -> m.add(new PssPTIST1(id, exc, asDouble(b, "dtc"), asDouble(b, "dtf"), asDouble(b, "dtp"), asDouble(b, "k"), asDouble(b, "m"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "tf"), asDouble(b, "tp")));
+            case CLASS_PSS_PTIST3 -> m.add(new PssPTIST3(id, exc, asDouble(b, "a0"), asDouble(b, "a1"), asDouble(b, "a2"), asDouble(b, "a3"), asDouble(b, "a4"), asDouble(b, "a5"), asDouble(b, "al"), asDouble(b, "athres"), asDouble(b, "b0"), asDouble(b, "b1"), asDouble(b, "b2"), asDouble(b, "b3"), asDouble(b, "b4"), asDouble(b, "b5"), asDouble(b, "dl"), asDouble(b, "dtc"), asDouble(b, "dtf"), asDouble(b, "dtp"), asBoolean(b, "isw"), asDouble(b, "k"), asDouble(b, "lthres"), asDouble(b, "m"), asDouble(b, "nav"), asDouble(b, "ncl"), asDouble(b, "ncr"), asDouble(b, "pmin"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "tf"), asDouble(b, "tp")));
             case CLASS_PSS_ELIN2 -> m.add(new PssELIN2(id, exc, asDouble(b, "apss"), asDouble(b, "ks1"), asDouble(b, "ks2"), asDouble(b, "ppss"), asDouble(b, "psslim"), asDouble(b, "ts1"), asDouble(b, "ts2"), asDouble(b, "ts3"), asDouble(b, "ts4"), asDouble(b, "ts5"), asDouble(b, "ts6")));
             case CLASS_PSS_SH -> m.add(new PssSH(id, exc, asDouble(b, "k"), asDouble(b, "k0"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "k3"), asDouble(b, "k4"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "td"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
-            case CLASS_PSS_WECC -> m.add(new PssWECC(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "vsmax"), asDouble(b, "vsmin")));
+            case CLASS_PSS_WECC -> m.add(new PssWECC(id, exc, asAssocId(b, "inputSignal1Type"), asAssocId(b, "inputSignal2Type"), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "t4"), asDouble(b, "t5"), asDouble(b, "t6"), asDouble(b, "t7"), asDouble(b, "t8"), asDouble(b, "t9"), asDouble(b, "t10"), asDouble(b, "vsmax"), asDouble(b, "vsmin"), asDouble(b, "vcl"), asDouble(b, "vcu")));
             case CLASS_PSS_RQB -> m.add(new PssRQB(id, exc, asDouble(b, "kdpm"), asDouble(b, "ki2"), asDouble(b, "ki3"), asDouble(b, "ki4"), asDouble(b, "sibv"), asDouble(b, "t4f"), asDouble(b, "t4m"), asDouble(b, "t4mom"), asDouble(b, "tomd"), asDouble(b, "tomsl")));
             default -> LOG.warn("Unhandled PSS class: {}", cls);
         }
@@ -1053,18 +1077,19 @@ public final class CgmesDyModelLoader {
         switch (cls) {
             case CLASS_SYNC_SIMPLIFIED -> m.add(new SynchronousMachineSimplified(id, smId, mBase, damp, inertia, xlBase, ra));
             case CLASS_SYNC_DETAILED -> m.add(new SynchronousMachineDetailed(id, smId, mBase, damp, inertia, xlBase, ra,
-                asAssocId(b, "ifdBaseType"), asDouble(b, "saturationFactor"), asDouble(b, "saturationFactor120")));
+                asAssocId(b, "ifdBaseType"), asDouble(b, "saturationFactor"), asDouble(b, "saturationFactor120"),
+                asDouble(b, "efdBaseRatio"), asDouble(b, "ifdBaseValue"), asDouble(b, "saturationFactorQAxis"), asDouble(b, "saturationFactor120QAxis")));
             case CLASS_SYNC_EQUIV_CIRCUIT -> m.add(new SynchronousMachineEquivalentCircuit(id, smId, mBase, damp, inertia, xlBase, ra,
                 asAssocId(b, "ifdBaseType"), asDouble(b, "saturationFactor"), asDouble(b, "saturationFactor120"),
-                asDouble(b, "r1d"), asDouble(b, "x1d"), asDouble(b, "r2d"), asDouble(b, "x2d"), asDouble(b, "rfd"), asDouble(b, "xfd"),
+                asDouble(b, "r1d"), asDouble(b, "x1d"), asDouble(b, "rfd"), asDouble(b, "xfd"),
                 asDouble(b, "r1q"), asDouble(b, "x1q"), asDouble(b, "r2q"), asDouble(b, "x2q"),
-                asDouble(b, "xad"), asDouble(b, "xaq"), asDouble(b, "xf1d"), asDouble(b, "xmd"), asDouble(b, "xmq"), asDouble(b, "xl")));
+                asDouble(b, "xad"), asDouble(b, "xaq"), asDouble(b, "xf1d")));
             case CLASS_SYNC_TIME_CONST_REACTANCE -> m.add(new SynchronousMachineTimeConstantReactance(id, smId, mBase, damp, inertia, xlBase, ra,
                 asAssocId(b, "ifdBaseType"), asDouble(b, "saturationFactor"), asDouble(b, "saturationFactor120"),
-                asAssocId(b, "modelType"), asDouble(b, "ks"),
+                asAssocId(b, "modelType"), asAssocId(b, "rotorType"), asDouble(b, "ks"),
                 asDouble(b, "xDirectSync"), asDouble(b, "xDirectTrans"), asDouble(b, "xDirectSubtrans"),
                 asDouble(b, "xQuadSync"), asDouble(b, "xQuadTrans"), asDouble(b, "xQuadSubtrans"),
-                asDouble(b, "tpdo"), asDouble(b, "tppdo"), asDouble(b, "tpqo"), asDouble(b, "tppqo"), asDouble(b, "xl")));
+                asDouble(b, "tpdo"), asDouble(b, "tppdo"), asDouble(b, "tpqo"), asDouble(b, "tppqo"), asDouble(b, "tc")));
 //            case CLASS_SYNC_USER_DEFINED -> m.add(new SynchronousMachineUserDefined(id, smId, mBase, damp, inertia, xlBase, ra, asBoolean(b, "proprietary")));
             default -> LOG.warn("Unhandled sync machine class: {}", cls);
         }
@@ -1091,10 +1116,13 @@ public final class CgmesDyModelLoader {
         String amId = asAssocId(b, ASYNC_MACHINE_ID);
         switch (cls) {
             case CLASS_ASYNC_TIME_CONST_REACTANCE -> m.add(new AsynchronousMachineTimeConstantReactance(id, amId,
-                asDouble(b, "xs"), asDouble(b, "xp"), asDouble(b, "xpp"), asDouble(b, "tpo"), asDouble(b, "tppo"), asDouble(b, "xl")));
+                asDouble(b, "mBase"), asDouble(b, "damping"), asDouble(b, "inertia"),
+                asDouble(b, "statorLeakageReactance"), asDouble(b, "statorResistance"),
+                asDouble(b, "tpo"), asDouble(b, "tppo"), asDouble(b, "xp"), asDouble(b, "xpp"), asDouble(b, "xs")));
             case CLASS_ASYNC_EQUIV_CIRCUIT -> m.add(new AsynchronousMachineEquivalentCircuit(id, amId,
-                asDouble(b, "rr1"), asDouble(b, "xr1"), asDouble(b, "rr2"), asDouble(b, "xr2"),
-                asDouble(b, "xm"), asDouble(b, "xs"), asDouble(b, "rs")));
+                asDouble(b, "mBase"), asDouble(b, "damping"), asDouble(b, "inertia"),
+                asDouble(b, "statorLeakageReactance"), asDouble(b, "statorResistance"),
+                asDouble(b, "rr1"), asDouble(b, "rr2"), asDouble(b, "xlr1"), asDouble(b, "xlr2"), asDouble(b, "xm")));
 //            case CLASS_ASYNC_USER_DEFINED -> m.add(new AsynchronousMachineUserDefined(id, amId, asBoolean(b, "proprietary")));
             default -> LOG.warn("Unhandled async machine class: {}", cls);
         }
@@ -1125,7 +1153,7 @@ public final class CgmesDyModelLoader {
             case CLASS_WIND_TYPE1B_IEC -> m.add(new WindGenTurbineType1bIEC(id, pp, asString(b, "windAeroLinearIECId"), asString(b, "windProtectionIECId"), asString(b, "windContPitchAngleIECId"), asString(b, "windMechIECId"), asString(b, "asynchronousMachineId")));
             case CLASS_WIND_TYPE2_IEC -> m.add(new WindGenTurbineType2IEC(id, pp, asString(b, "windAeroLinearIECId"), asString(b, "windProtectionIECId"), asString(b, "windContPitchAngleIECId"), asString(b, "windContRotorRIECId"), asString(b, "windMechIECId"), asString(b, "asynchronousMachineId")));
             case CLASS_WIND_TYPE3A_IEC -> m.add(new WindGenTurbineType3aIEC(id, pp, asString(b, "windContPType3IECId"), asString(b, "windContQIECId"), asString(b, "windMechIECId"), asString(b, "windContCurrLimIECId"), asString(b, "windProtectionIECId"), asDouble(b, "kpc"), asDouble(b, "tic"), asDouble(b, "xs")));
-            case CLASS_WIND_TYPE3B_IEC -> m.add(new WindGenTurbineType3bIEC(id, pp, asString(b, "windContPType3IECId"), asString(b, "windContQIECId"), asString(b, "windMechIECId"), asString(b, "windContCurrLimIECId"), asString(b, "windProtectionIECId"), asDouble(b, "fthres"), asDouble(b, "mwtcwp"), asDouble(b, "tg"), asDouble(b, "two")));
+            case CLASS_WIND_TYPE3B_IEC -> m.add(new WindGenTurbineType3bIEC(id, pp, asString(b, "windContPType3IECId"), asString(b, "windContQIECId"), asString(b, "windMechIECId"), asString(b, "windContCurrLimIECId"), asString(b, "windProtectionIECId"), asDouble(b, "fducw"), asDouble(b, "mwtcwp"), asDouble(b, "tg"), asDouble(b, "two"), asDouble(b, "xs")));
             case CLASS_WIND_TYPE4A_IEC -> m.add(new WindGenTurbineType4aIEC(id, pp, asString(b, "windContPType4aIECId"), asString(b, "windContQIECId"), asString(b, "windContCurrLimIECId"), asString(b, "windProtectionIECId"), asDouble(b, "dipmax"), asDouble(b, "diqmax"), asDouble(b, "tg")));
             case CLASS_WIND_TYPE4B_IEC -> m.add(new WindGenTurbineType4bIEC(id, pp, asString(b, "windContPType4bIECId"), asString(b, "windContQIECId"), asString(b, "windMechIECId"), asString(b, "windContCurrLimIECId"), asString(b, "windProtectionIECId"), asDouble(b, "dipmax"), asDouble(b, "diqmax"), asDouble(b, "tg")));
             default -> LOG.warn("Unhandled wind turbine class: {}", cls);
@@ -1136,18 +1164,18 @@ public final class CgmesDyModelLoader {
         query(loadQuery(CLASS_WIND_PLANT_IEC)).forEach(b -> m.add(new WindPlantIEC(resourceId(b), asString(b, "windPlantFreqPcontrolIECId"), asString(b, "windPlantReactiveControlIECId"))));
         query(loadQuery(CLASS_WIND_MECH_IEC)).forEach(b -> m.add(new WindMechIEC(resourceId(b), asDouble(b, "cdrt"), asDouble(b, "hgen"), asDouble(b, "hwtr"), asDouble(b, "kdrt"))));
         query(loadQuery(CLASS_WIND_AERO_CONST)).forEach(b -> m.add(new WindAeroConstIEC(resourceId(b))));
-        query(loadQuery(CLASS_WIND_AERO_LINEAR)).forEach(b -> m.add(new WindAeroLinearIEC(resourceId(b), asDouble(b, "dpomega"), asDouble(b, "dptheta"), asDouble(b, "omegazero"), asDouble(b, "pavail"))));
+        query(loadQuery(CLASS_WIND_AERO_LINEAR)).forEach(b -> m.add(new WindAeroLinearIEC(resourceId(b), asDouble(b, "dpomega"), asDouble(b, "dptheta"), asDouble(b, "omegazero"), asDouble(b, "pavail"), asDouble(b, "thetazero"))));
         query(loadQuery(CLASS_WIND_CONT_PITCH)).forEach(b -> m.add(new WindContPitchAngleIEC(resourceId(b), asDouble(b, "dthetamax"), asDouble(b, "dthetamin"), asDouble(b, "kic"), asDouble(b, "kiomega"), asDouble(b, "kpc"), asDouble(b, "kpomega"), asDouble(b, "kpx"), asDouble(b, "thetamax"), asDouble(b, "thetamin"), asDouble(b, "ttheta"))));
-        query(loadQuery(CLASS_WIND_CONT_PTYPE3)).forEach(b -> m.add(new WindContPType3IEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "dprefmax"), asDouble(b, "dprefmin"), asDouble(b, "dthetamx"), asDouble(b, "kdtd"), asDouble(b, "kip"), asDouble(b, "kpp"), asDouble(b, "mplvrt"), asDouble(b, "omegaoffset"), asDouble(b, "pdtdmax"), asDouble(b, "rramp"), asDouble(b, "tdvs"), asDouble(b, "temin"), asDouble(b, "tpord"), asDouble(b, "tufilt"), asDouble(b, "tuscale"), asDouble(b, "twref"), asDouble(b, "udvs"), asDouble(b, "updip"), asDouble(b, "wdtd"), asDouble(b, "zeta"), asBoolean(b, "recrossflag"))));
-        query(loadQuery(CLASS_WIND_CONT_PTYPE4A)).forEach(b -> m.add(new WindContPType4aIEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "dpmin"), asDouble(b, "tpord"), asDouble(b, "tufilt"))));
-        query(loadQuery(CLASS_WIND_CONT_PTYPE4B)).forEach(b -> m.add(new WindContPType4bIEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "dpmin"), asDouble(b, "tpaero"), asDouble(b, "tpord"), asDouble(b, "tufilt"))));
-        query(loadQuery(CLASS_WIND_CONT_Q)).forEach(b -> m.add(new WindContQIEC(resourceId(b), asDouble(b, "iqh1"), asDouble(b, "iqmax"), asDouble(b, "iqmin"), asDouble(b, "iqpost"), asDouble(b, "kiq"), asDouble(b, "kiu"), asDouble(b, "kpq"), asDouble(b, "kpu"), asDouble(b, "kqv"), asDouble(b, "rdroop"), asDouble(b, "tpfilt"), asDouble(b, "tpost"), asDouble(b, "tqord"), asDouble(b, "tufilt"), asDouble(b, "udb1"), asDouble(b, "udb2"), asDouble(b, "umax"), asDouble(b, "umin"), asDouble(b, "uqdip"), asDouble(b, "uref0"), asDouble(b, "xdroop"), asString(b, "mconq"), asString(b, "mqfrt"), asString(b, "mqpri"), asString(b, "windLVRTQcontrolModeType"))));
+        query(loadQuery(CLASS_WIND_CONT_PTYPE3)).forEach(b -> m.add(new WindContPType3IEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "dtrisemaxlvrt"), asDouble(b, "kdtd"), asDouble(b, "kip"), asDouble(b, "kpp"), asDouble(b, "mplvrt"), asDouble(b, "omegaoffset"), asDouble(b, "pdtdmax"), asDouble(b, "rramp"), asDouble(b, "tdvs"), asDouble(b, "temin"), asDouble(b, "tomegafilt"), asDouble(b, "tpfilt"), asDouble(b, "tpord"), asDouble(b, "tufilt"), asDouble(b, "tuscale"), asDouble(b, "twref"), asDouble(b, "udvs"), asDouble(b, "updip"), asDouble(b, "wdtd"), asDouble(b, "zeta"))));
+        query(loadQuery(CLASS_WIND_CONT_PTYPE4A)).forEach(b -> m.add(new WindContPType4aIEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "tpord"), asDouble(b, "tufilt"))));
+        query(loadQuery(CLASS_WIND_CONT_PTYPE4B)).forEach(b -> m.add(new WindContPType4bIEC(resourceId(b), asDouble(b, "dpmax"), asDouble(b, "tpaero"), asDouble(b, "tpord"), asDouble(b, "tufilt"))));
+        query(loadQuery(CLASS_WIND_CONT_Q)).forEach(b -> m.add(new WindContQIEC(resourceId(b), asDouble(b, "iqh1"), asDouble(b, "iqmax"), asDouble(b, "iqmin"), asDouble(b, "iqpost"), asDouble(b, "kiq"), asDouble(b, "kiu"), asDouble(b, "kpq"), asDouble(b, "kpu"), asDouble(b, "kqv"), asDouble(b, "qmax"), asDouble(b, "qmin"), asDouble(b, "rdroop"), asDouble(b, "tiq"), asDouble(b, "tpfilt"), asDouble(b, "tpost"), asDouble(b, "tqord"), asDouble(b, "tufilt"), asDouble(b, "udb1"), asDouble(b, "udb2"), asDouble(b, "umax"), asDouble(b, "umin"), asDouble(b, "uqdip"), asDouble(b, "uref0"), asDouble(b, "xdroop"), asString(b, "windLVRTQcontrolModesType"), asString(b, "windQcontrolModesType"))));
         query(loadQuery(CLASS_WIND_CONT_ROTOR_R)).forEach(b -> m.add(new WindContRotorRIEC(resourceId(b), asDouble(b, "kirr"), asDouble(b, "komegafilt"), asDouble(b, "kpfilt"), asDouble(b, "kprr"), asDouble(b, "rmax"), asDouble(b, "rmin"), asDouble(b, "tomegafilt"), asDouble(b, "tpfilt"))));
         query(loadQuery(CLASS_WIND_CURR_LIM)).forEach(b -> m.add(new WindContCurrLimIEC(resourceId(b), asDouble(b, "imax"), asDouble(b, "imaxdip"), asDouble(b, "kpqu"), asDouble(b, "mdfslim"), asDouble(b, "mqpri"), asDouble(b, "tufilt"), asDouble(b, "upqumax"))));
-        query(loadQuery(CLASS_WIND_PITCH_EMUL)).forEach(b -> m.add(new WindPitchContEmulIEC(resourceId(b), asDouble(b, "kdroop"), asDouble(b, "kipce"), asDouble(b, "kppce"), asDouble(b, "omegatr"), asDouble(b, "pimax"), asDouble(b, "pimin"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "t3"), asDouble(b, "thetamax"), asDouble(b, "thetamin"))));
-        query(loadQuery(CLASS_WIND_PLANT_FREQ)).forEach(b -> m.add(new WindPlantFreqPcontrolIEC(resourceId(b), asDouble(b, "dpref"), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "prefmax"), asDouble(b, "prefmin"), asDouble(b, "tft"), asDouble(b, "tlag"), asDouble(b, "twpfiltp"), asDouble(b, "twpfiltu"))));
-        query(loadQuery(CLASS_WIND_PLANT_REACT)).forEach(b -> m.add(new WindPlantReactiveControlIEC(resourceId(b), asDouble(b, "ki"), asDouble(b, "kp"), asDouble(b, "kqi"), asDouble(b, "kqp"), asDouble(b, "kuu"), asDouble(b, "twpfiltp"), asDouble(b, "twppfilt"), asDouble(b, "twpqfilt"), asDouble(b, "twpufilt"), asDouble(b, "txfp"), asDouble(b, "txft"), asDouble(b, "uwpqdip"), asDouble(b, "xrefmax"), asDouble(b, "xrefmin"))));
-        query(loadQuery(CLASS_WIND_PROTECTION)).forEach(b -> m.add(new WindProtectionIEC(resourceId(b), asDouble(b, "dfimax"), asDouble(b, "fover"), asDouble(b, "funder"), asDouble(b, "mzc"), asDouble(b, "tfma"), asDouble(b, "uover"), asDouble(b, "uunder"))));
+        query(loadQuery(CLASS_WIND_PITCH_EMUL)).forEach(b -> m.add(new WindPitchContEmulIEC(resourceId(b), asDouble(b, "kdroop"), asDouble(b, "kipce"), asDouble(b, "komegaaero"), asDouble(b, "kppce"), asDouble(b, "omegaref"), asDouble(b, "pimax"), asDouble(b, "pimin"), asDouble(b, "t1"), asDouble(b, "t2"), asDouble(b, "tpe"))));
+        query(loadQuery(CLASS_WIND_PLANT_FREQ)).forEach(b -> m.add(new WindPlantFreqPcontrolIEC(resourceId(b), asDouble(b, "dprefmax"), asDouble(b, "dprefmin"), asDouble(b, "kiwpp"), asDouble(b, "kpwpp"), asDouble(b, "prefmax"), asDouble(b, "prefmin"), asDouble(b, "tpft"), asDouble(b, "tpfv"), asDouble(b, "twpffilt"), asDouble(b, "twppfilt"))));
+        query(loadQuery(CLASS_WIND_PLANT_REACT)).forEach(b -> m.add(new WindPlantReactiveControlIEC(resourceId(b), asDouble(b, "kiwpx"), asDouble(b, "kpwpx"), asDouble(b, "kwpqu"), asDouble(b, "mwppf"), asDouble(b, "mwpu"), asDouble(b, "twppfilt"), asDouble(b, "twpqfilt"), asDouble(b, "twpufilt"), asDouble(b, "txft"), asDouble(b, "txfv"), asDouble(b, "uwpqdip"), asDouble(b, "xrefmax"), asDouble(b, "xrefmin"))));
+        query(loadQuery(CLASS_WIND_PROTECTION)).forEach(b -> m.add(new WindProtectionIEC(resourceId(b), asDouble(b, "fover"), asDouble(b, "funder"), asDouble(b, "tfover"), asDouble(b, "tfunder"), asDouble(b, "tuover"), asDouble(b, "tuunder"), asDouble(b, "uover"), asDouble(b, "uunder"))));
     }
 
     // =========================================================================
@@ -1157,14 +1185,14 @@ public final class CgmesDyModelLoader {
     private void loadLoadModels(CgmesDyModel m) {
         query(loadQuery(CLASS_LOAD_STATIC)).forEach(b -> {
             try {
-                m.add(new LoadStatic(resourceId(b), asString(b, "energyConsumerId"), asDouble(b, "kp1"), asDouble(b, "kp2"), asDouble(b, "kp3"), asDouble(b, "kp4"), asDouble(b, "kp5"), asDouble(b, "kp6"), asDouble(b, "kq1"), asDouble(b, "kq2"), asDouble(b, "kq3"), asDouble(b, "kq4"), asDouble(b, "kq5"), asDouble(b, "kq6"), asDouble(b, "ep1"), asDouble(b, "ep2"), asDouble(b, "ep3"), asDouble(b, "eq1"), asDouble(b, "eq2"), asDouble(b, "eq3"), asString(b, "staticLoadModelType")));
+                m.add(new LoadStatic(resourceId(b), asString(b, "energyConsumerId"), asDouble(b, "kp1"), asDouble(b, "kp2"), asDouble(b, "kp3"), asDouble(b, "kp4"), asDouble(b, "kpf"), asDouble(b, "kq1"), asDouble(b, "kq2"), asDouble(b, "kq3"), asDouble(b, "kq4"), asDouble(b, "kqf"), asDouble(b, "ep1"), asDouble(b, "ep2"), asDouble(b, "ep3"), asDouble(b, "eq1"), asDouble(b, "eq2"), asDouble(b, "eq3"), asString(b, "staticLoadModelType")));
             } catch (Exception e) {
                 LOG.warn("Skipping LoadStatic {}: {}", resourceId(b), e.getMessage());
             }
         });
         query(loadQuery(CLASS_LOAD_COMPOSITE)).forEach(b -> {
             try {
-                m.add(new LoadComposite(resourceId(b), asString(b, "energyConsumerId"), asDouble(b, "epvs"), asDouble(b, "epfs"), asDouble(b, "eqvs"), asDouble(b, "eqfs"), asDouble(b, "epvd"), asDouble(b, "epfd"), asDouble(b, "eqvd"), asDouble(b, "eqfd"), asDouble(b, "mv"), asDouble(b, "mf"), asDouble(b, "lfmac"), asDouble(b, "lfs"), asDouble(b, "lfrac"), asDouble(b, "pfrac"), asDouble(b, "td"), asDouble(b, "tf"), asDouble(b, "tc"), asDouble(b, "xm"), asDouble(b, "xp"), asDouble(b, "xpp"), asDouble(b, "ls"), asDouble(b, "ra"), asDouble(b, "tpo"), asDouble(b, "tppo")));
+                m.add(new LoadComposite(resourceId(b), asString(b, "energyConsumerId"), asDouble(b, "epvs"), asDouble(b, "epfs"), asDouble(b, "eqvs"), asDouble(b, "eqfs"), asDouble(b, "epvd"), asDouble(b, "epfd"), asDouble(b, "eqvd"), asDouble(b, "eqfd"), asDouble(b, "h"), asDouble(b, "lfrac"), asDouble(b, "pfrac")));
             } catch (Exception e) {
                 LOG.warn("Skipping LoadComposite {}: {}", resourceId(b), e.getMessage());
             }
@@ -1178,7 +1206,7 @@ public final class CgmesDyModelLoader {
         });
         query(loadQuery(CLASS_LOAD_MOTOR)).forEach(b -> {
             try {
-                m.add(new LoadMotor(resourceId(b), asDouble(b, "pfrac"), asDouble(b, "ls"), asDouble(b, "ra"), asDouble(b, "lp"), asDouble(b, "lpp"), asDouble(b, "tpo"), asDouble(b, "tppo"), asDouble(b, "h"), asDouble(b, "d"), asDouble(b, "vt"), asDouble(b, "tv"), asDouble(b, "tbkr"), asDouble(b, "lfac"), asDouble(b, "compPF"), asDouble(b, "vbrkr"), asDouble(b, "vc1off"), asDouble(b, "vc2off"), asDouble(b, "vc1on"), asDouble(b, "vc2on")));
+                m.add(new LoadMotor(resourceId(b), asDouble(b, "pfrac"), asDouble(b, "ls"), asDouble(b, "ra"), asDouble(b, "lp"), asDouble(b, "lpp"), asDouble(b, "tpo"), asDouble(b, "tppo"), asDouble(b, "h"), asDouble(b, "d"), asDouble(b, "vt"), asDouble(b, "tv"), asDouble(b, "tbkr"), asDouble(b, "lfac")));
             } catch (Exception e) {
                 LOG.warn("Skipping LoadMotor {}: {}", resourceId(b), e.getMessage());
             }
@@ -1227,14 +1255,14 @@ public final class CgmesDyModelLoader {
     private void loadProtection(CgmesDyModel m) {
         query(loadQuery(CLASS_DISC_EXC_DEC1A)).forEach(b -> {
             try {
-                m.add(new DiscExcContIEEEDEC1A(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "vtlmt"), asDouble(b, "vomax"), asDouble(b, "vomin"), asDouble(b, "vdis"), asDouble(b, "vethr"), asDouble(b, "vanmax"), asDouble(b, "vtm"), asDouble(b, "vtn"), asDouble(b, "vsmin"), asDouble(b, "escrv"), asDouble(b, "kan"), asDouble(b, "td"), asDouble(b, "vsmax"), asDouble(b, "tan"), asDouble(b, "esc")));
+                m.add(new DiscExcContIEEEDEC1A(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "esc"), asDouble(b, "kan"), asDouble(b, "ketl"), asDouble(b, "tan"), asDouble(b, "td"), asDouble(b, "tl1"), asDouble(b, "tl2"), asDouble(b, "tw5"), asDouble(b, "val"), asDouble(b, "vanmax"), asDouble(b, "vomax"), asDouble(b, "vomin"), asDouble(b, "vsmax"), asDouble(b, "vsmin"), asDouble(b, "vtc"), asDouble(b, "vtlmt"), asDouble(b, "vtm"), asDouble(b, "vtn")));
             } catch (Exception e) {
                 LOG.warn("Skipping DiscExcDEC1A {}: {}", resourceId(b), e.getMessage());
             }
         });
         query(loadQuery(CLASS_DISC_EXC_DEC2A)).forEach(b -> {
             try {
-                m.add(new DiscExcContIEEEDEC2A(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "td1"), asDouble(b, "td2"), asDouble(b, "vdmax"), asDouble(b, "vdmin")));
+                m.add(new DiscExcContIEEEDEC2A(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "td1"), asDouble(b, "td2"), asDouble(b, "vdmax"), asDouble(b, "vdmin"), asDouble(b, "vk")));
             } catch (Exception e) {
                 LOG.warn("Skipping DiscExcDEC2A {}: {}", resourceId(b), e.getMessage());
             }
@@ -1262,14 +1290,14 @@ public final class CgmesDyModelLoader {
         });
         query(loadQuery(CLASS_UEL_IEEE1)).forEach(b -> {
             try {
-                m.add(new UnderexcLimIEEE1(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "kur"), asDouble(b, "kuc"), asDouble(b, "kuf"), asDouble(b, "vurmax"), asDouble(b, "vuimax"), asDouble(b, "vuimin"), asDouble(b, "tu1"), asDouble(b, "tu2"), asDouble(b, "tu3"), asDouble(b, "tu4")));
+                m.add(new UnderexcLimIEEE1(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "kuc"), asDouble(b, "kuf"), asDouble(b, "kui"), asDouble(b, "kul"), asDouble(b, "kur"), asDouble(b, "tu1"), asDouble(b, "tu2"), asDouble(b, "tu3"), asDouble(b, "tu4"), asDouble(b, "vucmax"), asDouble(b, "vuimax"), asDouble(b, "vuimin"), asDouble(b, "vulmax"), asDouble(b, "vulmin"), asDouble(b, "vurmax")));
             } catch (Exception e) {
                 LOG.warn("Skipping UelIEEE1 {}: {}", resourceId(b), e.getMessage());
             }
         });
         query(loadQuery(CLASS_UEL_IEEE2)).forEach(b -> {
             try {
-                m.add(new UnderexcLimIEEE2(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kfb"), asDouble(b, "kuf"), asDouble(b, "kui"), asDouble(b, "kul"), asDouble(b, "p0"), asDouble(b, "p1"), asDouble(b, "q0"), asDouble(b, "q1"), asDouble(b, "tu1"), asDouble(b, "tu2"), asDouble(b, "tu3"), asDouble(b, "tu4"), asDouble(b, "vuimax"), asDouble(b, "vuimin")));
+                m.add(new UnderexcLimIEEE2(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "k1"), asDouble(b, "k2"), asDouble(b, "kfb"), asDouble(b, "kuf"), asDouble(b, "kui"), asDouble(b, "kul"), asDouble(b, "p0"), asDouble(b, "p1"), asDouble(b, "p2"), asDouble(b, "p3"), asDouble(b, "p4"), asDouble(b, "p5"), asDouble(b, "p6"), asDouble(b, "p7"), asDouble(b, "p8"), asDouble(b, "p9"), asDouble(b, "p10"), asDouble(b, "q0"), asDouble(b, "q1"), asDouble(b, "q2"), asDouble(b, "q3"), asDouble(b, "q4"), asDouble(b, "q5"), asDouble(b, "q6"), asDouble(b, "q7"), asDouble(b, "q8"), asDouble(b, "q9"), asDouble(b, "q10"), asDouble(b, "tu1"), asDouble(b, "tu2"), asDouble(b, "tu3"), asDouble(b, "tu4"), asDouble(b, "tul"), asDouble(b, "tup"), asDouble(b, "tuq"), asDouble(b, "tuv"), asDouble(b, "vuimax"), asDouble(b, "vuimin"), asDouble(b, "vulmax"), asDouble(b, "vulmin")));
             } catch (Exception e) {
                 LOG.warn("Skipping UelIEEE2 {}: {}", resourceId(b), e.getMessage());
             }
@@ -1283,7 +1311,7 @@ public final class CgmesDyModelLoader {
         });
         query(loadQuery(CLASS_UEL_X2)).forEach(b -> {
             try {
-                m.add(new UnderexcLimX2(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "ki"), asDouble(b, "kuf"), asDouble(b, "kui"), asDouble(b, "kul"), asDouble(b, "p0"), asDouble(b, "p1"), asDouble(b, "q0"), asDouble(b, "q1"), asDouble(b, "tu1"), asDouble(b, "tu2"), asDouble(b, "tu3"), asDouble(b, "tu4"), asDouble(b, "vuimax"), asDouble(b, "vuimin")));
+                m.add(new UnderexcLimX2(resourceId(b), asAssocId(b, EXCITER_ID), asDouble(b, "kf2"), asDouble(b, "km"), asDouble(b, "melmax"), asDouble(b, "qo"), asDouble(b, "r"), asDouble(b, "tf2"), asDouble(b, "tm")));
             } catch (Exception e) {
                 LOG.warn("Skipping UelX2 {}: {}", resourceId(b), e.getMessage());
             }
@@ -1345,7 +1373,7 @@ public final class CgmesDyModelLoader {
             m.govHydro1List().size() + m.govHydro2List().size() + m.govHydro3List().size() + m.govHydro4List().size() + m.govHydroDDList().size() + m.govHydroFrancisList().size() + m.govHydroIEEE0List().size() + m.govHydroIEEE2List().size() + m.govHydroPeltonList().size() + m.govHydroPIDList().size() + m.govHydroPID2List().size() + m.govHydroRList().size() + m.govHydroWEHList().size() + m.govHydroWPIDList().size(),
             m.govGASTList().size() + m.govGAST1List().size() + m.govGAST2List().size() + m.govGAST3List().size() + m.govGAST4List().size() + m.govGASTWDList().size() + m.govCT1List().size() + m.govCT2List().size(),
             m.excIEEEDC1AList().size() + m.excIEEEDC2AList().size() + m.excIEEEDC3AList().size() + m.excIEEEDC4BList().size() + m.excIEEEAC1AList().size() + m.excIEEEAC2AList().size() + m.excIEEEAC3AList().size() + m.excIEEEAC4AList().size() + m.excIEEEAC5AList().size() + m.excIEEEAC6AList().size() + m.excIEEEAC7BList().size() + m.excIEEEAC8BList().size() + m.excIEEEST1AList().size() + m.excIEEEST2AList().size() + m.excIEEEST3AList().size() + m.excIEEEST4BList().size() + m.excIEEEST5BList().size() + m.excIEEEST6BList().size() + m.excIEEEST7BList().size(),
-            m.excAVR1List().size() + m.excAVR2List().size() + m.excAVR3List().size() + m.excAVR4List().size() + m.excAVR5List().size() + m.excAVR7List().size() + m.excBBCList().size() + m.excCZList().size() + m.excDC1AList().size() + m.excDC2AList().size() + m.excDC3AList().size() + m.excELIN1List().size() + m.excELIN2List().size() + m.excHUList().size() + m.excNIList().size() + m.excOEX3TList().size() + m.excPICList().size() + m.excREXSList().size() + m.excRQBList().size() + m.excSCRXList().size() + m.excSEXSList().size() + m.excSKList().size() + m.excST1AList().size() + m.excST2AList().size() + m.excST3List().size() + m.excST4BList().size() + m.excST6BList().size() + m.excST7BList().size() + m.excSYMPTRList().size() + m.excAC1AList().size() + m.excAC2AList().size() + m.excAC3AList().size() + m.excAC4AList().size() + m.excAC5AList().size() + m.excAC6AList().size() + m.excAC8BList().size(),
+            m.excAVR1List().size() + m.excAVR2List().size() + m.excAVR3List().size() + m.excAVR4List().size() + m.excAVR5List().size() + m.excAVR7List().size() + m.excBBCList().size() + m.excCZList().size() + m.excDC1AList().size() + m.excDC2AList().size() + m.excDC3AList().size() + m.excELIN1List().size() + m.excELIN2List().size() + m.excHUList().size() + m.excNIList().size() + m.excOEX3TList().size() + m.excPICList().size() + m.excREXSList().size() + m.excRQBList().size() + m.excSCRXList().size() + m.excSEXSList().size() + m.excSKList().size() + m.excST1AList().size() + m.excST2AList().size() + m.excST3AList().size() + m.excST4BList().size() + m.excST6BList().size() + m.excST7BList().size() + m.excSYMPTRList().size() + m.excAC1AList().size() + m.excAC2AList().size() + m.excAC3AList().size() + m.excAC4AList().size() + m.excAC5AList().size() + m.excAC6AList().size() + m.excAC8BList().size(),
             m.pssSB4List().size() + m.pssIEEE1AList().size() + m.pssIEEE2BList().size() + m.pssIEEE3BList().size() + m.pssIEEE4BList().size() + m.pss1List().size() + m.pss1AList().size() + m.pss2BList().size() + m.pss2STList().size() + m.pss5List().size() + m.pssPTIST1List().size() + m.pssPTIST3List().size() + m.pssELIN2List().size() + m.pssSHList().size() + m.pssWECCList().size() + m.pssRQBList().size(),
             m.syncSimplifiedList().size() + m.syncDetailedList().size() + m.syncEquivCircuitList().size() + m.syncTimeConstReactanceList().size(),
 //                    + m.syncUserDefinedList().size()
