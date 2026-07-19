@@ -18,6 +18,8 @@ import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertie
 import com.powsybl.dynawo.mappings.generators.GeneratorFilters;
 import com.powsybl.dynawo.mappings.generators.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.networks.Ieee14EnergySources;
+import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
+import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.Property;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
@@ -172,6 +174,39 @@ class UniversalSynchronousGeneratorMappingTest {
         assertThat(parameters.getModelParameters()).extracting(ParametersSet::getId)
                 .containsExactlyInAnyOrder("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G");
         assertThat(parameters.getModelParameters("DynaWaltz_B1-G").getDouble("generator_H")).isEqualTo(3.0);
+    }
+
+    @Test
+    void shouldGiveTheSimulationSolverAndNetworkSettings() {
+        DynawoSimulationParameters parameters = applyWithParameters(new DynawoSimulationParameters());
+
+        assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.SIM_ID);
+        assertThat(parameters.getSolverParameters().getDouble("hMax")).isEqualTo(5.0);
+        assertThat(parameters.getNetworkParameters().getId()).isEqualTo(DefaultNetworkParameters.NETWORK_ID);
+        assertThat(parameters.getNetworkParameters().getDouble("load_alpha")).isEqualTo(1.5);
+    }
+
+    @Test
+    void shouldGiveTheVariableStepSolverWhenItIsTheOneAsked() {
+        DynawoSimulationParameters parameters = applyWithParameters(
+                new DynawoSimulationParameters().setSolverType(DynawoSimulationParameters.SolverType.IDA));
+
+        assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.IDA_ID);
+    }
+
+    @Test
+    void shouldKeepTheSettingsTheUserConfigured() {
+        ParametersSet solver = new ParametersSet("mySolver");
+        DynawoSimulationParameters parameters = applyWithParameters(
+                new DynawoSimulationParameters().setSolverParameters(solver));
+
+        assertThat(parameters.getSolverParameters()).isSameAs(solver);
+    }
+
+    private static DynawoSimulationParameters applyWithParameters(DynawoSimulationParameters parameters) {
+        DynamicModelsMappings.getInstance().apply(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME,
+                ieee14(), parameters, lib -> Optional.empty());
+        return parameters;
     }
 
     @Test

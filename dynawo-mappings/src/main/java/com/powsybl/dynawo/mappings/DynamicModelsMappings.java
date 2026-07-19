@@ -10,6 +10,8 @@ package com.powsybl.dynawo.mappings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
+import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynawoModelsSupplier;
 import com.powsybl.iidm.network.Network;
@@ -78,6 +80,21 @@ public final class DynamicModelsMappings {
         mapping.createExtensions(network);
         DynamicModelsSupplier supplier = new DynawoModelsSupplier(mapping.createModelConfigs(network));
         mapping.createParameters(network, descriptions).forEach(parameters::addModelParameters);
+        addDefaultParameters(parameters);
         return supplier;
+    }
+
+    /**
+     * Gives the simulation solver and network settings when it has none, so that a mapped network
+     * is runnable as is. What the user configured is left untouched.
+     */
+    private static void addDefaultParameters(DynawoSimulationParameters parameters) {
+        if (parameters.getSolverParameters() == null) {
+            parameters.setSolverParameters(parameters.getSolverType() == DynawoSimulationParameters.SolverType.IDA
+                    ? DefaultSolverParameters.ida() : DefaultSolverParameters.sim());
+        }
+        if (parameters.getNetworkParameters() == null) {
+            parameters.setNetworkParameters(DefaultNetworkParameters.network());
+        }
     }
 }
