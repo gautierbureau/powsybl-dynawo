@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -235,6 +236,21 @@ class UniversalSynchronousGeneratorMappingTest {
 
         assertThat(parameters.getSolverType()).isEqualTo(DynawoSimulationParameters.SolverType.SIM);
         assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.SIM_ID);
+    }
+
+    @Test
+    void shouldDropTheModelsASimulationCannotStartFrom() {
+        DynawoSimulationParameters parameters = applyWithParameters(new DynawoSimulationParameters());
+
+        assertThat(parameters.getModelSimplifiers()).containsExactlyInAnyOrder("energizedEquipment", "mainComponentEquipment");
+    }
+
+    @Test
+    void shouldKeepTheSimplifiersTheUserConfigured() {
+        DynawoSimulationParameters parameters = applyWithParameters(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME,
+                new DynawoSimulationParameters().setModelSimplifiers(Set.of("energizedEquipment")));
+
+        assertThat(parameters.getModelSimplifiers()).containsExactly("energizedEquipment");
     }
 
     @Test

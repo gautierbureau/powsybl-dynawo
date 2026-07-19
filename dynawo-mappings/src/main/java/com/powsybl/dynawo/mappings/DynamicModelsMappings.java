@@ -30,6 +30,14 @@ public final class DynamicModelsMappings {
 
     private static final DynamicModelsMappings INSTANCE = new DynamicModelsMappings(ServiceLoader.load(DynamicModelsMapping.class));
 
+    /**
+     * A mapping describes every equipment it recognises, including the ones a simulation cannot
+     * start from: an equipment left out of the main connected component, or one whose terminals
+     * are not all energised, has no operating point to initialise from and would fail the
+     * simulation. Dropping their models is what makes a mapping usable on a network as it comes.
+     */
+    private static final Set<String> DEFAULT_SIMPLIFIERS = Set.of("energizedEquipment", "mainComponentEquipment");
+
     private final Map<String, DynamicModelsMapping> mappings = new LinkedHashMap<>();
 
     DynamicModelsMappings(Iterable<DynamicModelsMapping> mappings) {
@@ -101,6 +109,9 @@ public final class DynamicModelsMappings {
         }
         if (parameters.getNetworkParameters() == null) {
             parameters.setNetworkParameters(DefaultNetworkParameters.network());
+        }
+        if (parameters.getModelSimplifiers().isEmpty()) {
+            parameters.setModelSimplifiers(DEFAULT_SIMPLIFIERS);
         }
     }
 }
