@@ -30,7 +30,25 @@ public final class GovernorTables {
     public static final String FILE_NAME = "governorTables.txt";
     private static final String RESOURCE = "/" + FILE_NAME;
 
+    private static Path defaultDirectory;
+
     private GovernorTables() {
+    }
+
+    /**
+     * Where the tables are written when the caller names no directory. A parameter set points at
+     * the file by an absolute path, so any readable place will do, and a temporary one keeps a
+     * simulation runnable without asking the user to prepare anything.
+     */
+    public static synchronized Path defaultDirectory() {
+        if (defaultDirectory == null) {
+            try {
+                defaultDirectory = Files.createTempDirectory("powsybl-dynawo-mappings");
+            } catch (IOException e) {
+                throw new PowsyblException("Could not create a directory for the governor tables", e);
+            }
+        }
+        return defaultDirectory;
     }
 
     /**

@@ -58,7 +58,7 @@ public class SynchronousGeneratorParametersGenerator {
     private final Path tablesDirectory;
 
     public SynchronousGeneratorParametersGenerator() {
-        this(GeneratorParameterDefaultsRegistry.getInstance(), null);
+        this(GeneratorParameterDefaultsRegistry.getInstance(), GovernorTables.defaultDirectory());
     }
 
     /**
