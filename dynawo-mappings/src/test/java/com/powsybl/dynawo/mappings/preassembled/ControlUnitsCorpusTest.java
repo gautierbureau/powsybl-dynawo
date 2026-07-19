@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.preassembled;
 
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -35,6 +37,9 @@ class ControlUnitsCorpusTest {
 
     private static final Path CORPUS = Path.of("..", "..", "dynawo-source", "dynawo", "sources", "Models",
             "Modelica", "PreassembledModels");
+
+    private static final Set<String> ATTACHED = Set.of("powerSystemStabilizer", "pss",
+            "overExcitationLimiter", "underExcitationLimiter", "statorCurrentLimiter");
 
     private static final Pattern UNIT = Pattern.compile(
             "<dyn:unitDynamicModel\\s+id=\"([^\"]+)\"\\s+name=\"([^\"]+)\"(?:\\s+initName\\s*=\"([^\"]*)\")?");
@@ -81,6 +86,89 @@ class ControlUnitsCorpusTest {
         // agreement, which is how a lookup that quietly matches nothing would read
         assertThat(undeclared).isEmpty();
         assertThat(disagreements).isEmpty();
+    }
+
+    @Test
+    void shouldWireEveryStabiliserAndLimiterTheWayTheShippedModelsDo() throws IOException {
+        Assumptions.assumeTrue(Files.exists(CORPUS), "no model definitions available at " + CORPUS);
+        Map<String, MachineControlUnit> regulators = declaredControls();
+        Map<String, RegulatorControlUnit> attached = declaredRegulatorControls();
+
+        List<String> disagreements = new ArrayList<>();
+        List<String> undeclared = new ArrayList<>();
+        try (Stream<Path> definitions = Files.list(CORPUS)) {
+            for (Path definition : definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
+                    .toList()) {
+                String shipped = Files.readString(definition);
+                boolean threeWindings = definition.getFileName().toString().contains("ThreeWindings");
+                MachineUnit machine = machine(threeWindings);
+                Map<String, String> units = unitsOf(shipped);
+                String regulatorModel = units.get("voltageRegulator");
+                for (Map.Entry<String, String> unit : units.entrySet()) {
+                    if (!ATTACHED.contains(unit.getKey())) {
+                        continue;
+                    }
+                    RegulatorControlUnit control = attached.get(key(unit.getKey(), unit.getValue(), false));
+                    MachineControlUnit regulator = regulators.getOrDefault(
+                            key("voltageRegulator", regulatorModel, threeWindings),
+                            regulators.get(key("voltageRegulator", regulatorModel, false)));
+                    if (control == null || regulator == null) {
+                        undeclared.add(definition.getFileName() + " " + unit.getValue());
+                        continue;
+                    }
+                    List<UnitConnection> declared = control.getConnectionsWith(machine, regulator);
+                    List<UnitConnection> held = connectionsOf(shipped, unit.getKey());
+                    if (!declared.containsAll(held) || !held.containsAll(declared)) {
+                        disagreements.add(definition.getFileName() + " " + unit.getKey());
+                    }
+                }
+            }
+        }
+        assertThat(undeclared).isEmpty();
+        assertThat(disagreements).isEmpty();
+    }
+
+    private static Map<String, RegulatorControlUnit> declaredRegulatorControls() {
+        Map<String, RegulatorControlUnit> controls = new LinkedHashMap<>();
+        for (Method factory : RegulatorControlUnits.class.getDeclaredMethods()) {
+            if (factory.getReturnType() != RegulatorControlUnit.class) {
+                continue;
+            }
+            try {
+                RegulatorControlUnit control = (RegulatorControlUnit) factory.invoke(null);
+                controls.put(key(control.getId(), control.getName(), false), control);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new AssertionError(e);
+            }
+        }
+        return controls;
+    }
+
+    private static MachineUnit machine(boolean threeWindings) {
+        return new GeneratorSynchronousUnit(threeWindings ? Windings.THREE_WINDINGS : Windings.FOUR_WINDINGS, false);
+    }
+
+    /**
+     * Every unit of a definition, by the name the assembly gives it.
+     */
+    private static Map<String, String> unitsOf(String definition) {
+        Map<String, String> units = new LinkedHashMap<>();
+        Matcher matcher = UNIT.matcher(definition);
+        while (matcher.find()) {
+            units.put(matcher.group(1), matcher.group(2));
+        }
+        return units;
+    }
+
+    /**
+     * Every connection a unit takes part in, whichever way round it was written.
+     */
+    private static List<UnitConnection> connectionsOf(String definition, String role) {
+        return CONNECTION.matcher(definition).results()
+                .filter(result -> List.of(result.group(2), result.group(4)).contains(role))
+                .map(result -> new UnitConnection(result.group(2), result.group(3), result.group(4), result.group(5),
+                        "initConnect".equals(result.group(1))))
+                .toList();
     }
 
     /**

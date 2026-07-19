@@ -88,6 +88,16 @@ public class GeneratorSynchronousUnit implements MachineUnit {
     }
 
     @Override
+    public String getReactivePowerVarName() {
+        return "QGenPu";
+    }
+
+    @Override
+    public String getInitReactivePowerVarName() {
+        return "QGen0Pu";
+    }
+
+    @Override
     public String getRunningVarName() {
         return "running.value";
     }

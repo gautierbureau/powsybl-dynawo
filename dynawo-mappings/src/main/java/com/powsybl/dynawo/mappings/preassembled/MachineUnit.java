@@ -33,6 +33,8 @@ public interface MachineUnit extends UnitModel {
 
     String getActivePowerVarName();
 
+    String getReactivePowerVarName();
+
     String getRunningVarName();
 
     /**
@@ -54,6 +56,8 @@ public interface MachineUnit extends UnitModel {
     String getInitMechanicalPowerVarName();
 
     String getInitActivePowerVarName();
+
+    String getInitReactivePowerVarName();
 
     String getInitVoltageMagnitudeVarName();
 }

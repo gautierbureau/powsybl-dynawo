@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings.preassembled;
 
 import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit.MachineQuantity;
+import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit.RegulatorInput;
 
 /**
  * The voltage regulators a machine can be given, as Dynawo assembles them.
@@ -98,7 +99,8 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -116,7 +118,8 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -134,7 +137,8 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -147,7 +151,8 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -182,7 +187,9 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.OVER_EXCITATION, "UOelPu")
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -193,7 +200,9 @@ public final class VoltageRegulatorUnits {
                 .reading("EfdPu", MachineQuantity.FIELD_VOLTAGE)
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.OVER_EXCITATION, "UOelPu")
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -219,7 +228,9 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("IRotor0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("UStator0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
-                .startingFrom("Ut0Pu", MachineQuantity.INIT_VOLTAGE_MAGNITUDE);
+                .startingFrom("Ut0Pu", MachineQuantity.INIT_VOLTAGE_MAGNITUDE)
+                .accepting(RegulatorInput.OVER_EXCITATION, "UOelPu")
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -230,7 +241,8 @@ public final class VoltageRegulatorUnits {
                 .reading("EfdPu", MachineQuantity.FIELD_VOLTAGE)
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UpssPu");
     }
 
     /**
@@ -248,7 +260,8 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -261,7 +274,8 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -274,7 +288,10 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu")
+                .accepting(RegulatorInput.STATOR_CURRENT_OVER_EXCITATION, "USclOelPu")
+                .accepting(RegulatorInput.STATOR_CURRENT_UNDER_EXCITATION, "USclUelPu");
     }
 
     /**
@@ -292,7 +309,8 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -310,7 +328,9 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.OVER_EXCITATION, "UOelPu")
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -321,7 +341,11 @@ public final class VoltageRegulatorUnits {
                 .reading("EfdPu", MachineQuantity.FIELD_VOLTAGE)
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.FEEDBACK, "VFbPu")
+                .accepting(RegulatorInput.INIT_VOLTAGE_REFERENCE, "UsRef0Pu")
+                .accepting(RegulatorInput.STABILISER, "UPssPu")
+                .accepting(RegulatorInput.UNDER_EXCITATION, "UUelPu");
     }
 
     /**
@@ -339,7 +363,8 @@ public final class VoltageRegulatorUnits {
                 .startingFrom("Ir0Pu", MachineQuantity.INIT_ROTOR_CURRENT)
                 .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
                 .startingFrom("it0Pu", MachineQuantity.INIT_CURRENT)
-                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE);
+                .startingFrom("ut0Pu", MachineQuantity.INIT_TERMINAL_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 
     /**
@@ -350,6 +375,7 @@ public final class VoltageRegulatorUnits {
                 .reading("UsPu", MachineQuantity.STATOR_VOLTAGE)
                 .reading("efdPu", MachineQuantity.FIELD_VOLTAGE)
                 .startingFrom("Efd0Pu", MachineQuantity.INIT_FIELD_VOLTAGE)
-                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE);
+                .startingFrom("Us0Pu", MachineQuantity.INIT_STATOR_VOLTAGE)
+                .accepting(RegulatorInput.STABILISER, "UPssPu");
     }
 }

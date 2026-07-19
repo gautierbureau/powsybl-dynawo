@@ -8,8 +8,11 @@
 package com.powsybl.dynawo.mappings.preassembled;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -35,6 +38,7 @@ public class MachineControlUnit implements ControlUnit {
         SPEED(MachineUnit::getSpeedVarName),
         MECHANICAL_POWER(MachineUnit::getMechanicalPowerVarName),
         ACTIVE_POWER(MachineUnit::getActivePowerVarName),
+        REACTIVE_POWER(MachineUnit::getReactivePowerVarName),
         RUNNING(MachineUnit::getRunningVarName),
         VOLTAGE_MAGNITUDE(MachineUnit::getVoltageMagnitudeVarName),
         INIT_STATOR_VOLTAGE(MachineUnit::getInitStatorVoltageVarName),
@@ -44,6 +48,7 @@ public class MachineControlUnit implements ControlUnit {
         INIT_CURRENT(MachineUnit::getInitCurrentVarName),
         INIT_MECHANICAL_POWER(MachineUnit::getInitMechanicalPowerVarName),
         INIT_ACTIVE_POWER(MachineUnit::getInitActivePowerVarName),
+        INIT_REACTIVE_POWER(MachineUnit::getInitReactivePowerVarName),
         INIT_VOLTAGE_MAGNITUDE(MachineUnit::getInitVoltageMagnitudeVarName);
 
         private final Function<MachineUnit, String> varName;
@@ -57,6 +62,21 @@ public class MachineControlUnit implements ControlUnit {
         }
     }
 
+    /**
+     * Something another control drives on a voltage regulator: the signal a stabiliser adds, the
+     * one a limiter forces. The regulator names it, which is why the same stabiliser meets
+     * {@code UPssPu} on one and {@code UpssPu} on another.
+     */
+    public enum RegulatorInput {
+        STABILISER,
+        OVER_EXCITATION,
+        UNDER_EXCITATION,
+        STATOR_CURRENT_OVER_EXCITATION,
+        STATOR_CURRENT_UNDER_EXCITATION,
+        FEEDBACK,
+        INIT_VOLTAGE_REFERENCE
+    }
+
     private record Wire(String ownVar, MachineQuantity quantity, boolean initialisation) {
     }
 
@@ -64,6 +84,7 @@ public class MachineControlUnit implements ControlUnit {
     private final String name;
     private final String initName;
     private final List<Wire> wires = new ArrayList<>();
+    private final Map<RegulatorInput, String> inputs = new EnumMap<>(RegulatorInput.class);
 
     public MachineControlUnit(String id, String name, String initName) {
         this.id = Objects.requireNonNull(id);
@@ -86,6 +107,18 @@ public class MachineControlUnit implements ControlUnit {
     public MachineControlUnit startingFrom(String ownVar, MachineQuantity quantity) {
         wires.add(new Wire(ownVar, quantity, true));
         return this;
+    }
+
+    /**
+     * Names one of the inputs another control drives on this one.
+     */
+    public MachineControlUnit accepting(RegulatorInput input, String varName) {
+        inputs.put(input, varName);
+        return this;
+    }
+
+    public Optional<String> getInputVarName(RegulatorInput input) {
+        return Optional.ofNullable(inputs.get(input));
     }
 
     @Override
