@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
@@ -29,6 +30,11 @@ public class UniversalDynaSwingMapping implements DynamicModelsMapping {
     @Override
     public String getName() {
         return UniversalSynchronousGeneratorMapping.DYNASWING_NAME;
+    }
+
+    @Override
+    public DynawoSimulationParameters.SolverType getSolverType() {
+        return mapping.getSolverType();
     }
 
     @Override

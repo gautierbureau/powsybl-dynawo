@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
@@ -110,6 +111,11 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public DynawoSimulationParameters.SolverType getSolverType() {
+        return simplified ? DynawoSimulationParameters.SolverType.SIM : DynawoSimulationParameters.SolverType.IDA;
     }
 
     @Override

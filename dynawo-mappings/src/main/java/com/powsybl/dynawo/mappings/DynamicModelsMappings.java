@@ -80,17 +80,23 @@ public final class DynamicModelsMappings {
         mapping.createExtensions(network);
         DynamicModelsSupplier supplier = new DynawoModelsSupplier(mapping.createModelConfigs(network));
         mapping.createParameters(network, descriptions).forEach(parameters::addModelParameters);
-        addDefaultParameters(parameters);
+        addDefaultParameters(mapping, parameters);
         return supplier;
     }
 
     /**
      * Gives the simulation solver and network settings when it has none, so that a mapped network
      * is runnable as is. What the user configured is left untouched.
+     * <p>
+     * The solver comes from the mapping rather than from the simulation defaults, since it follows
+     * from the models: the simplified ones run with the fixed time step solver, the detailed ones
+     * with the variable time step one.
      */
-    private static void addDefaultParameters(DynawoSimulationParameters parameters) {
+    private static void addDefaultParameters(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
         if (parameters.getSolverParameters() == null) {
-            parameters.setSolverParameters(parameters.getSolverType() == DynawoSimulationParameters.SolverType.IDA
+            DynawoSimulationParameters.SolverType solverType = mapping.getSolverType();
+            parameters.setSolverType(solverType);
+            parameters.setSolverParameters(solverType == DynawoSimulationParameters.SolverType.IDA
                     ? DefaultSolverParameters.ida() : DefaultSolverParameters.sim());
         }
         if (parameters.getNetworkParameters() == null) {

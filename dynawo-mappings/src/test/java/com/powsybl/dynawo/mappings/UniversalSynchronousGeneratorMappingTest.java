@@ -187,25 +187,39 @@ class UniversalSynchronousGeneratorMappingTest {
     }
 
     @Test
-    void shouldGiveTheVariableStepSolverWhenItIsTheOneAsked() {
+    void shouldRunTheDetailedModelsWithTheVariableStepSolver() {
+        // the detailed models follow faster dynamics than the fixed step solver can integrate
         DynawoSimulationParameters parameters = applyWithParameters(
-                new DynawoSimulationParameters().setSolverType(DynawoSimulationParameters.SolverType.IDA));
+                UniversalSynchronousGeneratorMapping.DYNASWING_NAME, new DynawoSimulationParameters());
 
+        assertThat(parameters.getSolverType()).isEqualTo(DynawoSimulationParameters.SolverType.IDA);
         assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.IDA_ID);
+    }
+
+    @Test
+    void shouldRunTheSimplifiedModelsWithTheFixedStepSolver() {
+        DynawoSimulationParameters parameters = applyWithParameters(
+                UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, new DynawoSimulationParameters());
+
+        assertThat(parameters.getSolverType()).isEqualTo(DynawoSimulationParameters.SolverType.SIM);
+        assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.SIM_ID);
     }
 
     @Test
     void shouldKeepTheSettingsTheUserConfigured() {
         ParametersSet solver = new ParametersSet("mySolver");
-        DynawoSimulationParameters parameters = applyWithParameters(
+        DynawoSimulationParameters parameters = applyWithParameters(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME,
                 new DynawoSimulationParameters().setSolverParameters(solver));
 
         assertThat(parameters.getSolverParameters()).isSameAs(solver);
     }
 
     private static DynawoSimulationParameters applyWithParameters(DynawoSimulationParameters parameters) {
-        DynamicModelsMappings.getInstance().apply(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME,
-                ieee14(), parameters, lib -> Optional.empty());
+        return applyWithParameters(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, parameters);
+    }
+
+    private static DynawoSimulationParameters applyWithParameters(String mapping, DynawoSimulationParameters parameters) {
+        DynamicModelsMappings.getInstance().apply(mapping, ieee14(), parameters, lib -> Optional.empty());
         return parameters;
     }
 

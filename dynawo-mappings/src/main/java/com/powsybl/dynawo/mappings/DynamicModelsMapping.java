@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
@@ -36,6 +37,16 @@ import java.util.List;
 public interface DynamicModelsMapping {
 
     String getName();
+
+    /**
+     * The solver the models of this mapping are meant to run with.
+     * <p>
+     * Simplified models integrate well with the fixed time step solver, which is what makes a long
+     * simulation affordable, while detailed ones need the variable time step solver to follow their
+     * faster dynamics. The choice belongs to the mapping rather than to the user, since it follows
+     * from the models it produces.
+     */
+    DynawoSimulationParameters.SolverType getSolverType();
 
     /**
      * Creates the extensions describing the dynamic characteristics of the equipments, leaving
