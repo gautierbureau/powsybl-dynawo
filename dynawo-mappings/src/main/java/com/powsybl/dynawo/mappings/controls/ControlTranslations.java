@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -31,6 +32,18 @@ public final class ControlTranslations {
     private final Map<String, String> governors = new HashMap<>();
     private final Map<String, String> voltageRegulators = new HashMap<>();
     private final Map<SimplifiedControls, String> fragments = new HashMap<>();
+
+    /**
+     * Tables of a mapping that does not translate the way the classpath says.
+     * <p>
+     * The contributed tables describe how a control is usually simplified, which is what a mapping
+     * meant for any network wants. A mapping written for one particular system, whose reference
+     * models are known, passes its own tables to
+     * {@link com.powsybl.dynawo.mappings.generators.GeneratorLibResolver} instead.
+     */
+    public static ControlTranslations of(ControlTranslation... translations) {
+        return new ControlTranslations(List.of(translations));
+    }
 
     ControlTranslations(Iterable<ControlTranslation> translations) {
         // highest priority first, so that a contribution knowing a particular fleet wins over the
