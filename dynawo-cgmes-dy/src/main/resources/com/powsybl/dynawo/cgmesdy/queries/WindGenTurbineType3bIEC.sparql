@@ -17,10 +17,15 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windContPType3IECId ?windContPType3IECId . }
+  OPTIONAL { ?id cim:WindGenTurbineType3IEC.WindContPType3IEC ?windContPType3IECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windContQIECId ?windContQIECId . }
+  OPTIONAL { ?id cim:WindTurbineType3or4IEC.WIndContQIEC ?windContQIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windMechIECId ?windMechIECId . }
+  OPTIONAL { ?id cim:WindGenTurbineType3IEC.WindMechIEC ?windMechIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windContCurrLimIECId ?windContCurrLimIECId . }
+  OPTIONAL { ?id cim:WindTurbineType3or4IEC.WindContCurrLimIEC ?windContCurrLimIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.windProtectionIECId ?windProtectionIECId . }
+  OPTIONAL { ?id cim:WindTurbineType3or4IEC.WindProtectionIEC ?windProtectionIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.fducw ?fducw . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.mwtcwp ?mwtcwp . }
   OPTIONAL { ?id cim:WindGenTurbineType3bIEC.tg ?tg . }
