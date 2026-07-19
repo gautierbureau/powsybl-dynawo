@@ -34,10 +34,24 @@ public class GeneratorAssembly {
     private final AuxiliaryUnit machineSideAuxiliaries;
     private final AuxiliaryUnit gridSideAuxiliaries;
     private final List<ControlUnit> controls = new ArrayList<>();
+    private final boolean initialisedThroughChain;
 
     public GeneratorAssembly(Windings windings, boolean withTransformer, boolean withAuxiliaries) {
+        this(windings, withTransformer, withAuxiliaries, true);
+    }
+
+    /**
+     * @param initialisedThroughChain whether the machine reads its operating point from the
+     *                                element beside it rather than from its own terminal. An older
+     *                                family of models keeps its own terminal even when it is
+     *                                connected through a transformer
+     */
+    public GeneratorAssembly(Windings windings, boolean withTransformer, boolean withAuxiliaries,
+                             boolean initialisedThroughChain) {
+        this.initialisedThroughChain = initialisedThroughChain;
         // a machine initialised through something reads its operating point from that element
-        this.machine = new GeneratorSynchronousUnit(windings, withTransformer || withAuxiliaries);
+        this.machine = new GeneratorSynchronousUnit(windings,
+                initialisedThroughChain && (withTransformer || withAuxiliaries));
         this.transformer = withTransformer ? new GeneratorTransformerUnit(withAuxiliaries) : null;
         // the switch is there for the auxiliaries; next to the machine it initialises it, behind a
         // transformer it only carries the grid side ones
@@ -80,7 +94,9 @@ public class GeneratorAssembly {
         if (machineSide == null) {
             return connections;
         }
-        connections.addAll(initialiseMachineThrough(machineSide));
+        if (initialisedThroughChain) {
+            connections.addAll(initialiseMachineThrough(machineSide));
+        }
         connections.add(UnitConnection.of(machine, "terminal", machineSide, machineSide.getMachineSideTerminalVarName()));
         connections.add(UnitConnection.of(machine, "switchOffSignal1", machineSide, machineSide.getSwitchOffSignalVarName()));
         if (transformer != null && coupling != null) {
