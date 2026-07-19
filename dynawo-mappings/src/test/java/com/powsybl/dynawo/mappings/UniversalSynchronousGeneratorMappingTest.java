@@ -44,20 +44,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UniversalSynchronousGeneratorMappingTest {
 
     @Test
-    void shouldDeduceTheModelsOfTheIeee14Reference() {
-        // describing IEEE14 with the regulations a real machine of each kind carries, and asking
-        // for a voltage stability study, gives back the models Dynawo ships for that system:
-        // three four winding and two three winding proportional regulations
+    void shouldSimplifyTheControlsForAVoltageStabilityStudy() {
+        // the exciters keep an integral term, a real machine carrying one holding no steady state
+        // voltage error. The IEEE test systems, described without it, have their own mapping
         Network network = ieee14();
         UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz();
         mapping.createExtensions(network);
 
         assertThat(libsByStaticId(mapping.createModelConfigs(network))).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "B1-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
-                "B2-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
-                "B3-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
-                "B6-G", "GeneratorSynchronousThreeWindingsProportionalRegulations",
-                "B8-G", "GeneratorSynchronousThreeWindingsProportionalRegulations"));
+                "B1-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
+                "B2-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
+                "B3-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
+                "B6-G", "GeneratorSynchronousThreeWindingsGoverPropVRPropInt",
+                "B8-G", "GeneratorSynchronousThreeWindingsGoverPropVRPropInt"));
     }
 
     @Test

@@ -44,15 +44,14 @@ public class DefaultControlTranslation implements ControlTranslation {
 
     @Override
     public Map<String, String> getVoltageRegulatorTranslations() {
-        // the detailed exciters reduce to a proportional voltage regulation, which is what the
-        // IEEE test systems are described with once simplified. A fleet whose exciters are known
-        // to hold no steady state voltage error is better served by mapping them to
-        // {@link #PROPORTIONAL_INTEGRAL}, which a contribution can do by overriding these entries
-        return Map.of("St4b", PROPORTIONAL,
-                "St5b", PROPORTIONAL,
-                "St6b", PROPORTIONAL,
-                "St7b", PROPORTIONAL,
-                "IEEX2A", PROPORTIONAL,
+        // a machine carrying one of these exciters holds no steady state voltage error, which a
+        // proportional regulation would not reproduce, hence the integral term. The simple
+        // exciters, which do leave an error, reduce to a proportional regulation
+        return Map.of("St4b", PROPORTIONAL_INTEGRAL,
+                "St5b", PROPORTIONAL_INTEGRAL,
+                "St6b", PROPORTIONAL_INTEGRAL,
+                "St7b", PROPORTIONAL_INTEGRAL,
+                "IEEX2A", PROPORTIONAL_INTEGRAL,
                 "SCRX", PROPORTIONAL,
                 "SEXS", PROPORTIONAL);
     }

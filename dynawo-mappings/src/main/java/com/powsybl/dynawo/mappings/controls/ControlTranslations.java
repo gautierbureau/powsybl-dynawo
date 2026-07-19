@@ -7,31 +7,32 @@
  */
 package com.powsybl.dynawo.mappings.controls;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
 /**
- * Merges every {@link ControlTranslation} found on the classpath and resolves detailed controls
- * into the Dynawo model name fragment implementing their simplified counterpart.
+ * Resolves the controls of a machine into the Dynawo model name fragment implementing them once
+ * simplified, from the {@link ControlTranslation} tables it was given.
+ * <p>
+ * Tables are consulted whole, in decreasing priority: the first one saying anything about a
+ * control answers for it, whether by an entry of its own or by its wildcard. A table that knows a
+ * fleet therefore overrides a general one even where the general one is more specific, which is
+ * what lets the IEEE test systems simplify every exciter to a proportional regulation while the
+ * general tables keep the integral term a real machine needs.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public final class ControlTranslations {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ControlTranslations.class);
     private static final ControlTranslations INSTANCE = new ControlTranslations(ServiceLoader.load(ControlTranslation.class));
 
-    private final Map<String, String> governors = new HashMap<>();
-    private final Map<String, String> voltageRegulators = new HashMap<>();
-    private final Map<SimplifiedControls, String> fragments = new HashMap<>();
+    private final List<ControlTranslation> translations;
 
     /**
      * Tables of a mapping that does not translate the way the classpath says.
@@ -46,50 +47,36 @@ public final class ControlTranslations {
     }
 
     ControlTranslations(Iterable<ControlTranslation> translations) {
-        // highest priority first, so that a contribution knowing a particular fleet wins over the
-        // general tables
-        StreamSupport.stream(translations.spliterator(), false)
+        this.translations = StreamSupport.stream(translations.spliterator(), false)
                 .sorted(Comparator.comparingInt(ControlTranslation::getPriority).reversed())
-                .forEach(t -> {
-                    merge(governors, t.getGovernorTranslations(), "governor");
-                    merge(voltageRegulators, t.getVoltageRegulatorTranslations(), "voltage regulator");
-                    merge(fragments, t.getSimplifiedControlsFragments(), "simplified controls");
-                });
+                .toList();
     }
 
     public static ControlTranslations getInstance() {
         return INSTANCE;
     }
 
-    private static <K> void merge(Map<K, String> target, Map<K, String> contribution, String kind) {
-        contribution.forEach((k, v) -> {
-            String previous = target.putIfAbsent(k, v);
-            if (previous != null && !previous.equals(v)) {
-                LOGGER.debug("{} translation of {} to {} ignored, {} was registered with a higher priority",
-                        kind, k, v, previous);
-            }
-        });
-    }
-
     public String translateGovernor(String governor) {
-        return translate(governors, governor, "governor");
+        return translate(ControlTranslation::getGovernorTranslations, governor);
     }
 
     public String translateVoltageRegulator(String voltageRegulator) {
-        return translate(voltageRegulators, voltageRegulator, "voltage regulator");
+        return translate(ControlTranslation::getVoltageRegulatorTranslations, voltageRegulator);
     }
 
     /**
-     * A control with no registered translation is already simple enough for a voltage stability
-     * study and stands for itself, unless a contribution declared a wildcard.
+     * A control no table speaks about is already simple enough for a voltage stability study and
+     * stands for itself.
      */
-    private static String translate(Map<String, String> table, String control, String kind) {
-        String translated = table.get(control);
-        if (translated == null) {
-            translated = table.getOrDefault(ControlTranslation.WILDCARD, control);
-            LOGGER.debug("No {} translation registered for {}, {} used", kind, control, translated);
-        }
-        return translated;
+    private String translate(Function<ControlTranslation, Map<String, String>> table, String control) {
+        return translations.stream()
+                .map(t -> {
+                    Map<String, String> entries = table.apply(t);
+                    return entries.getOrDefault(control, entries.get(ControlTranslation.WILDCARD));
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(control);
     }
 
     /**
@@ -101,12 +88,12 @@ public final class ControlTranslations {
      * do.
      */
     public Optional<String> getSimplifiedFragment(String governor, String voltageRegulator) {
-        String simplifiedGovernor = translateGovernor(governor);
-        String simplifiedVoltageRegulator = translateVoltageRegulator(voltageRegulator);
-        if (simplifiedGovernor == null || simplifiedVoltageRegulator == null) {
-            return Optional.empty();
-        }
-        return Optional.of(fragments.getOrDefault(new SimplifiedControls(simplifiedGovernor, simplifiedVoltageRegulator),
-                simplifiedGovernor + simplifiedVoltageRegulator));
+        SimplifiedControls simplified = new SimplifiedControls(translateGovernor(governor),
+                translateVoltageRegulator(voltageRegulator));
+        return Optional.of(translations.stream()
+                .map(t -> t.getSimplifiedControlsFragments().get(simplified))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> simplified.governor() + simplified.voltageRegulator()));
     }
 }
