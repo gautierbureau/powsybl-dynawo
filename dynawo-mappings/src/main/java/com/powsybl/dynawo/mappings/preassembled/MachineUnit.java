@@ -35,6 +35,12 @@ public interface MachineUnit extends UnitModel {
 
     String getRunningVarName();
 
+    /**
+     * The magnitude of the voltage at its terminal, which some exciters read instead of the
+     * complex voltage.
+     */
+    String getVoltageMagnitudeVarName();
+
     String getInitStatorVoltageVarName();
 
     String getInitFieldVoltageVarName();
@@ -48,4 +54,6 @@ public interface MachineUnit extends UnitModel {
     String getInitMechanicalPowerVarName();
 
     String getInitActivePowerVarName();
+
+    String getInitVoltageMagnitudeVarName();
 }

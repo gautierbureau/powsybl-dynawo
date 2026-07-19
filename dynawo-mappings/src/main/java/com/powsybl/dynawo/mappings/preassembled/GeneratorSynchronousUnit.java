@@ -93,6 +93,16 @@ public class GeneratorSynchronousUnit implements MachineUnit {
     }
 
     @Override
+    public String getVoltageMagnitudeVarName() {
+        return "UPu";
+    }
+
+    @Override
+    public String getInitVoltageMagnitudeVarName() {
+        return "U0PuVar";
+    }
+
+    @Override
     public String getInitStatorVoltageVarName() {
         return "UStator0Pu";
     }
