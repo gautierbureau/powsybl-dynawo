@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
+import com.powsybl.dynawo.mappings.parameters.GeneratorSizing;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -43,11 +44,25 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
      */
     public static final double DEFAULT_TSO_VOLTAGE_MIN = 30.0;
 
-    private static final Controls DEFAULT_CONTROLS = new Controls(SynchronousGeneratorProperties.Windings.FOUR_WINDINGS, "GovSteam1", "St4b");
+    private static final Controls NUCLEAR_CONTROLS = new Controls(SynchronousGeneratorProperties.Windings.FOUR_WINDINGS, "GovCt2", "St4b");
+    private static final Controls THERMAL_CONTROLS = new Controls(SynchronousGeneratorProperties.Windings.FOUR_WINDINGS, "GovSteam1", "St4b");
+    private static final Controls HYDRO_CONTROLS = new Controls(SynchronousGeneratorProperties.Windings.THREE_WINDINGS, "GovHydro4", "St4b");
     private static final Map<EnergySource, Controls> CONTROLS_BY_ENERGY_SOURCE = Map.of(
-            EnergySource.NUCLEAR, new Controls(SynchronousGeneratorProperties.Windings.FOUR_WINDINGS, "GovCt2", "St4b"),
-            EnergySource.THERMAL, new Controls(SynchronousGeneratorProperties.Windings.FOUR_WINDINGS, "GovSteam1", "St4b"),
-            EnergySource.HYDRO, new Controls(SynchronousGeneratorProperties.Windings.THREE_WINDINGS, "GovHydro4", "St4b"));
+            EnergySource.NUCLEAR, NUCLEAR_CONTROLS,
+            EnergySource.THERMAL, THERMAL_CONTROLS,
+            EnergySource.HYDRO, HYDRO_CONTROLS);
+
+    /**
+     * Nominal active power above which an unqualified machine is treated as a large steam unit,
+     * in MW.
+     */
+    public static final double LARGE_UNIT_POWER = 600.0;
+
+    /**
+     * Nominal active power above which an unqualified machine is treated as a steam unit rather
+     * than a hydro one, in MW.
+     */
+    public static final double MEDIUM_UNIT_POWER = 100.0;
 
     private record Controls(SynchronousGeneratorProperties.Windings windings, String governor, String voltageRegulator) {
     }
@@ -81,6 +96,28 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
         return filter.test(generator);
     }
 
+    /**
+     * The controls of a machine, from its energy source when the network gives one.
+     * <p>
+     * Many networks do not: the IEEE and PEGASE test systems declare every machine as
+     * {@link EnergySource#OTHER}. Rather than refuse to describe them, the size of the machine
+     * stands in for the missing information, a large unit behaving like a steam set and a small one
+     * like a hydro set. It is a guess, and a study that knows better should either set the energy
+     * sources or write the extensions itself, which the mapping then leaves untouched.
+     */
+    private static Controls controlsOf(Generator generator) {
+        Controls controls = CONTROLS_BY_ENERGY_SOURCE.get(generator.getEnergySource());
+        if (controls != null) {
+            return controls;
+        }
+        double nominalP = GeneratorSizing.nominalActivePower(generator);
+        controls = nominalP >= LARGE_UNIT_POWER ? NUCLEAR_CONTROLS
+                : nominalP >= MEDIUM_UNIT_POWER ? THERMAL_CONTROLS : HYDRO_CONTROLS;
+        LOGGER.debug("No controls defined for energy source {} of generator {}, {} deduced from its {} MW",
+                generator.getEnergySource(), generator.getId(), controls.governor(), nominalP);
+        return controls;
+    }
+
     @Override
     public void createExtensions(Network network) {
         network.getGeneratorStream()
@@ -90,12 +127,7 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
     }
 
     private void createExtension(Generator generator) {
-        Controls controls = CONTROLS_BY_ENERGY_SOURCE.get(generator.getEnergySource());
-        if (controls == null) {
-            LOGGER.debug("No controls defined for energy source {} of generator {}, {} used instead",
-                    generator.getEnergySource(), generator.getId(), DEFAULT_CONTROLS.governor());
-            controls = DEFAULT_CONTROLS;
-        }
+        Controls controls = controlsOf(generator);
         boolean tso = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
         generator.newExtension(SynchronousGeneratorPropertiesAdder.class)
                 .withNumberOfWindings(controls.windings())

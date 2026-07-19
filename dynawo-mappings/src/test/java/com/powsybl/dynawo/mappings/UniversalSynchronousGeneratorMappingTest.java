@@ -24,6 +24,7 @@ import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.Property;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -115,6 +116,22 @@ class UniversalSynchronousGeneratorMappingTest {
         assertThat(generator.getExtension(SynchronousGeneratorProperties.class).getGovernor()).isEqualTo("GovHydro4");
         assertThat(libsByStaticId(mapping.createModelConfigs(network)))
                 .containsEntry("B1-G", "GeneratorSynchronousThreeWindingsGovHydro4St4b");
+    }
+
+    @Test
+    void shouldMapANetworkDeclaringNoEnergySource() {
+        // the IEEE and PEGASE test systems say nothing about what their machines burn, the size
+        // then stands in for it so that no per network helper is needed
+        Network network = IeeeCdfNetworkFactory.create14();
+        assertThat(network.getGeneratorStream()).allMatch(g -> g.getEnergySource() == EnergySource.OTHER);
+
+        UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaSwing();
+        mapping.createExtensions(network);
+
+        // B1-G holds 232 MW and gets a steam governor, the condensers are sized down to hydro
+        assertThat(network.getGenerator("B1-G").getExtension(SynchronousGeneratorProperties.class).getGovernor())
+                .isEqualTo("GovSteam1");
+        assertThat(libsByStaticId(mapping.createModelConfigs(network))).hasSize(5);
     }
 
     @Test
