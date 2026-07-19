@@ -5,13 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynawo.mappings.generators;
+package com.powsybl.dynawo.characteristics;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
-import com.powsybl.dynawo.mappings.parameters.GeneratorSizing;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -23,8 +22,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * Derives the generator controls from the IIDM characteristics, mainly the energy source, the way
- * the historical groovy and python mappings did.
+ * Derives the generator controls from the energy source of each machine, the way the historical
+ * groovy and python mappings did.
+ * <p>
+ * This is one way of describing a fleet, meant for networks that carry no dynamic data of their
+ * own. A system whose machines are known individually is described by another provider reading
+ * that data, and the mapping itself never looks at the network characteristics: it reads the
+ * extensions, whichever provider wrote them.
  * <p>
  * The controls are the detailed (DynaSwing) ones, the simplified (DynaWaltz) ones being deduced
  * from them by {@link com.powsybl.dynawo.mappings.controls.ControlTranslations}, so that a single
@@ -51,18 +55,6 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
             EnergySource.NUCLEAR, NUCLEAR_CONTROLS,
             EnergySource.THERMAL, THERMAL_CONTROLS,
             EnergySource.HYDRO, HYDRO_CONTROLS);
-
-    /**
-     * Nominal active power above which an unqualified machine is treated as a large steam unit,
-     * in MW.
-     */
-    public static final double LARGE_UNIT_POWER = 600.0;
-
-    /**
-     * Nominal active power above which an unqualified machine is treated as a steam unit rather
-     * than a hydro one, in MW.
-     */
-    public static final double MEDIUM_UNIT_POWER = 100.0;
 
     private record Controls(SynchronousGeneratorProperties.Windings windings, String governor, String voltageRegulator) {
     }
@@ -97,24 +89,20 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
     }
 
     /**
-     * The controls of a machine, from its energy source when the network gives one.
+     * The controls of a machine, from its energy source.
      * <p>
-     * Many networks do not: the IEEE and PEGASE test systems declare every machine as
-     * {@link EnergySource#OTHER}. Rather than refuse to describe them, the size of the machine
-     * stands in for the missing information, a large unit behaving like a steam set and a small one
-     * like a hydro set. It is a guess, and a study that knows better should either set the energy
-     * sources or write the extensions itself, which the mapping then leaves untouched.
+     * A network declaring no source, which the IEEE and PEGASE test systems do, gets the thermal
+     * controls. Giving it a plausible mix beforehand, with
+     * {@link com.powsybl.dynawo.networks.PlausibleEnergySources}, produces the variety a
+     * real system has.
      */
     private static Controls controlsOf(Generator generator) {
         Controls controls = CONTROLS_BY_ENERGY_SOURCE.get(generator.getEnergySource());
-        if (controls != null) {
-            return controls;
+        if (controls == null) {
+            LOGGER.debug("No controls defined for energy source {} of generator {}, {} used instead",
+                    generator.getEnergySource(), generator.getId(), THERMAL_CONTROLS.governor());
+            return THERMAL_CONTROLS;
         }
-        double nominalP = GeneratorSizing.nominalActivePower(generator);
-        controls = nominalP >= LARGE_UNIT_POWER ? NUCLEAR_CONTROLS
-                : nominalP >= MEDIUM_UNIT_POWER ? THERMAL_CONTROLS : HYDRO_CONTROLS;
-        LOGGER.debug("No controls defined for energy source {} of generator {}, {} deduced from its {} MW",
-                generator.getEnergySource(), generator.getId(), controls.governor(), nominalP);
         return controls;
     }
 

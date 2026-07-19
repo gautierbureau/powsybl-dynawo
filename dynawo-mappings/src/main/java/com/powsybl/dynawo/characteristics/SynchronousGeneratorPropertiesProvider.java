@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynawo.mappings.generators;
+package com.powsybl.dynawo.characteristics;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;

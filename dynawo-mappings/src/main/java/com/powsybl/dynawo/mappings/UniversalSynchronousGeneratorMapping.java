@@ -9,12 +9,12 @@ package com.powsybl.dynawo.mappings;
 
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.characteristics.GeneratorFilters;
+import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.characteristics.SynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
-import com.powsybl.dynawo.mappings.generators.GeneratorFilters;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
-import com.powsybl.dynawo.mappings.generators.IidmSynchronousGeneratorPropertiesProvider;
-import com.powsybl.dynawo.mappings.generators.SynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
 import com.powsybl.dynawo.parameters.ParametersSet;

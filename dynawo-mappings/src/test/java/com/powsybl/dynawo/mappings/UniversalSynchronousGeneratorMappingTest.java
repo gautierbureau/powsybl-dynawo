@@ -10,16 +10,17 @@ package com.powsybl.dynawo.mappings;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.characteristics.GeneratorFilters;
+import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.desc.FilteredDescriptionXml;
 import com.powsybl.dynawo.desc.ModelDescription;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
-import com.powsybl.dynawo.mappings.generators.GeneratorFilters;
-import com.powsybl.dynawo.mappings.generators.IidmSynchronousGeneratorPropertiesProvider;
-import com.powsybl.dynawo.mappings.networks.Ieee14EnergySources;
 import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
+import com.powsybl.dynawo.networks.Ieee14EnergySources;
+import com.powsybl.dynawo.networks.PlausibleEnergySources;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.Property;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
@@ -120,18 +121,31 @@ class UniversalSynchronousGeneratorMappingTest {
 
     @Test
     void shouldMapANetworkDeclaringNoEnergySource() {
-        // the IEEE and PEGASE test systems say nothing about what their machines burn, the size
-        // then stands in for it so that no per network helper is needed
+        // the IEEE and PEGASE test systems say nothing about what their machines burn, a plausible
+        // mix can be given beforehand instead of writing a helper for each of them
         Network network = IeeeCdfNetworkFactory.create14();
         assertThat(network.getGeneratorStream()).allMatch(g -> g.getEnergySource() == EnergySource.OTHER);
+        PlausibleEnergySources.apply(network);
+
+        // B1-G holds 232 MW and passes for a thermal set, the condensers for hydro ones
+        assertThat(network.getGenerator("B1-G").getEnergySource()).isEqualTo(EnergySource.THERMAL);
+        assertThat(network.getGenerator("B3-G").getEnergySource()).isEqualTo(EnergySource.HYDRO);
 
         UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaSwing();
         mapping.createExtensions(network);
 
-        // B1-G holds 232 MW and gets a steam governor, the condensers are sized down to hydro
         assertThat(network.getGenerator("B1-G").getExtension(SynchronousGeneratorProperties.class).getGovernor())
                 .isEqualTo("GovSteam1");
         assertThat(libsByStaticId(mapping.createModelConfigs(network))).hasSize(5);
+    }
+
+    @Test
+    void shouldLeaveTheEnergySourcesTheNetworkDeclares() {
+        // a real network carries its own mix, the guess must not overwrite it
+        Network network = ieee14();
+        PlausibleEnergySources.apply(network);
+
+        assertThat(network.getGenerator("B1-G").getEnergySource()).isEqualTo(EnergySource.NUCLEAR);
     }
 
     @Test
