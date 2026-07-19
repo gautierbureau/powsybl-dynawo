@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Derives the generator controls from the IIDM characteristics, mainly the energy source, the way
@@ -51,13 +53,22 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
     }
 
     private final double tsoVoltageMin;
+    private final Predicate<Generator> filter;
 
     public IidmSynchronousGeneratorPropertiesProvider() {
         this(DEFAULT_TSO_VOLTAGE_MIN);
     }
 
     public IidmSynchronousGeneratorPropertiesProvider(double tsoVoltageMin) {
+        this(tsoVoltageMin, GeneratorFilters.connected());
+    }
+
+    /**
+     * @param filter which machines get an extension, see {@link GeneratorFilters}
+     */
+    public IidmSynchronousGeneratorPropertiesProvider(double tsoVoltageMin, Predicate<Generator> filter) {
         this.tsoVoltageMin = tsoVoltageMin;
+        this.filter = Objects.requireNonNull(filter);
     }
 
     @Override
@@ -67,7 +78,7 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
 
     @Override
     public boolean isEligible(Generator generator) {
-        return true;
+        return filter.test(generator);
     }
 
     @Override

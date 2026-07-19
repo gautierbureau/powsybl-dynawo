@@ -8,10 +8,17 @@
 package com.powsybl.dynawo.mappings;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
+import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.desc.FilteredDescriptionXml;
+import com.powsybl.dynawo.desc.ModelDescription;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
+import com.powsybl.dynawo.mappings.generators.GeneratorFilters;
+import com.powsybl.dynawo.mappings.generators.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.networks.Ieee14EnergySources;
+import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.Property;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
@@ -22,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,9 +116,62 @@ class UniversalSynchronousGeneratorMappingTest {
     }
 
     @Test
+    void shouldCoverSynchronousCondensersByDefault() {
+        // three of the five IEEE14 machines hold no active power, dropping them would leave the
+        // test system almost undescribed
+        Network network = ieee14();
+        assertThat(network.getGenerator("B3-G").getTargetP()).isZero();
+
+        UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz();
+        mapping.createExtensions(network);
+
+        assertThat(libsByStaticId(mapping.createModelConfigs(network))).containsKeys("B3-G", "B6-G", "B8-G");
+    }
+
+    @Test
+    void shouldKeepOnlyGeneratingMachinesWhenAsked() {
+        Network network = ieee14();
+        UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz(
+                IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN, GeneratorFilters.generating());
+        mapping.createExtensions(network);
+
+        // no load flow has run here, so the targets decide: only B1-G and B2-G generate
+        assertThat(libsByStaticId(mapping.createModelConfigs(network))).containsOnlyKeys("B1-G", "B2-G");
+    }
+
+    @Test
+    void shouldIgnoreDisconnectedMachines() {
+        Network network = ieee14();
+        network.getGenerator("B6-G").getTerminal().disconnect();
+
+        UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz();
+        mapping.createExtensions(network);
+
+        assertThat(libsByStaticId(mapping.createModelConfigs(network))).doesNotContainKey("B6-G");
+    }
+
+    @Test
     void shouldRegisterBothMappings() {
         assertThat(DynamicModelsMappings.getInstance().getMappingNames())
                 .contains(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, UniversalSynchronousGeneratorMapping.DYNASWING_NAME);
+    }
+
+    @Test
+    void shouldFeedTheGeneratedParametersToTheSimulation() {
+        Network network = ieee14();
+        DynawoSimulationParameters parameters = new DynawoSimulationParameters();
+        ModelDescription description = FilteredDescriptionXml.load(
+                UniversalSynchronousGeneratorMappingTest.class.getResourceAsStream("/GeneratorSynchronousFourWindingsGoverPropVRPropInt.desc.xml"));
+
+        DynamicModelsSupplier supplier = DynamicModelsMappings.getInstance().apply(
+                UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, network, parameters,
+                lib -> lib.equals(description.name()) ? Optional.of(description) : Optional.empty());
+
+        // the three four winding machines get a set, named after the model they are mapped to
+        assertThat(supplier.get(network, ReportNode.NO_OP)).hasSize(5);
+        assertThat(parameters.getModelParameters()).extracting(ParametersSet::getId)
+                .containsExactlyInAnyOrder("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G");
+        assertThat(parameters.getModelParameters("DynaWaltz_B1-G").getDouble("generator_H")).isEqualTo(3.0);
     }
 
     @Test
