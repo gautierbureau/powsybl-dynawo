@@ -24,22 +24,32 @@ import java.util.Map;
  */
 public final class Ieee14EnergySources {
 
-    private static final Map<String, EnergySource> ENERGY_SOURCES = Map.of(
-            "B1-G", EnergySource.NUCLEAR,
-            "B2-G", EnergySource.THERMAL,
-            "B3-G", EnergySource.THERMAL,
-            "B6-G", EnergySource.HYDRO,
-            "B8-G", EnergySource.HYDRO);
+    /**
+     * The machines by the bus they sit on, since the same system is named one way by the IEEE data
+     * and another by the CGMES file Dynawo ships with its examples.
+     */
+    private static final Map<Integer, EnergySource> ENERGY_SOURCES_BY_BUS = Map.of(
+            1, EnergySource.NUCLEAR,
+            2, EnergySource.THERMAL,
+            3, EnergySource.THERMAL,
+            6, EnergySource.HYDRO,
+            8, EnergySource.HYDRO);
 
     private Ieee14EnergySources() {
     }
 
     public static void apply(Network network) {
-        ENERGY_SOURCES.forEach((id, energySource) -> {
-            Generator generator = network.getGenerator(id);
+        ENERGY_SOURCES_BY_BUS.forEach((bus, energySource) -> {
+            Generator generator = find(network, bus);
             if (generator != null) {
                 generator.setEnergySource(energySource);
             }
         });
+    }
+
+    private static Generator find(Network network, int bus) {
+        Generator generator = network.getGenerator("B" + bus + "-G");
+        return generator != null ? generator
+                : network.getGenerator("_GEN" + String.format("%5s", bus).replace(' ', '_') + "_SM");
     }
 }
