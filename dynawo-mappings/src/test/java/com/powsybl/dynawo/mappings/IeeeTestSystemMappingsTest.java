@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.networks.Ieee14EnergySources;
 import com.powsybl.dynawo.networks.Ieee57EnergySources;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
@@ -60,6 +61,26 @@ class IeeeTestSystemMappingsTest {
         assertThat(libs(ieee14(), UniversalSynchronousGeneratorMapping.dynaWaltz()))
                 .containsOnly("GeneratorSynchronousFourWindingsGoverPropVRPropInt",
                         "GeneratorSynchronousThreeWindingsGoverPropVRPropInt");
+    }
+
+    @Test
+    void shouldDeduceTheSimplifiedModelsFromTheExtensionsOfATransientStudy() {
+        // a transient study described this network first, writing the real regulations
+        Network network = ieee14();
+        IeeeTestSystemMappings.dynaSwing().createExtensions(network);
+        SynchronousGeneratorProperties written = network.getGenerator("B1-G").getExtension(SynchronousGeneratorProperties.class);
+        assertThat(written.getGovernor()).isEqualTo("GovCt2");
+        assertThat(written.getVoltageRegulator()).isEqualTo("St4b");
+
+        // asking for a voltage stability study on that same network deduces the simplified models
+        UniversalSynchronousGeneratorMapping voltageStability = IeeeTestSystemMappings.dynaWaltz();
+        voltageStability.createExtensions(network);
+        assertThat(libs(network, voltageStability))
+                .containsExactlyInAnyOrder(FOUR_WINDINGS, FOUR_WINDINGS, FOUR_WINDINGS, THREE_WINDINGS, THREE_WINDINGS);
+
+        // and the network still describes the machines by their real regulations
+        assertThat(written.getGovernor()).isEqualTo("GovCt2");
+        assertThat(written.getVoltageRegulator()).isEqualTo("St4b");
     }
 
     @Test
