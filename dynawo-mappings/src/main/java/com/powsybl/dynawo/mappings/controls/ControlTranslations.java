@@ -65,15 +65,12 @@ public final class ControlTranslations {
     }
 
     /**
-     * A control no table speaks about is already simple enough for a voltage stability study and
-     * stands for itself.
+     * A control no table names is already simple enough for a voltage stability study and stands
+     * for itself.
      */
     private String translate(Function<ControlTranslation, Map<String, String>> table, String control) {
         return translations.stream()
-                .map(t -> {
-                    Map<String, String> entries = table.apply(t);
-                    return entries.getOrDefault(control, entries.get(ControlTranslation.WILDCARD));
-                })
+                .map(t -> table.apply(t).get(control))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(control);

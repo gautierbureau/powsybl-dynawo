@@ -22,8 +22,6 @@ import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.networks.Ieee14EnergySources;
 import com.powsybl.dynawo.networks.PlausibleEnergySources;
 import com.powsybl.dynawo.parameters.ParametersSet;
-import com.powsybl.dynawo.suppliers.Property;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -285,15 +283,8 @@ class UniversalSynchronousGeneratorMappingTest {
         return network;
     }
 
-    private static Map<String, String> libsByStaticId(List<DynamicModelConfig> configs) {
-        return configs.stream().collect(Collectors.toMap(
-                c -> (String) c.properties().stream()
-                        .filter(p -> "staticId".equals(p.name()))
-                        .map(Property::value)
-                        .findFirst()
-                        .orElseThrow(),
-                DynamicModelConfig::model,
-                (a, b) -> a,
-                LinkedHashMap::new));
+    private static Map<String, String> libsByStaticId(List<MappedModelsSupplier.MappedModel> configs) {
+        return configs.stream().collect(Collectors.toMap(MappedModelsSupplier.MappedModel::staticId,
+                MappedModelsSupplier.MappedModel::lib, (a, b) -> a, LinkedHashMap::new));
     }
 }

@@ -21,7 +21,6 @@ import com.powsybl.dynawo.DynawoSimulationProvider;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.networks.Ieee14EnergySources;
 import com.powsybl.dynawo.parameters.ParametersSet;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.dynawo.xml.ParametersXml;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -80,7 +79,7 @@ class Ieee14SimulationTest {
 
         // the reference dyd of this very network holds three four winding and two three winding
         // proportional regulations
-        assertThat(mapping.createModelConfigs(network)).extracting(DynamicModelConfig::model)
+        assertThat(mapping.createModelConfigs(network)).extracting(MappedModelsSupplier.MappedModel::lib)
                 .containsExactlyInAnyOrder("GeneratorSynchronousFourWindingsProportionalRegulations",
                         "GeneratorSynchronousFourWindingsProportionalRegulations",
                         "GeneratorSynchronousFourWindingsProportionalRegulations",

@@ -18,9 +18,6 @@ import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
 import com.powsybl.dynawo.parameters.ParametersSet;
-import com.powsybl.dynawo.suppliers.Property;
-import com.powsybl.dynawo.suppliers.PropertyType;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -49,7 +46,6 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     public static final String DYNASWING_NAME = "UniversalDynaSwing";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalSynchronousGeneratorMapping.class);
-    private static final String STATIC_ID = "staticId";
 
     private final String name;
     private final boolean simplified;
@@ -124,10 +120,9 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     }
 
     @Override
-    public List<DynamicModelConfig> createModelConfigs(Network network) {
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
         return mappedGenerators(network)
-                .map(mapped -> new DynamicModelConfig(mapped.lib(), mapped.setId(),
-                        List.of(new Property(STATIC_ID, mapped.generator().getId(), PropertyType.STRING.getPropertyClass()))))
+                .map(mapped -> new MappedModelsSupplier.MappedModel(mapped.lib(), mapped.generator().getId(), mapped.setId()))
                 .toList();
     }
 

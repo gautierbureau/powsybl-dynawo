@@ -20,17 +20,13 @@ import java.util.Map;
  * additional entries, without any change to the mapping algorithm.
  * <p>
  * Governors and voltage regulators are translated symmetrically: both are plain tables, so a
- * contribution can refine either one. {@link #WILDCARD} declares the fallback used when a
- * control has no explicit entry.
+ * contribution can refine either one. Every entry names the control it translates: a table saying
+ * what to do with anything it has not heard of would silently rewrite a control someone chose
+ * deliberately.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public interface ControlTranslation {
-
-    /**
-     * Key matching any control without an explicit entry.
-     */
-    String WILDCARD = "*";
 
     /**
      * Which contribution wins when two of them translate the same control differently.

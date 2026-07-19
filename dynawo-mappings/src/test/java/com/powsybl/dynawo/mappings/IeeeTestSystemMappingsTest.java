@@ -9,7 +9,6 @@ package com.powsybl.dynawo.mappings;
 
 import com.powsybl.dynawo.networks.Ieee14EnergySources;
 import com.powsybl.dynawo.networks.Ieee57EnergySources;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -71,7 +70,7 @@ class IeeeTestSystemMappingsTest {
 
     private static List<String> libs(Network network, UniversalSynchronousGeneratorMapping mapping) {
         mapping.createExtensions(network);
-        return mapping.createModelConfigs(network).stream().map(DynamicModelConfig::model).toList();
+        return mapping.createModelConfigs(network).stream().map(MappedModelsSupplier.MappedModel::lib).toList();
     }
 
     private static Network ieee14() {

@@ -11,7 +11,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public class IeeeDynaWaltzMapping implements DynamicModelsMapping {
     }
 
     @Override
-    public List<DynamicModelConfig> createModelConfigs(Network network) {
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
         return mapping.createModelConfigs(network);
     }
 

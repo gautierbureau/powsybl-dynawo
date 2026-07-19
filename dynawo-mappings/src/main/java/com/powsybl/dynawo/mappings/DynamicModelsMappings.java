@@ -13,7 +13,6 @@ import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
-import com.powsybl.dynawo.suppliers.dynamicmodels.DynawoModelsSupplier;
 import com.powsybl.iidm.network.Network;
 
 import java.util.LinkedHashMap;
@@ -70,7 +69,7 @@ public final class DynamicModelsMappings {
     public DynamicModelsSupplier apply(String name, Network network) {
         DynamicModelsMapping mapping = getMapping(name);
         mapping.createExtensions(network);
-        return new DynawoModelsSupplier(mapping.createModelConfigs(network));
+        return new MappedModelsSupplier(mapping.createModelConfigs(network));
     }
 
     /**
@@ -86,7 +85,7 @@ public final class DynamicModelsMappings {
                                        ModelDescriptionLookup descriptions) {
         DynamicModelsMapping mapping = getMapping(name);
         mapping.createExtensions(network);
-        DynamicModelsSupplier supplier = new DynawoModelsSupplier(mapping.createModelConfigs(network));
+        DynamicModelsSupplier supplier = new MappedModelsSupplier(mapping.createModelConfigs(network));
         mapping.createParameters(network, descriptions).forEach(parameters::addModelParameters);
         addDefaultParameters(mapping, parameters);
         return supplier;
