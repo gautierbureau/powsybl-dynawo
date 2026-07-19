@@ -10,10 +10,12 @@ package com.powsybl.dynawo.mappings.controls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.stream.StreamSupport;
 
 /**
  * Merges every {@link ControlTranslation} found on the classpath and resolves detailed controls
@@ -31,11 +33,15 @@ public final class ControlTranslations {
     private final Map<SimplifiedControls, String> fragments = new HashMap<>();
 
     ControlTranslations(Iterable<ControlTranslation> translations) {
-        translations.forEach(t -> {
-            merge(governors, t.getGovernorTranslations(), "governor");
-            merge(voltageRegulators, t.getVoltageRegulatorTranslations(), "voltage regulator");
-            merge(fragments, t.getSimplifiedControlsFragments(), "simplified controls");
-        });
+        // highest priority first, so that a contribution knowing a particular fleet wins over the
+        // general tables
+        StreamSupport.stream(translations.spliterator(), false)
+                .sorted(Comparator.comparingInt(ControlTranslation::getPriority).reversed())
+                .forEach(t -> {
+                    merge(governors, t.getGovernorTranslations(), "governor");
+                    merge(voltageRegulators, t.getVoltageRegulatorTranslations(), "voltage regulator");
+                    merge(fragments, t.getSimplifiedControlsFragments(), "simplified controls");
+                });
     }
 
     public static ControlTranslations getInstance() {
@@ -46,7 +52,8 @@ public final class ControlTranslations {
         contribution.forEach((k, v) -> {
             String previous = target.putIfAbsent(k, v);
             if (previous != null && !previous.equals(v)) {
-                LOGGER.warn("Conflicting {} translation for {}: {} already registered, {} ignored", kind, k, previous, v);
+                LOGGER.debug("{} translation of {} to {} ignored, {} was registered with a higher priority",
+                        kind, k, v, previous);
             }
         });
     }

@@ -33,6 +33,17 @@ public interface ControlTranslation {
     String WILDCARD = "*";
 
     /**
+     * Which contribution wins when two of them translate the same control differently.
+     * <p>
+     * The open source tables describe how a control is usually simplified; a contribution that
+     * knows a particular fleet, where the same exciter is tuned to hold no steady state voltage
+     * error for instance, says so with a higher priority.
+     */
+    default int getPriority() {
+        return 0;
+    }
+
+    /**
      * Detailed governor name (a Dynawo model name fragment, e.g. {@code GovCt2}) to its
      * simplified counterpart.
      */

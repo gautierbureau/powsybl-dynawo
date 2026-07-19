@@ -31,10 +31,10 @@ class GeneratorLibResolverTest {
         "FOUR_WINDINGS, GovCt2, St4b, false, GeneratorSynchronousFourWindingsGovCt2St4b",
         "FOUR_WINDINGS, GovSteam1, St4b, false, GeneratorSynchronousFourWindingsGovSteam1St4b",
         "THREE_WINDINGS, GovHydro4, St4b, false, GeneratorSynchronousThreeWindingsGovHydro4St4b",
-        // simplified models: governor collapses to Proportional, St4b becomes ProportionalIntegral
-        "FOUR_WINDINGS, GovCt2, St4b, true, GeneratorSynchronousFourWindingsGoverPropVRPropInt",
-        "THREE_WINDINGS, GovHydro4, St4b, true, GeneratorSynchronousThreeWindingsGoverPropVRPropInt",
-        // a proportional voltage regulator gives the fully proportional model
+        // simplified models: the detailed governor and exciter both reduce to proportional
+        "FOUR_WINDINGS, GovCt2, St4b, true, GeneratorSynchronousFourWindingsProportionalRegulations",
+        "THREE_WINDINGS, GovHydro4, St4b, true, GeneratorSynchronousThreeWindingsProportionalRegulations",
+        // a machine already described with proportional regulations keeps them
         "THREE_WINDINGS, GovHydro4, Proportional, true, GeneratorSynchronousThreeWindingsProportionalRegulations"
     })
     void shouldResolveLibFromControls(String windings, String governor, String voltageRegulator, boolean simplified, String expectedLib) {

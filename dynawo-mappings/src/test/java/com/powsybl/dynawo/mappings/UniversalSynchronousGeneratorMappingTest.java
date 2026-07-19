@@ -44,19 +44,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UniversalSynchronousGeneratorMappingTest {
 
     @Test
-    void shouldMapIeee14WithSimplifiedModels() {
+    void shouldDeduceTheModelsOfTheIeee14Reference() {
+        // describing IEEE14 with the regulations a real machine of each kind carries, and asking
+        // for a voltage stability study, gives back the models Dynawo ships for that system:
+        // three four winding and two three winding proportional regulations
         Network network = ieee14();
         UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz();
         mapping.createExtensions(network);
 
-        // the simplified models keep the number of windings but collapse the controls, and the
-        // capabilities absent from the open source catalog are dropped
         assertThat(libsByStaticId(mapping.createModelConfigs(network))).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "B1-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
-                "B2-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
-                "B3-G", "GeneratorSynchronousFourWindingsGoverPropVRPropInt",
-                "B6-G", "GeneratorSynchronousThreeWindingsGoverPropVRPropInt",
-                "B8-G", "GeneratorSynchronousThreeWindingsGoverPropVRPropInt"));
+                "B1-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
+                "B2-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
+                "B3-G", "GeneratorSynchronousFourWindingsProportionalRegulations",
+                "B6-G", "GeneratorSynchronousThreeWindingsProportionalRegulations",
+                "B8-G", "GeneratorSynchronousThreeWindingsProportionalRegulations"));
     }
 
     @Test
@@ -198,12 +199,13 @@ class UniversalSynchronousGeneratorMappingTest {
 
         DynamicModelsSupplier supplier = DynamicModelsMappings.getInstance().apply(
                 UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, network, parameters,
-                lib -> lib.equals(description.name()) ? Optional.of(description) : Optional.empty());
+                lib -> Optional.of(description));
 
-        // the three four winding machines get a set, named after the model they are mapped to
+        // every mapped machine gets a set, named after the machine it describes
         assertThat(supplier.get(network, ReportNode.NO_OP)).hasSize(5);
         assertThat(parameters.getModelParameters()).extracting(ParametersSet::getId)
-                .containsExactlyInAnyOrder("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G");
+                .containsExactlyInAnyOrder("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G",
+                        "DynaWaltz_B6-G", "DynaWaltz_B8-G");
         assertThat(parameters.getModelParameters("DynaWaltz_B1-G").getDouble("generator_H")).isEqualTo(3.0);
     }
 
