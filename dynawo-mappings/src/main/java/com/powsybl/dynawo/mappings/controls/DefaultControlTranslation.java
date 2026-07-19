@@ -14,9 +14,11 @@ import java.util.Map;
 /**
  * Open source translation tables.
  * <p>
- * Every detailed governor collapses to {@code Proportional}, which is the only simplified
- * governor available. Voltage regulators keep their own table since they do not all collapse to
- * the same simplified regulator.
+ * Only the detailed regulations have a simplified counterpart to translate to. A control that is
+ * already simple enough for a voltage stability study is left alone: the Nordic system runs its
+ * {@code GoverNordic} governor and {@code VRNordic} regulator in both kinds of study, and a
+ * machine whose mechanical power is held constant keeps {@code PmConst}. Hence no wildcard here,
+ * an unlisted control translating to itself.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -28,14 +30,27 @@ public class DefaultControlTranslation implements ControlTranslation {
 
     @Override
     public Map<String, String> getGovernorTranslations() {
-        return Map.of(WILDCARD, PROPORTIONAL);
+        // the detailed turbine governors all reduce to a proportional speed regulation, the
+        // dynamics they differ by being faster than a voltage stability study resolves
+        return Map.of("GovCt2", PROPORTIONAL,
+                "GovSteam1", PROPORTIONAL,
+                "GovSteamEu", PROPORTIONAL,
+                "GovHydro4", PROPORTIONAL,
+                "HyGov", PROPORTIONAL,
+                "IEEEG1", PROPORTIONAL,
+                "TGov1", PROPORTIONAL,
+                "TGov3", PROPORTIONAL);
     }
 
     @Override
     public Map<String, String> getVoltageRegulatorTranslations() {
         return Map.of("St4b", PROPORTIONAL_INTEGRAL,
-                PROPORTIONAL, PROPORTIONAL,
-                WILDCARD, PROPORTIONAL_INTEGRAL);
+                "St5b", PROPORTIONAL_INTEGRAL,
+                "St6b", PROPORTIONAL_INTEGRAL,
+                "St7b", PROPORTIONAL_INTEGRAL,
+                "IEEX2A", PROPORTIONAL_INTEGRAL,
+                "SCRX", PROPORTIONAL,
+                "SEXS", PROPORTIONAL);
     }
 
     @Override

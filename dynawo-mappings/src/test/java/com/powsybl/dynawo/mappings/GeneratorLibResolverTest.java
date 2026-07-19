@@ -42,6 +42,22 @@ class GeneratorLibResolverTest {
         assertThat(resolver.resolve(properties, simplified, false)).contains(expectedLib);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        // the Nordic system runs the same controls in both kinds of study, they have no
+        // simplified counterpart to translate to and stand for themselves
+        "FOUR_WINDINGS, PmConst, VRNordic, GeneratorSynchronousFourWindingsPmConstVRNordic",
+        "THREE_WINDINGS, GoverNordic, VRNordic, GeneratorSynchronousThreeWindingsGoverNordicVRNordic",
+        "THREE_WINDINGS, PmConst, VRNordic, GeneratorSynchronousThreeWindingsPmConstVRNordic",
+        // a machine already described by proportional regulations keeps them
+        "FOUR_WINDINGS, Proportional, Proportional, GeneratorSynchronousFourWindingsProportionalRegulations",
+        "THREE_WINDINGS, Proportional, Proportional, GeneratorSynchronousThreeWindingsProportionalRegulations"
+    })
+    void shouldLeaveAlreadySimpleControlsAlone(String windings, String governor, String voltageRegulator, String expectedLib) {
+        SynchronousGeneratorProperties properties = properties(windings, governor, voltageRegulator, false);
+        assertThat(resolver.resolve(properties, true, false)).contains(expectedLib);
+    }
+
     @Test
     void shouldDropCapabilitiesMissingFromTheCatalog() {
         // no auxiliary nor transformer variant of this model exists in the open source catalog:

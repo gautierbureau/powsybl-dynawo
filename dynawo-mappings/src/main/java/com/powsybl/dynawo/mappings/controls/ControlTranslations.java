@@ -59,18 +59,26 @@ public final class ControlTranslations {
         return translate(voltageRegulators, voltageRegulator, "voltage regulator");
     }
 
+    /**
+     * A control with no registered translation is already simple enough for a voltage stability
+     * study and stands for itself, unless a contribution declared a wildcard.
+     */
     private static String translate(Map<String, String> table, String control, String kind) {
         String translated = table.get(control);
         if (translated == null) {
-            translated = table.get(ControlTranslation.WILDCARD);
-            LOGGER.debug("No {} translation registered for {}, falling back on {}", kind, control, translated);
+            translated = table.getOrDefault(ControlTranslation.WILDCARD, control);
+            LOGGER.debug("No {} translation registered for {}, {} used", kind, control, translated);
         }
         return translated;
     }
 
     /**
-     * Returns the Dynawo model name fragment implementing the given detailed controls once
-     * simplified, or an empty optional when the couple has no known simplified implementation.
+     * Returns the Dynawo model name fragment implementing the given controls once simplified.
+     * <p>
+     * The simplified regulations have names of their own rather than the concatenation of the two
+     * controls, a proportional governor with a proportional regulator being named
+     * {@code ProportionalRegulations}. Any other couple names itself, the way the detailed models
+     * do.
      */
     public Optional<String> getSimplifiedFragment(String governor, String voltageRegulator) {
         String simplifiedGovernor = translateGovernor(governor);
@@ -78,6 +86,7 @@ public final class ControlTranslations {
         if (simplifiedGovernor == null || simplifiedVoltageRegulator == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(fragments.get(new SimplifiedControls(simplifiedGovernor, simplifiedVoltageRegulator)));
+        return Optional.of(fragments.getOrDefault(new SimplifiedControls(simplifiedGovernor, simplifiedVoltageRegulator),
+                simplifiedGovernor + simplifiedVoltageRegulator));
     }
 }
