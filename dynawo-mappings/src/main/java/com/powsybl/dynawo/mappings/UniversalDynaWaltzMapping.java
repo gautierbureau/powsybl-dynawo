@@ -8,6 +8,8 @@
 package com.powsybl.dynawo.mappings;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.iidm.network.Network;
 
@@ -37,5 +39,10 @@ public class UniversalDynaWaltzMapping implements DynamicModelsMapping {
     @Override
     public List<DynamicModelConfig> createModelConfigs(Network network) {
         return mapping.createModelConfigs(network);
+    }
+
+    @Override
+    public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
+        return mapping.createParameters(network, descriptions);
     }
 }

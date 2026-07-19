@@ -7,10 +7,15 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.generators.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.generators.SynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
+import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.Property;
 import com.powsybl.dynawo.suppliers.PropertyType;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
@@ -22,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Maps every synchronous generator of a network onto the dynamic model implementing its controls,
@@ -47,15 +53,24 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     private final double tsoVoltageMin;
     private final SynchronousGeneratorPropertiesProvider propertiesProvider;
     private final GeneratorLibResolver libResolver;
+    private final SynchronousGeneratorParametersGenerator parametersGenerator;
 
     public UniversalSynchronousGeneratorMapping(String name, boolean simplified, double tsoVoltageMin,
                                                 SynchronousGeneratorPropertiesProvider propertiesProvider,
                                                 GeneratorLibResolver libResolver) {
+        this(name, simplified, tsoVoltageMin, propertiesProvider, libResolver, new SynchronousGeneratorParametersGenerator());
+    }
+
+    public UniversalSynchronousGeneratorMapping(String name, boolean simplified, double tsoVoltageMin,
+                                                SynchronousGeneratorPropertiesProvider propertiesProvider,
+                                                GeneratorLibResolver libResolver,
+                                                SynchronousGeneratorParametersGenerator parametersGenerator) {
         this.name = Objects.requireNonNull(name);
         this.simplified = simplified;
         this.tsoVoltageMin = tsoVoltageMin;
         this.propertiesProvider = Objects.requireNonNull(propertiesProvider);
         this.libResolver = Objects.requireNonNull(libResolver);
+        this.parametersGenerator = Objects.requireNonNull(parametersGenerator);
     }
 
     public static UniversalSynchronousGeneratorMapping dynaWaltz() {
@@ -88,23 +103,59 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
 
     @Override
     public List<DynamicModelConfig> createModelConfigs(Network network) {
-        List<DynamicModelConfig> configs = new ArrayList<>();
-        for (Generator generator : network.getGenerators()) {
-            SynchronousGeneratorProperties properties = generator.getExtension(SynchronousGeneratorProperties.class);
-            if (properties == null) {
-                continue;
-            }
-            boolean transformer = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
-            libResolver.resolve(properties, simplified, transformer)
-                    .ifPresentOrElse(lib -> configs.add(createModelConfig(generator, lib)),
-                            () -> LOGGER.warn("No model found for generator {}, it will not be mapped", generator.getId()));
-        }
-        return configs;
+        return mappedGenerators(network)
+                .map(mapped -> new DynamicModelConfig(mapped.lib(), mapped.setId(),
+                        List.of(new Property(STATIC_ID, mapped.generator().getId(), PropertyType.STRING.getPropertyClass()))))
+                .toList();
     }
 
-    private DynamicModelConfig createModelConfig(Generator generator, String lib) {
-        return new DynamicModelConfig(lib, getParameterSetId(generator),
-                List.of(new Property(STATIC_ID, generator.getId(), PropertyType.STRING.getPropertyClass())));
+    @Override
+    public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
+        List<ParametersSet> sets = new ArrayList<>();
+        mappedGenerators(network).forEach(mapped -> descriptions.find(mapped.lib())
+                .ifPresentOrElse(
+                        description -> sets.add(parametersGenerator.generate(mapped.setId(), description,
+                                mapped.generator(), mapped.hasTransformer())),
+                        () -> LOGGER.warn("No description found for model {}, no parameter set generated for generator {}",
+                                mapped.lib(), mapped.generator().getId())));
+        return sets;
+    }
+
+    /**
+     * Resolves the model of every generator the mapping covers, so that models and parameters are
+     * built from the very same resolution.
+     */
+    private Stream<MappedGenerator> mappedGenerators(Network network) {
+        return network.getGeneratorStream()
+                .map(this::resolve)
+                .filter(Objects::nonNull);
+    }
+
+    private MappedGenerator resolve(Generator generator) {
+        SynchronousGeneratorProperties properties = generator.getExtension(SynchronousGeneratorProperties.class);
+        if (properties == null) {
+            return null;
+        }
+        boolean transformerWanted = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
+        return libResolver.resolve(properties, simplified, transformerWanted)
+                .map(lib -> new MappedGenerator(generator, lib, getParameterSetId(generator), modelHasTransformer(lib)))
+                .orElseGet(() -> {
+                    LOGGER.warn("No model found for generator {}, it will not be mapped", generator.getId());
+                    return null;
+                });
+    }
+
+    /**
+     * Whether the selected model represents the generator transformer, which the wanted capability
+     * does not tell since the catalog may not provide it.
+     */
+    private static boolean modelHasTransformer(String lib) {
+        return ModelConfigsHandler.getInstance().findModelConfig(lib)
+                .filter(GeneratorCapability.TRANSFORMER::isProvidedBy)
+                .isPresent();
+    }
+
+    private record MappedGenerator(Generator generator, String lib, String setId, boolean hasTransformer) {
     }
 
     /**

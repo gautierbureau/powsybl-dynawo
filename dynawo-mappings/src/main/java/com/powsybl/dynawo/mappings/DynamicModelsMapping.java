@@ -7,6 +7,8 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.suppliers.dynamicmodels.DynamicModelConfig;
 import com.powsybl.iidm.network.Network;
 
@@ -45,4 +47,10 @@ public interface DynamicModelsMapping {
      * Builds the dynamic model configurations from the extensions carried by the network.
      */
     List<DynamicModelConfig> createModelConfigs(Network network);
+
+    /**
+     * Builds the parameter sets the models need, one per mapped equipment, from the parameters the
+     * models declare and the characteristics of the equipments.
+     */
+    List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions);
 }
