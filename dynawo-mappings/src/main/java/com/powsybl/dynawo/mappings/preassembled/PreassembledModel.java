@@ -25,6 +25,8 @@ public class PreassembledModel {
     private final String id;
     private final MachineUnit machine;
     private final List<ControlUnit> controls = new ArrayList<>();
+    private final List<UnitModel> extraUnits = new ArrayList<>();
+    private final List<UnitConnection> extraConnections = new ArrayList<>();
 
     public PreassembledModel(String id, MachineUnit machine) {
         this.id = Objects.requireNonNull(id);
@@ -36,6 +38,20 @@ public class PreassembledModel {
         return this;
     }
 
+    /**
+     * Adds an element that is not a control of the machine: what stands between it and the grid,
+     * what it consumes to run itself.
+     */
+    public PreassembledModel addUnit(UnitModel unit) {
+        extraUnits.add(Objects.requireNonNull(unit));
+        return this;
+    }
+
+    public PreassembledModel addConnections(List<UnitConnection> connections) {
+        extraConnections.addAll(connections);
+        return this;
+    }
+
     public String getId() {
         return id;
     }
@@ -43,6 +59,7 @@ public class PreassembledModel {
     public List<UnitModel> getUnits() {
         List<UnitModel> units = new ArrayList<>();
         units.add(machine);
+        units.addAll(extraUnits);
         units.addAll(controls);
         return units;
     }
@@ -56,6 +73,7 @@ public class PreassembledModel {
             connections.addAll(control.getInitConnectionsWith(machine));
             connections.addAll(control.getConnectionsWith(machine));
         });
+        connections.addAll(extraConnections);
         return connections;
     }
 }

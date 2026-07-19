@@ -9,7 +9,8 @@ package com.powsybl.dynawo.mappings.preassembled;
 
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,16 +42,28 @@ class PreassembledModelTest {
     private static final Pattern CONNECTION = Pattern.compile(
             "<dyn:(initConnect|connect)\\s+id1=\"([^\"]+)\"\\s+var1=\"([^\"]+)\"\\s+id2=\"([^\"]+)\"\\s+var2=\"([^\"]+)\"");
 
-    @Test
-    void shouldBuildAModelDynawoAlreadyShips() throws IOException {
-        Path reference = CORPUS.resolve(MODEL + ".xml").toAbsolutePath().normalize();
+    @ParameterizedTest
+    @CsvSource({
+        // the machine and its two controls
+        "'', false, false",
+        // through its transformer, which then initialises it
+        "Tfo, true, false",
+        // with what it consumes to run itself, the switch they hang on initialising it
+        "Aux, false, true",
+        // both, the transformer initialising it and the switch carrying the grid side ones
+        "TfoAux, true, true"
+    })
+    void shouldBuildTheModelsDynawoAlreadyShips(String variant, boolean transformer, boolean auxiliaries) throws IOException {
+        String model = MODEL + variant;
+        Path reference = CORPUS.resolve(model + ".xml").toAbsolutePath().normalize();
         Assumptions.assumeTrue(Files.exists(reference), "no model definitions available at " + CORPUS);
         String shipped = Files.readString(reference);
 
-        String built = PreassembledModelXml.toXml(new PreassembledModel(MODEL,
-                new GeneratorSynchronousUnit(Windings.FOUR_WINDINGS, false))
-                .add(new St4bUnit())
-                .add(new GovCt2Unit()));
+        String built = PreassembledModelXml.toXml(
+                new GeneratorAssembly(Windings.FOUR_WINDINGS, transformer, auxiliaries)
+                        .add(new St4bUnit())
+                        .add(new GovCt2Unit())
+                        .build(model));
 
         assertThat(units(built)).containsExactlyInAnyOrderElementsOf(units(shipped));
         assertThat(connections(built)).containsExactlyInAnyOrderElementsOf(connections(shipped));
