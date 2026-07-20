@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 /**
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-final class TestNetworks {
+public final class TestNetworks {
 
     private TestNetworks() {
     }
@@ -23,7 +23,7 @@ final class TestNetworks {
     /**
      * A network holding a single generator, enough to exercise the model resolution.
      */
-    static Generator singleGenerator(double nominalV) {
+    public static Generator singleGenerator(double nominalV) {
         Network network = Network.create("test", "test");
         VoltageLevel voltageLevel = network.newSubstation().setId("s").add()
                 .newVoltageLevel().setId("vl").setNominalV(nominalV).setTopologyKind(TopologyKind.BUS_BREAKER).add();
