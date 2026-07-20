@@ -6,13 +6,14 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings;
-
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Network;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A ready to use mapping between the equipments of a network and the dynamic models representing
@@ -64,4 +65,21 @@ public interface DynamicModelsMapping {
      * models declare and the characteristics of the equipments.
      */
     List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions);
+
+    /**
+     * Where this mapping leaves the models it had to build, which a simulation is to look in
+     * besides the ones Dynawo ships, or nothing where it builds none.
+     */
+    default Optional<Path> getBuiltModelsDir() {
+        return Optional.empty();
+    }
+
+    /**
+     * The descriptions to generate parameters from, given those of the installed models. A
+     * mapping building models of its own reads theirs out of the libraries it built, nothing else
+     * describing them.
+     */
+    default ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
+        return installed;
+    }
 }

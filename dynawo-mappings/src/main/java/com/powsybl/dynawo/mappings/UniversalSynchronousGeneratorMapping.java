@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings;
-
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
@@ -15,6 +14,7 @@ import com.powsybl.dynawo.characteristics.SynchronousGeneratorPropertiesProvider
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
+import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
 import com.powsybl.dynawo.parameters.ParametersSet;
@@ -23,9 +23,11 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -107,6 +109,18 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public Optional<Path> getBuiltModelsDir() {
+        return libResolver.getMissingModelBuilder().map(MissingModelBuilder::getModelsDir);
+    }
+
+    @Override
+    public ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
+        return libResolver.getMissingModelBuilder()
+                .map(builder -> builder.describe(installed))
+                .orElse(installed);
     }
 
     @Override

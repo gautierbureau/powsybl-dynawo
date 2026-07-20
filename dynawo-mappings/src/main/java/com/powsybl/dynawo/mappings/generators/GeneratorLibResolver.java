@@ -66,6 +66,13 @@ public class GeneratorLibResolver {
     }
 
     /**
+     * What builds the models nothing installed provides, where anything does.
+     */
+    public Optional<MissingModelBuilder> getMissingModelBuilder() {
+        return Optional.ofNullable(missingModelBuilder);
+    }
+
+    /**
      * Resolves the library for the given generator properties.
      *
      * @param properties  the controls and capabilities of the generator

@@ -14,11 +14,18 @@ import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Registry of the {@link DynamicModelsMapping} found on the classpath.
@@ -26,6 +33,8 @@ import java.util.Set;
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public final class DynamicModelsMappings {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicModelsMappings.class);
 
     private static final DynamicModelsMappings INSTANCE = new DynamicModelsMappings(ServiceLoader.load(DynamicModelsMapping.class));
 
@@ -85,10 +94,40 @@ public final class DynamicModelsMappings {
                                        ModelDescriptionLookup descriptions) {
         DynamicModelsMapping mapping = getMapping(name);
         mapping.createExtensions(network);
+        // the models are resolved first, since that is what builds the ones nothing installed
+        // provides, and only then is it known whether anything was built
         DynamicModelsSupplier supplier = new MappedModelsSupplier(mapping.createModelConfigs(network));
-        mapping.createParameters(network, descriptions).forEach(parameters::addModelParameters);
+        mapping.createParameters(network, mapping.describeBuiltModels(descriptions))
+                .forEach(parameters::addModelParameters);
+        addBuiltModelsDir(mapping, parameters);
         addDefaultParameters(mapping, parameters);
         return supplier;
+    }
+
+    /**
+     * Tells the simulation where to find the models the mapping had to build, alongside the ones
+     * Dynawo ships, so that a network needing one is runnable without anything being said about it.
+     * <p>
+     * The directory is named only once something is in it: a run over models that all exist builds
+     * nothing, and Dynawo refuses a directory that is not there.
+     */
+    static void addBuiltModelsDir(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
+        mapping.getBuiltModelsDir()
+                .filter(Files::isDirectory)
+                .filter(DynamicModelsMappings::holdsALibrary)
+                .filter(dir -> !parameters.getPrecompiledModelsDirs().contains(dir))
+                .ifPresent(dir -> {
+                    LOGGER.info("Models built for this network are taken from {}", dir);
+                    parameters.addPrecompiledModelsDir(dir);
+                });
+    }
+
+    private static boolean holdsALibrary(Path dir) {
+        try (Stream<Path> files = Files.list(dir)) {
+            return files.anyMatch(f -> f.getFileName().toString().endsWith(".so"));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

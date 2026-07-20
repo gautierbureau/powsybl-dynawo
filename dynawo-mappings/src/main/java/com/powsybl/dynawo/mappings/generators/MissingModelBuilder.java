@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings.generators;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
@@ -40,15 +40,32 @@ public class MissingModelBuilder {
     private final GeneratorModelDesigner designer;
     private final PreassembledModelCompiler compiler;
     private final Path modelsDir;
+    private final Path dynawoHomeDir;
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
-        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir);
+        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
+                dynawoHomeDir);
     }
 
     public MissingModelBuilder(GeneratorModelDesigner designer, PreassembledModelCompiler compiler, Path modelsDir) {
+        this(designer, compiler, modelsDir, null);
+    }
+
+    public MissingModelBuilder(GeneratorModelDesigner designer, PreassembledModelCompiler compiler, Path modelsDir,
+                               Path dynawoHomeDir) {
         this.designer = designer;
         this.compiler = compiler;
         this.modelsDir = modelsDir;
+        this.dynawoHomeDir = dynawoHomeDir;
+    }
+
+    /**
+     * Where the parameters a model built here expects are read from, which is out of the library
+     * itself since nothing else describes it, falling back on what Dynawo ships for the rest.
+     */
+    public ModelDescriptionLookup describe(ModelDescriptionLookup installed) {
+        return dynawoHomeDir == null ? installed
+                : ModelDescriptionLookup.fromCompiledModels(modelsDir, dynawoHomeDir).orElse(installed);
     }
 
     /**
