@@ -7,10 +7,13 @@
  */
 package com.powsybl.dynawo.mappings.generators;
 
+import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
+import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +51,12 @@ public class GeneratorLibResolver {
     private final ControlTranslations controlTranslations;
     private final MissingModelBuilder missingModelBuilder;
 
+    /**
+     * A resolver going by what is installed, and building what is not where the deployment has
+     * said where to keep such a model.
+     */
     public GeneratorLibResolver() {
-        this(ControlTranslations.getInstance());
+        this(ControlTranslations.getInstance(), configuredModelBuilder());
     }
 
     public GeneratorLibResolver(ControlTranslations controlTranslations) {
@@ -63,6 +70,19 @@ public class GeneratorLibResolver {
     public GeneratorLibResolver(ControlTranslations controlTranslations, MissingModelBuilder missingModelBuilder) {
         this.controlTranslations = controlTranslations;
         this.missingModelBuilder = missingModelBuilder;
+    }
+
+    /**
+     * What the deployment has configured to build missing models, or null where it has configured
+     * nothing, which is the default.
+     * <p>
+     * Read once here rather than asked of every caller: whether a model happens to be installed is
+     * not something a mapping's caller should have to know about, so neither is what to do when it
+     * is not.
+     */
+    private static MissingModelBuilder configuredModelBuilder() {
+        return MissingModelBuilder.fromConfig(MappingConfig.load(),
+                () -> DynawoSimulationConfig.load().getHomeDir(), ModelNaming.DYNAWO_1_7_0).orElse(null);
     }
 
     /**

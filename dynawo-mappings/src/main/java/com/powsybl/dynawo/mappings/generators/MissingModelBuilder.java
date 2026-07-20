@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings.generators;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Builds the model a generator asks for when nothing holds one.
@@ -66,6 +68,22 @@ public class MissingModelBuilder {
     public ModelDescriptionLookup describe(ModelDescriptionLookup installed) {
         return dynawoHomeDir == null ? installed
                 : ModelDescriptionLookup.fromCompiledModels(modelsDir, dynawoHomeDir).orElse(installed);
+    }
+
+    /**
+     * The builder a deployment has configured, or nothing where it would rather make do with what
+     * is installed, which is the default.
+     * <p>
+     * Naming a directory to keep them in is what turns building on, since a model has to be left
+     * somewhere a simulation can be pointed at, and choosing where is the one thing that cannot
+     * be guessed.
+     */
+    public static Optional<MissingModelBuilder> fromConfig(MappingConfig mappingConfig,
+                                                           Supplier<Path> dynawoHomeDir, ModelNaming naming) {
+        // the installation is asked for only where something is to be built with it, so a
+        // deployment building nothing needs no Dynawo configured to say so
+        return mappingConfig.getBuiltModelsDir()
+                .map(dir -> new MissingModelBuilder(dynawoHomeDir.get(), dir, naming));
     }
 
     /**
