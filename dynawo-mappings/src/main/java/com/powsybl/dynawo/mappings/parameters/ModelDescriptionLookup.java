@@ -62,4 +62,35 @@ public interface ModelDescriptionLookup {
     static ModelDescriptionLookup from(Map<String, ModelDescription> descriptions) {
         return lib -> Optional.ofNullable(descriptions.get(lib));
     }
+
+    /**
+     * Describes the models of a directory of our own, asking Dynawo about the ones it has not been
+     * asked about yet.
+     * <p>
+     * A model we compile arrives as a library and nothing else, so there is no description to read
+     * until one is taken out of it. Doing that here rather than at the point of compilation means
+     * a model is described when something wants to know about it, and only once, the description
+     * staying beside the library the way a shipped one does.
+     */
+    static ModelDescriptionLookup fromCompiledModels(Path modelsDir, Path homeDir) {
+        DumpModel dumpModel = new DumpModel(homeDir);
+        return lib -> {
+            Path description = modelsDir.resolve(lib + ".desc.xml");
+            if (Files.exists(description)) {
+                return Optional.of(FilteredDescriptionXml.load(description));
+            }
+            Path library = modelsDir.resolve(lib + ".so");
+            return Files.exists(library)
+                    ? Optional.of(FilteredDescriptionXml.load(dumpModel.describe(library)))
+                    : Optional.empty();
+        };
+    }
+
+    /**
+     * Looks here first and there second, so that models of our own stand alongside the ones Dynawo
+     * ships without either having to know about the other.
+     */
+    default ModelDescriptionLookup orElse(ModelDescriptionLookup fallback) {
+        return lib -> find(lib).or(() -> fallback.find(lib));
+    }
 }
