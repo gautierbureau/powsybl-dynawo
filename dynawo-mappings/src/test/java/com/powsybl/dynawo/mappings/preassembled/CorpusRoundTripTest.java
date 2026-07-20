@@ -97,8 +97,11 @@ class CorpusRoundTripTest {
                             assembly.add(control);
                         }
                     } else if (REGULATOR_ATTACHED.contains(role)) {
-                        if (!regulatorControls.containsKey(key(role, unit.getValue(), false))) {
+                        RegulatorControlUnit control = regulatorControls.get(key(role, unit.getValue(), false));
+                        if (control == null) {
                             notDeclared.add(role + " " + unit.getValue());
+                        } else {
+                            assembly.add(control);
                         }
                     }
                 }
@@ -159,8 +162,9 @@ class CorpusRoundTripTest {
      * in an assembly.
      */
     private static String difference(String built, String shipped, Set<String> roles) {
-        Set<String> compared = Set.of("generator", "voltageRegulator", "governor", "transformer", "coupling",
-                "auxLV", "auxHV");
+        Set<String> compared = new java.util.HashSet<>(Set.of("generator", "voltageRegulator", "governor",
+                "transformer", "coupling", "auxLV", "auxHV"));
+        compared.addAll(REGULATOR_ATTACHED);
         List<UnitConnection> builtConnections = connectionsOf(built, compared);
         List<UnitConnection> shippedConnections = connectionsOf(shipped, compared);
         List<UnitConnection> missing = new ArrayList<>(shippedConnections);

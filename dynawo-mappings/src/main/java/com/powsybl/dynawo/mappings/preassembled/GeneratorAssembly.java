@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.preassembled;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class GeneratorAssembly {
     private final AuxiliaryUnit machineSideAuxiliaries;
     private final AuxiliaryUnit gridSideAuxiliaries;
     private final List<ControlUnit> controls = new ArrayList<>();
+    private final List<RegulatorControlUnit> regulatorControls = new ArrayList<>();
 
     public GeneratorAssembly(Windings windings, boolean withTransformer, boolean withAuxiliaries) {
         this(windings, withTransformer, withAuxiliaries, ModelNaming.CURRENT);
@@ -60,12 +62,42 @@ public class GeneratorAssembly {
         return this;
     }
 
+    /**
+     * Adds a control acting on the machine through its voltage regulator: a stabiliser, a limiter.
+     * <p>
+     * It is the regulator that names the input such a control drives, so one can only be placed on
+     * an assembly that has a regulator to place it on, and a regulator offering no such input
+     * simply does not get that wire.
+     */
+    public GeneratorAssembly add(RegulatorControlUnit control) {
+        regulatorControls.add(control);
+        return this;
+    }
+
     public PreassembledModel build(String id) {
         PreassembledModel model = new PreassembledModel(id, machine);
         controls.forEach(model::add);
         units().forEach(model::addUnit);
         model.addConnections(connections());
+        regulatorControls.forEach(control -> {
+            model.addUnit(control);
+            model.addConnections(control.getConnectionsWith(machine, voltageRegulator(id)));
+        });
         return model;
+    }
+
+    /**
+     * The regulator a stabiliser or a limiter acts through, which the assembly must have been
+     * given before it can be told what acts on it.
+     */
+    private MachineControlUnit voltageRegulator(String id) {
+        return controls.stream()
+                .filter(MachineControlUnit.class::isInstance)
+                .map(MachineControlUnit.class::cast)
+                .filter(control -> "voltageRegulator".equals(control.getId()))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException(
+                        "No voltage regulator on " + id + " for its stabilisers and limiters to act through"));
     }
 
     private List<UnitModel> units() {

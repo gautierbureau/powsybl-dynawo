@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -61,6 +62,7 @@ class CorpusGenerationTest {
         Assumptions.assumeTrue(Files.exists(CORPUS), "no model definitions available at " + CORPUS);
         Files.createDirectories(OUTPUT);
         Map<String, MachineControlUnit> controls = declaredControls();
+        Map<String, RegulatorControlUnit> attached = declaredRegulatorControls();
 
         List<String> written = new ArrayList<>();
         List<String> skipped = new ArrayList<>();
@@ -82,6 +84,17 @@ class CorpusGenerationTest {
                 }
                 MachineControlUnit control = controls.getOrDefault(key(role, unit.getValue(), threeWindings),
                         controls.get(key(role, unit.getValue(), false)));
+                if (control == null) {
+                    describable = false;
+                } else {
+                    assembly.add(control);
+                }
+            }
+            for (Map.Entry<String, String> unit : units.entrySet()) {
+                if (!ATTACHED.contains(unit.getKey())) {
+                    continue;
+                }
+                RegulatorControlUnit control = attached.get(key(unit.getKey(), unit.getValue(), false));
                 if (control == null) {
                     describable = false;
                 } else {
@@ -111,6 +124,29 @@ class CorpusGenerationTest {
             return definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
                     .sorted().toList();
         }
+    }
+
+    /**
+     * The controls acting on the machine through its voltage regulator, by the name an assembly
+     * gives them.
+     */
+    private static final Set<String> ATTACHED = Set.of("powerSystemStabilizer", "pss",
+            "overExcitationLimiter", "underExcitationLimiter", "statorCurrentLimiter");
+
+    private static Map<String, RegulatorControlUnit> declaredRegulatorControls() {
+        Map<String, RegulatorControlUnit> controls = new LinkedHashMap<>();
+        for (Method factory : RegulatorControlUnits.class.getDeclaredMethods()) {
+            if (factory.getReturnType() != RegulatorControlUnit.class) {
+                continue;
+            }
+            try {
+                RegulatorControlUnit control = (RegulatorControlUnit) factory.invoke(null);
+                controls.put(key(control.getId(), control.getName(), false), control);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new AssertionError(e);
+            }
+        }
+        return controls;
     }
 
     private static Map<String, MachineControlUnit> declaredControls() {
