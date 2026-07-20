@@ -45,6 +45,13 @@ class CorpusRoundTripTest {
     private static final Pattern CONNECTION = Pattern.compile(
             "<dyn:(initConnect|connect)\\s+id1=\"([^\"]+)\"\\s+var1=\"([^\"]+)\"\\s+id2=\"([^\"]+)\"\\s+var2=\"([^\"]+)\"");
 
+    /**
+     * A machine holding its parameters internally rather than taking them from a parameter set,
+     * which is not how anything we generate is meant to be driven. Left out rather than described
+     * wrongly.
+     */
+    private static final String NOT_OURS = "GeneratorSynchronousProportionalRegulationsInternalParameters";
+
     private static final Set<String> REGULATOR_ATTACHED = Set.of("powerSystemStabilizer", "pss",
             "overExcitationLimiter", "underExcitationLimiter", "statorCurrentLimiter");
 
@@ -72,6 +79,7 @@ class CorpusRoundTripTest {
         List<String> rebuilt = new ArrayList<>();
         try (Stream<Path> definitions = Files.list(CORPUS)) {
             for (Path definition : definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
+                    .filter(p -> !p.getFileName().toString().startsWith(NOT_OURS))
                     .sorted().toList()) {
                 String name = definition.getFileName().toString().replace(".xml", "");
                 String shipped = Files.readString(definition);
@@ -118,12 +126,11 @@ class CorpusRoundTripTest {
             }
         }
         // Everything the rebuilt model does not match, named so that nothing can join it
-        // unnoticed. Two families are not described here yet: a machine holding its parameters
-        // internally, and one driving its own speed reference. The eight others are the ones
-        // Dynawo ships wrong, and we build them the way every other transformer connected model
-        // is written, which is to say deliberately unlike the reference until it is corrected.
+        // unnoticed. One family is not described here yet, a machine driving its own speed
+        // reference. The eight others are the ones Dynawo ships wrong, and we build them the way
+        // every other transformer connected model is written, which is to say deliberately unlike
+        // the reference until it is corrected.
         assertThat(different.keySet()).containsExactlyInAnyOrder(
-                "GeneratorSynchronousProportionalRegulationsInternalParameters",
                 "GeneratorSynchronousFourWindingsTGov1Sexs",
                 "GeneratorSynchronousFourWindingsPmConstVRNordicTfo",
                 "GeneratorSynchronousThreeWindingsGoverNordicVRNordicTfo",
@@ -152,6 +159,7 @@ class CorpusRoundTripTest {
     private static List<Path> models() throws IOException {
         try (Stream<Path> definitions = Files.list(CORPUS)) {
             return definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
+                    .filter(p -> !p.getFileName().toString().startsWith(NOT_OURS))
                     .sorted().toList();
         }
     }

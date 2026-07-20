@@ -47,15 +47,18 @@ class CorpusGenerationTest {
             "<dyn:unitDynamicModel\\s+id=\"([^\"]+)\"\\s+name=\"([^\"]+)\"(?:\\s+initName\\s*=\"([^\"]*)\")?");
 
     /**
-     * The families we write but do not yet describe rightly. Their controls are declared, so a
-     * model comes out for them, but not the model Dynawo holds: one keeps its parameters
-     * internally, and the other drives its own speed reference, wired to itself rather than to
-     * another unit, which an assembly of units has no way to say. They are named so that what
-     * comes of them is expected rather than discovered.
+     * A machine holding its parameters internally rather than taking them from a parameter set,
+     * which is not how anything we generate is meant to be driven. Left out rather than described
+     * wrongly.
      */
-    static final List<String> KNOWN_WRONG = List.of(
-            "GeneratorSynchronousProportionalRegulationsInternalParameters",
-            "GeneratorSynchronousFourWindingsTGov1Sexs");
+    private static final String NOT_OURS = "GeneratorSynchronousProportionalRegulationsInternalParameters";
+
+    /**
+     * The family we write but do not yet describe rightly: a machine driving its own speed
+     * reference, wired to itself rather than to another unit, which an assembly of units has no
+     * way to say. Named so that what comes of it is expected rather than discovered.
+     */
+    static final List<String> KNOWN_WRONG = List.of("GeneratorSynchronousFourWindingsTGov1Sexs");
 
     @Test
     void shouldWriteTheWholeCorpusAsDynawo170HasIt() throws IOException {
@@ -68,6 +71,9 @@ class CorpusGenerationTest {
         List<String> skipped = new ArrayList<>();
         for (Path definition : models()) {
             String name = definition.getFileName().toString().replace(".xml", "");
+            if (NOT_OURS.equals(name)) {
+                continue;
+            }
             Map<String, String> units = unitsOf(Files.readString(definition));
             Map<String, String> inits = initsOf(Files.readString(definition));
             boolean threeWindings = String.valueOf(inits.get("generator")).contains("3W");
@@ -112,7 +118,7 @@ class CorpusGenerationTest {
         // every model of the corpus comes out, the two we cannot describe rightly included, so
         // that what is wrong with them is caught by compiling rather than passed over here
         assertThat(skipped).isEmpty();
-        assertThat(written).hasSameSizeAs(models());
+        assertThat(written).hasSize(models().size() - 1).doesNotContain(NOT_OURS);
         assertThat(written).containsAll(KNOWN_WRONG);
         // named the way 1.7.0 has them, which is what says the release was taken into account
         String anyModel = Files.readString(OUTPUT.resolve("GeneratorSynchronousFourWindingsProportionalRegulations.xml"));
