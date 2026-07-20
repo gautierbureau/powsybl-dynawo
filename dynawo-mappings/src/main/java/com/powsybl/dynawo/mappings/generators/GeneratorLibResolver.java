@@ -170,9 +170,10 @@ public class GeneratorLibResolver {
             if (properties.isQlim()) {
                 capabilities.add(GeneratorCapability.QLIM);
             }
-            // the local/distant distinction is carried by getUva() and will select between the
-            // regular and the external uva point categories once those models are available
-            capabilities.add(GeneratorCapability.UVA);
+            // uva is not asked for here. No open source model carries one, so asking would drop
+            // it again for every machine, and a mapping that means to have them is the one to ask:
+            // the local and distant distinction the extension carries selects between the regular
+            // and the external uva point categories, which is a matter for whoever holds them.
         }
         return capabilities;
     }
