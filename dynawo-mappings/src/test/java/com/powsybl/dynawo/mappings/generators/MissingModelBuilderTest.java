@@ -48,22 +48,25 @@ class MissingModelBuilderTest {
     }
 
     @Test
-    void shouldSayNothingOfAGeneratorItCannotBuildFor() {
+    void shouldSayNothingOfAGeneratorItCannotBuildFor(@TempDir Path modelsDir) {
         MissingModelBuilder builder = new MissingModelBuilder(
                 new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0),
-                new PreassembledModelCompiler(Path.of("nowhere")), Path.of("nowhere"));
+                new PreassembledModelCompiler(Path.of("nowhere")), modelsDir);
         assertThat(builder.build(properties("NoSuchGovernor", "Ac6a"), false)).isEmpty();
     }
 
     @Test
-    void shouldCarryOnWhenBuildingFails() {
+    void shouldCarryOnWhenBuildingFails(@TempDir Path modelsDir) {
         // no Dynawo where it is pointed, so building cannot work. It must leave things as they
         // were, the generator unmapped, rather than take the run down over it
-        MissingModelBuilder builder = new MissingModelBuilder(Path.of("nowhere"), Path.of("nowhere"),
+        MissingModelBuilder builder = new MissingModelBuilder(Path.of("nowhere"), modelsDir,
                 ModelNaming.DYNAWO_1_7_0);
         assertThat(new GeneratorLibResolver(ControlTranslations.getInstance(), builder)
                 .resolve(properties("GovCt2", "Ac6a"), false, false))
                 .isEmpty();
+        // and nothing of the attempt is left behind, a definition for a model that was not built
+        // describing nothing true
+        assertThat(modelsDir.toFile().list()).isEmpty();
     }
 
     @Test

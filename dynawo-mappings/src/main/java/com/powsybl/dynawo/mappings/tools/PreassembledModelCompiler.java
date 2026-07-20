@@ -10,6 +10,8 @@ package com.powsybl.dynawo.mappings.tools;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModelXml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,6 +31,8 @@ import java.nio.file.Path;
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public class PreassembledModelCompiler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreassembledModelCompiler.class);
 
     private static final long TIMEOUT_SECONDS = 1800;
     private static final String LIBRARY_EXTENSION = ".so";
@@ -51,15 +55,20 @@ public class PreassembledModelCompiler {
         if (Files.exists(library)) {
             return library;
         }
+        Path definition = modelsDir.resolve(model.getId() + ".xml");
         try {
             Files.createDirectories(modelsDir);
             // the tool is told what to build by a definition on disk, so the model is written out
             // where the library will land, which is also what says afterwards what was built
-            Path definition = modelsDir.resolve(model.getId() + ".xml");
             Files.writeString(definition, PreassembledModelXml.toXml(model));
             return compile(definition, modelsDir);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } catch (PowsyblException e) {
+            // a definition describing a model that was never built says nothing true, so what was
+            // written to ask for it goes with the attempt
+            deleteQuietly(definition);
+            throw e;
         }
     }
 
@@ -90,6 +99,14 @@ public class PreassembledModelCompiler {
             throw new UncheckedIOException(e);
         } finally {
             deleteRecursively(work);
+        }
+    }
+
+    private static void deleteQuietly(Path file) {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            LOGGER.warn("Left {} behind, which describes a model that was not built: {}", file, e.getMessage());
         }
     }
 
