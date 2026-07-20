@@ -12,6 +12,7 @@ import com.powsybl.dynawo.commons.DynawoVersion;
 import com.powsybl.dynawo.desc.FilteredDescriptionXml;
 import com.powsybl.dynawo.desc.ModelDescription;
 import com.powsybl.dynawo.desc.ModelDescriptionHandler;
+import com.powsybl.dynawo.mappings.tools.DumpModel;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

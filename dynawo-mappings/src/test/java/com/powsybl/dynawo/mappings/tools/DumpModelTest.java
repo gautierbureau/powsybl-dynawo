@@ -5,10 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynawo.mappings.parameters;
+package com.powsybl.dynawo.mappings.tools;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.desc.ModelDescription;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -60,7 +61,7 @@ class DumpModelTest {
 
     @Test
     void shouldRefuseALibraryItCannotRead(@TempDir Path modelsDir) throws IOException {
-        Assumptions.assumeTrue(Files.exists(HOME.resolve("sbin").resolve("dumpModel")),
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")),
                 "no Dynawo installation at " + HOME);
         Files.writeString(modelsDir.resolve("Broken.so"), "not a library");
 
