@@ -82,8 +82,10 @@ public class RegulatorControlUnit implements UnitModel {
 
     public List<UnitConnection> getConnectionsWith(MachineUnit machine, MachineControlUnit regulator) {
         List<UnitConnection> connections = new ArrayList<>();
-        watches.forEach(watch -> connections.add(new UnitConnection(id, watch.ownVar(), machine.getId(),
-                watch.quantity().of(machine), watch.initialisation())));
+        watches.stream()
+                .filter(watch -> watch.quantity().of(machine) != null)
+                .forEach(watch -> connections.add(new UnitConnection(id, watch.ownVar(), machine.getId(),
+                        watch.quantity().of(machine), watch.initialisation())));
         drives.forEach(drive -> regulator.getInputVarName(drive.input())
                 .ifPresent(varName -> connections.add(new UnitConnection(id, drive.ownVar(), regulator.getId(),
                         varName, drive.initialisation()))));

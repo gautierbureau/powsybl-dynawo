@@ -25,10 +25,16 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     private final Windings windings;
     private final boolean transformer;
+    private final ModelNaming naming;
 
     public GeneratorSynchronousUnit(Windings windings, boolean transformer) {
+        this(windings, transformer, ModelNaming.CURRENT);
+    }
+
+    public GeneratorSynchronousUnit(Windings windings, boolean transformer, ModelNaming naming) {
         this.windings = windings;
         this.transformer = transformer;
+        this.naming = naming;
     }
 
     @Override
@@ -49,17 +55,17 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     @Override
     public String getStatorVoltageVarName() {
-        return "UStatorPu";
+        return naming.exchanged("UStatorPu");
     }
 
     @Override
     public String getFieldVoltageVarName() {
-        return "efdPu";
+        return naming.exchanged("efdPu");
     }
 
     @Override
     public String getRotorCurrentVarName() {
-        return "IRotorPu";
+        return naming.exchanged("IRotorPu");
     }
 
     @Override
@@ -74,12 +80,12 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     @Override
     public String getSpeedVarName() {
-        return "omegaPu";
+        return naming.exchanged("omegaPu");
     }
 
     @Override
     public String getMechanicalPowerVarName() {
-        return "PmPu";
+        return naming.exchanged("PmPu");
     }
 
     @Override
@@ -99,7 +105,7 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     @Override
     public String getRunningVarName() {
-        return "running.value";
+        return naming.getRunning();
     }
 
     @Override
@@ -109,7 +115,7 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     @Override
     public String getInitVoltageMagnitudeVarName() {
-        return "U0PuVar";
+        return naming.getInitVoltageMagnitude();
     }
 
     @Override
@@ -134,7 +140,7 @@ public class GeneratorSynchronousUnit implements MachineUnit {
 
     @Override
     public String getInitCurrentVarName() {
-        return "i0Pu";
+        return naming.getInitCurrent();
     }
 
     @Override

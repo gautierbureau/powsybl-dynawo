@@ -36,9 +36,18 @@ public class GeneratorAssembly {
     private final List<ControlUnit> controls = new ArrayList<>();
 
     public GeneratorAssembly(Windings windings, boolean withTransformer, boolean withAuxiliaries) {
+        this(windings, withTransformer, withAuxiliaries, ModelNaming.CURRENT);
+    }
+
+    /**
+     * @param naming what the Dynawo release this is built for calls the models and the quantities
+     *               they exchange
+     */
+    public GeneratorAssembly(Windings windings, boolean withTransformer, boolean withAuxiliaries,
+                             ModelNaming naming) {
         // a machine initialised through something reads its operating point from that element
-        this.machine = new GeneratorSynchronousUnit(windings, withTransformer || withAuxiliaries);
-        this.transformer = withTransformer ? new GeneratorTransformerUnit(withAuxiliaries) : null;
+        this.machine = new GeneratorSynchronousUnit(windings, withTransformer || withAuxiliaries, naming);
+        this.transformer = withTransformer ? new GeneratorTransformerUnit(withAuxiliaries, naming) : null;
         // the switch is there for the auxiliaries; next to the machine it initialises it, behind a
         // transformer it only carries the grid side ones
         this.coupling = withAuxiliaries ? new CouplingUnit(!withTransformer) : null;

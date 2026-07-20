@@ -149,6 +149,9 @@ public class MachineControlUnit implements ControlUnit {
     private List<UnitConnection> connections(MachineUnit machine, boolean initialisation) {
         return wires.stream()
                 .filter(wire -> wire.initialisation() == initialisation)
+                // a machine with nothing to say about a quantity is not wired for it, which is how
+                // a release that never carried one leaves the wire unmade rather than dangling
+                .filter(wire -> wire.quantity().of(machine) != null)
                 .map(wire -> new UnitConnection(id, wire.ownVar(), machine.getId(),
                         wire.quantity().of(machine), initialisation))
                 .toList();
