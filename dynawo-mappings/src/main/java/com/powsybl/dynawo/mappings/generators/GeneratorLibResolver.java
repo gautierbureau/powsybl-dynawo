@@ -46,13 +46,23 @@ public class GeneratorLibResolver {
     private static final String FOUR_WINDINGS = "FourWindings";
 
     private final ControlTranslations controlTranslations;
+    private final MissingModelBuilder missingModelBuilder;
 
     public GeneratorLibResolver() {
         this(ControlTranslations.getInstance());
     }
 
     public GeneratorLibResolver(ControlTranslations controlTranslations) {
+        this(controlTranslations, null);
+    }
+
+    /**
+     * @param missingModelBuilder builds what no installed model provides, or null to make do with
+     *                            what is installed
+     */
+    public GeneratorLibResolver(ControlTranslations controlTranslations, MissingModelBuilder missingModelBuilder) {
         this.controlTranslations = controlTranslations;
+        this.missingModelBuilder = missingModelBuilder;
     }
 
     /**
@@ -66,8 +76,34 @@ public class GeneratorLibResolver {
      *                    cannot tell since it depends on the voltage level the generator sits on
      */
     public Optional<String> resolve(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {
-        return controlCore(properties, simplified)
-                .flatMap(core -> selectLib(core, capabilities(properties, simplified, transformer)));
+        Optional<String> core = controlCore(properties, simplified);
+        if (core.isEmpty()) {
+            return Optional.empty();
+        }
+        Set<GeneratorCapability> wanted = capabilities(properties, simplified, transformer);
+        Optional<String> installed = selectLib(core.get(), wanted);
+        // an installed model providing everything asked for is the model asked for, and nothing
+        // is built for a generator the catalog already answers
+        if (installed.isPresent() && nothingDropped(core.get(), wanted)) {
+            return installed;
+        }
+        if (missingModelBuilder != null) {
+            Optional<String> built = missingModelBuilder.build(properties, transformer);
+            if (built.isPresent()) {
+                return built;
+            }
+        }
+        return installed;
+    }
+
+    /**
+     * Whether the catalog answers the wanted capabilities in full, the model it offers otherwise
+     * being a near miss rather than the model asked for.
+     */
+    private static boolean nothingDropped(String controlCore, Set<GeneratorCapability> wanted) {
+        return ModelConfigsHandler.getInstance().getModelConfigStream()
+                .filter(mc -> mc.lib().startsWith(controlCore))
+                .anyMatch(mc -> providedCapabilities(mc).equals(wanted));
     }
 
     /**

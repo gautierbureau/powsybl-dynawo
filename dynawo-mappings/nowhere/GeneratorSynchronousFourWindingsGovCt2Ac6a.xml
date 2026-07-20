@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+  <dyn:modelicaModel id="GeneratorSynchronousFourWindingsGovCt2Ac6a">
+    <dyn:unitDynamicModel id="generator" name="Dynawo.Electrical.Machines.OmegaRef.GeneratorSynchronous" initName="Dynawo.Electrical.Machines.OmegaRef.GeneratorSynchronousExt4W_INIT"/>
+    <dyn:unitDynamicModel id="governor" name="Dynawo.Electrical.Controls.Machines.Governors.Standard.Generic.GovCt2" initName="Dynawo.Electrical.Controls.Machines.Governors.GovernorPmPGen_INIT"/>
+    <dyn:unitDynamicModel id="voltageRegulator" name="Dynawo.Electrical.Controls.Machines.VoltageRegulators.Standard.Ac6a" initName="Dynawo.Electrical.Controls.Machines.VoltageRegulators.Standard.Ac168_INIT"/>
+    <dyn:initConnect id1="governor" var1="PGen0Pu" id2="generator" var2="PGen0Pu"/>
+    <dyn:initConnect id1="governor" var1="Pm0Pu" id2="generator" var2="Pm0Pu"/>
+    <dyn:connect id1="governor" var1="PGenPu" id2="generator" var2="PGenPu"/>
+    <dyn:connect id1="governor" var1="PmPu" id2="generator" var2="PmPu.value"/>
+    <dyn:connect id1="governor" var1="omegaPu" id2="generator" var2="omegaPu.value"/>
+    <dyn:initConnect id1="voltageRegulator" var1="Efd0Pu" id2="generator" var2="Efd0Pu"/>
+    <dyn:initConnect id1="voltageRegulator" var1="Ir0Pu" id2="generator" var2="IRotor0Pu"/>
+    <dyn:initConnect id1="voltageRegulator" var1="Us0Pu" id2="generator" var2="UStator0Pu"/>
+    <dyn:connect id1="voltageRegulator" var1="EfdPu" id2="generator" var2="efdPu.value"/>
+    <dyn:connect id1="voltageRegulator" var1="IrPu" id2="generator" var2="IRotorPu.value"/>
+    <dyn:connect id1="voltageRegulator" var1="UsPu" id2="generator" var2="UStatorPu.value"/>
+  </dyn:modelicaModel>
+</dyn:dynamicModelsArchitecture>
