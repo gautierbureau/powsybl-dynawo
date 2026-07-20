@@ -89,6 +89,38 @@ class DynawoParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void checkPrecompiledModelsDirs() {
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE_SPECIFIC_PARAMETERS);
+        moduleConfig.setStringListProperty("precompiledModelsDirs", List.of("models", "moreModels"));
+
+        DynawoSimulationParameters parameters = DynawoSimulationParameters.load(platformConfig, fileSystem);
+
+        // named relative to the configuration directory, the way the other paths of the module are
+        Path configDir = platformConfig.getConfigDir().orElseThrow();
+        assertThat(parameters.getPrecompiledModelsDirs())
+                .containsExactly(configDir.resolve("models"), configDir.resolve("moreModels"));
+    }
+
+    @Test
+    void checkNoPrecompiledModelsDirsByDefault() {
+        assertThat(DynawoSimulationParameters.load(platformConfig, fileSystem).getPrecompiledModelsDirs()).isEmpty();
+        assertThat(DynawoSimulationParameters.load(platformConfig, fileSystem).createMapFromParameters())
+                .doesNotContainKey("precompiledModelsDirs");
+    }
+
+    @Test
+    void checkPrecompiledModelsDirsSurviveAPropertiesRoundTrip() {
+        DynawoSimulationParameters parameters = DynawoSimulationParameters.load(platformConfig, fileSystem)
+                .setPrecompiledModelsDirs(List.of(fileSystem.getPath("models")))
+                .addPrecompiledModelsDir(fileSystem.getPath("moreModels"));
+
+        Map<String, String> properties = parameters.createMapFromParameters();
+        assertThat(properties).containsEntry("precompiledModelsDirs", "models,moreModels");
+        assertThat(DynawoSimulationParameters.load(properties, fileSystem).getPrecompiledModelsDirs())
+                .containsExactly(fileSystem.getPath("models"), fileSystem.getPath("moreModels"));
+    }
+
+    @Test
     void checkDumpFileParameters() throws IOException {
         String folderProperty = USER_HOME + "dumpFiles";
         String fileProperty = "dumpFile.dmp";

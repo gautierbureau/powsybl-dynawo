@@ -17,6 +17,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -109,12 +110,38 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
             writer.writeAttribute("file", dumpFileParameters.dumpFile());
         }
 
-        writer.writeEmptyElement(DYN_URI, "precompiledModels");
-        writer.writeAttribute("useStandardModels", Boolean.toString(true));
+        writePrecompiledModels(writer, parameters);
 
         writer.writeEmptyElement(DYN_URI, "modelicaModels");
         writer.writeAttribute("useStandardModels", Boolean.toString(false));
 
+        writer.writeEndElement();
+    }
+
+    /**
+     * Where the simulation looks for compiled models: the ones Dynawo ships, and any directory of
+     * our own named alongside them.
+     * <p>
+     * Dynawo takes those directories relative to the directory the jobs file sits in, so a path
+     * given relative to it travels with the case. It refuses one that does not exist rather than
+     * quietly finding nothing.
+     */
+    private static void writePrecompiledModels(XMLStreamWriter writer, DynawoSimulationParameters parameters) throws XMLStreamException {
+        List<Path> dirs = parameters.getPrecompiledModelsDirs();
+        if (dirs.isEmpty()) {
+            writer.writeEmptyElement(DYN_URI, "precompiledModels");
+            writer.writeAttribute("useStandardModels", Boolean.toString(true));
+            return;
+        }
+        writer.writeStartElement(DYN_URI, "precompiledModels");
+        writer.writeAttribute("useStandardModels", Boolean.toString(true));
+        for (Path dir : dirs) {
+            writer.writeEmptyElement(DYN_URI, "directory");
+            writer.writeAttribute("path", dir.toString());
+            // Dynawo reads this attribute for Modelica models and ignores it for compiled ones,
+            // scanning a single directory whatever it says, so the libraries have to sit flat
+            writer.writeAttribute("recursive", Boolean.toString(false));
+        }
         writer.writeEndElement();
     }
 

@@ -8,6 +8,7 @@ package com.powsybl.dynawo;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
@@ -67,6 +68,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private static final String LOG_SPECIFIC_LOGS = "log.specificLogs";
     private static final String CRITERIA_FILE = "criteria.file";
     private static final String ADDITIONAL_MODELS_FILE = "additionalModelsFile";
+    private static final String PRECOMPILED_MODELS_DIRS = "precompiledModelsDirs";
 
     /**
      * Information about the solver to use in the simulation
@@ -123,6 +125,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private EnumSet<SpecificLog> specificLogs = EnumSet.noneOf(SpecificLog.class);
     private Path criteriaFilePath = null;
     private Path additionalModelsPath = null;
+    private List<Path> precompiledModelsDirs = new ArrayList<>();
 
     public static final List<Parameter> SPECIFIC_PARAMETERS = Stream.concat(Stream.of(
             new Parameter(PARAMETERS_FILE, ParameterType.STRING, "Main parameters file path", DEFAULT_INPUT_PARAMETERS_FILE),
@@ -138,7 +141,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             new Parameter(LOG_LEVEL_FILTER, ParameterType.STRING, "Dynawo log level", DEFAULT_LOG_LEVEL_FILTER.toString(), getEnumPossibleValues(LogLevel.class)),
             new Parameter(LOG_SPECIFIC_LOGS, ParameterType.STRING, "List specific logs returned", null, getEnumPossibleValues(SpecificLog.class)),
             new Parameter(CRITERIA_FILE, ParameterType.STRING, "Simulation criteria file path", null),
-            new Parameter(ADDITIONAL_MODELS_FILE, ParameterType.STRING, "Additional models file path", null)),
+            new Parameter(ADDITIONAL_MODELS_FILE, ParameterType.STRING, "Additional models file path", null),
+            new Parameter(PRECOMPILED_MODELS_DIRS, ParameterType.STRING, "Directories holding precompiled models, alongside the ones Dynawo ships", null)),
             DumpFileParameters.SPECIFIC_PARAMETERS.stream()).toList();
 
     /**
@@ -200,6 +204,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         moduleConfig.getOptionalEnumSetProperty(LOG_SPECIFIC_LOGS, SpecificLog.class).ifPresent(parameters::setSpecificLogs);
         moduleConfig.getOptionalStringProperty(CRITERIA_FILE).ifPresent(cf -> parameters.setCriteriaFilePath(filePathResolver.apply(cf)));
         moduleConfig.getOptionalStringProperty(ADDITIONAL_MODELS_FILE).ifPresent(am -> parameters.setAdditionalModelsPath(filePathResolver.apply(am)));
+        moduleConfig.getOptionalStringListProperty(PRECOMPILED_MODELS_DIRS).ifPresent(dirs ->
+                parameters.setPrecompiledModelsDirs(dirs.stream().map(filePathResolver).toList()));
     }
 
     public static DynawoSimulationParameters load(Map<String, String> properties) {
@@ -262,6 +268,9 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
                 setSpecificLogs(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(o -> SpecificLog.valueOf(o.trim())).collect(Collectors.toSet())));
         Optional.ofNullable(properties.get(CRITERIA_FILE)).ifPresent(prop -> setCriteriaFilePath(prop, fileSystem));
         Optional.ofNullable(properties.get(ADDITIONAL_MODELS_FILE)).ifPresent(prop -> setAdditionalModelsPath(prop, fileSystem));
+        Optional.ofNullable(properties.get(PRECOMPILED_MODELS_DIRS)).ifPresent(prop ->
+                setPrecompiledModelsDirs(Stream.of(prop.split(PROPERTY_LIST_DELIMITER))
+                        .map(String::trim).map(fileSystem::getPath).toList()));
         dumpFileParameters = DumpFileParameters.updateDumpFileParametersFromPropertiesMap(properties, dumpFileParameters, fileSystem::getPath);
     }
 
@@ -283,6 +292,10 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         }
         addNotNullEntry(CRITERIA_FILE, criteriaFilePath, properties::put);
         addNotNullEntry(ADDITIONAL_MODELS_FILE, additionalModelsPath, properties::put);
+        if (!precompiledModelsDirs.isEmpty()) {
+            properties.put(PRECOMPILED_MODELS_DIRS, precompiledModelsDirs.stream()
+                    .map(Path::toString).collect(Collectors.joining(PROPERTY_LIST_DELIMITER)));
+        }
         dumpFileParameters.addParametersToMap((k, v) -> addNotNullEntry(k, v, properties::put));
         return properties;
     }
@@ -466,5 +479,27 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             throw new PowsyblException("File " + additionalModelsPathName + " set in 'additionalModelsFile' property cannot be found");
         }
         setAdditionalModelsPath(path);
+    }
+
+    /**
+     * The directories of precompiled models the simulation is to look in, besides the ones Dynawo
+     * ships, which it keeps looking in either way.
+     * <p>
+     * Left out of the serialized form when there are none, so that a run naming no directory of
+     * its own reads as it did before there was anything to name.
+     */
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public List<Path> getPrecompiledModelsDirs() {
+        return Collections.unmodifiableList(precompiledModelsDirs);
+    }
+
+    public DynawoSimulationParameters setPrecompiledModelsDirs(List<Path> precompiledModelsDirs) {
+        this.precompiledModelsDirs = new ArrayList<>(Objects.requireNonNull(precompiledModelsDirs));
+        return this;
+    }
+
+    public DynawoSimulationParameters addPrecompiledModelsDir(Path precompiledModelsDir) {
+        precompiledModelsDirs.add(Objects.requireNonNull(precompiledModelsDir));
+        return this;
     }
 }

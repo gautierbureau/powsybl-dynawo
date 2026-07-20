@@ -52,7 +52,12 @@ class JobsXmlTest extends DynawoTestUtil {
                 Arguments.of("jobsWithSpecificLogs.xml",
                         DynawoSimulationParameters.load().setSpecificLogs(EnumSet.allOf(DynawoSimulationParameters.SpecificLog.class))),
                 Arguments.of("jobsWithCriteria.xml",
-                        DynawoSimulationParameters.load().setCriteriaFilePath(Path.of("criteria.crt")))
+                        DynawoSimulationParameters.load().setCriteriaFilePath(Path.of("criteria.crt"))),
+                // models of our own stand beside the ones Dynawo ships rather than instead of them
+                Arguments.of("jobsWithPrecompiledModels.xml",
+                        DynawoSimulationParameters.load()
+                                .setPrecompiledModelsDirs(List.of(Path.of("models")))
+                                .addPrecompiledModelsDir(Path.of("moreModels")))
         );
     }
 
