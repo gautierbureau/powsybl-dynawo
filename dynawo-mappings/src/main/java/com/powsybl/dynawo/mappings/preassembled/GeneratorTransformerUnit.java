@@ -17,6 +17,14 @@ package com.powsybl.dynawo.mappings.preassembled;
  */
 public class GeneratorTransformerUnit implements SeriesUnit {
 
+    /**
+     * Where the transformer lives today. Dynawo 1.7.0 still holds it flat under
+     * {@code Dynawo.Electrical.Transformers}, the subpackages having come with #3585 after that
+     * release, and the move left the model untouched but for its {@code within} line. So a
+     * distribution of that age takes the flat name for the very same model, and everything we
+     * build against it has to be read back through that. Once we no longer target 1.7.0 the flat
+     * name goes and this is the only name left.
+     */
     private static final String PACKAGE = "Dynawo.Electrical.Transformers.TransformersFixedTap.";
 
     private final boolean auxiliaries;

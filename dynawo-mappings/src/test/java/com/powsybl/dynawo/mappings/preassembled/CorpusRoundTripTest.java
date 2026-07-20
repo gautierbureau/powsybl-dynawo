@@ -48,6 +48,20 @@ class CorpusRoundTripTest {
     private static final Set<String> REGULATOR_ATTACHED = Set.of("powerSystemStabilizer", "pss",
             "overExcitationLimiter", "underExcitationLimiter", "statorCurrentLimiter");
 
+    /**
+     * The models Dynawo ships with a transformer they do not initialise the machine through. None
+     * of them is used by any test case, which is how it went unnoticed.
+     */
+    private static final Set<String> MIS_INITIALISED_UPSTREAM = Set.of(
+            "GeneratorSynchronousFourWindingsPmConstVRNordicTfo",
+            "GeneratorSynchronousThreeWindingsGoverNordicVRNordicTfo",
+            "GeneratorSynchronousThreeWindingsHyGovScrxTfo",
+            "GeneratorSynchronousThreeWindingsIeeeG1IeeeT1Tfo",
+            "GeneratorSynchronousThreeWindingsIeeeG1ScrxTfo",
+            "GeneratorSynchronousThreeWindingsPmConstExAc1Tfo",
+            "GeneratorSynchronousThreeWindingsPmConstScrxTfo",
+            "GeneratorSynchronousThreeWindingsPmConstVRNordicTfo");
+
     @Test
     void shouldRebuildEveryModelDynawoShips() throws IOException {
         Assumptions.assumeTrue(Files.exists(CORPUS), "no model definitions available at " + CORPUS);
@@ -67,10 +81,7 @@ class CorpusRoundTripTest {
                 String machineInit = String.valueOf(inits.get("generator"));
                 GeneratorAssembly assembly = new GeneratorAssembly(
                         machineInit.contains("3W") ? Windings.THREE_WINDINGS : Windings.FOUR_WINDINGS,
-                        units.containsKey("transformer"), units.containsKey("auxLV"),
-                        // the older models keep their own terminal to start from, which their
-                        // initialisation model is what says
-                        machineInit.contains("ExtTfo"));
+                        units.containsKey("transformer"), units.containsKey("auxLV"));
                 List<String> notDeclared = new ArrayList<>();
                 for (Map.Entry<String, String> unit : units.entrySet()) {
                     String role = unit.getKey();
@@ -103,12 +114,31 @@ class CorpusRoundTripTest {
                 }
             }
         }
-        // two families are not described here yet, and are named so that nothing else can join
-        // them unnoticed: a machine holding its parameters internally, and one driving its own
-        // speed reference
+        // Everything the rebuilt model does not match, named so that nothing can join it
+        // unnoticed. Two families are not described here yet: a machine holding its parameters
+        // internally, and one driving its own speed reference. The eight others are the ones
+        // Dynawo ships wrong, and we build them the way every other transformer connected model
+        // is written, which is to say deliberately unlike the reference until it is corrected.
         assertThat(different.keySet()).containsExactlyInAnyOrder(
                 "GeneratorSynchronousProportionalRegulationsInternalParameters",
-                "GeneratorSynchronousFourWindingsTGov1Sexs");
+                "GeneratorSynchronousFourWindingsTGov1Sexs",
+                "GeneratorSynchronousFourWindingsPmConstVRNordicTfo",
+                "GeneratorSynchronousThreeWindingsGoverNordicVRNordicTfo",
+                "GeneratorSynchronousThreeWindingsHyGovScrxTfo",
+                "GeneratorSynchronousThreeWindingsIeeeG1IeeeT1Tfo",
+                "GeneratorSynchronousThreeWindingsIeeeG1ScrxTfo",
+                "GeneratorSynchronousThreeWindingsPmConstExAc1Tfo",
+                "GeneratorSynchronousThreeWindingsPmConstScrxTfo",
+                "GeneratorSynchronousThreeWindingsPmConstVRNordicTfo");
+        // and each of those eight differs by nothing but the four connections carrying the
+        // operating point across the transformer, so that a real regression cannot hide among them
+        MIS_INITIALISED_UPSTREAM.forEach(name -> assertThat(different.get(name))
+                .as(name)
+                .startsWith("missing [] extra [")
+                .contains("var1=P0Pu, id2=transformer, var2=P20Pu")
+                .contains("var1=Q0Pu, id2=transformer, var2=Q20Pu")
+                .contains("var1=U0Pu, id2=transformer, var2=U20Pu")
+                .contains("var1=UPhase0, id2=transformer, var2=U2Phase0"));
         assertThat(rebuilt).hasSameSizeAs(models());
     }
 
