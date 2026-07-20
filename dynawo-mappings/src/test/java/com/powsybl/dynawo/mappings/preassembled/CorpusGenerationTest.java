@@ -47,18 +47,11 @@ class CorpusGenerationTest {
             "<dyn:unitDynamicModel\\s+id=\"([^\"]+)\"\\s+name=\"([^\"]+)\"(?:\\s+initName\\s*=\"([^\"]*)\")?");
 
     /**
-     * A machine holding its parameters internally rather than taking them from a parameter set,
-     * which is not how anything we generate is meant to be driven. Left out rather than described
-     * wrongly.
+     * A machine holding its parameters within the model rather than taking them from a parameter
+     * set, which is not how anything we generate is meant to be driven.
      */
-    private static final String NOT_OURS = "GeneratorSynchronousProportionalRegulationsInternalParameters";
-
-    /**
-     * The family we write but do not yet describe rightly: a machine driving its own speed
-     * reference, wired to itself rather than to another unit, which an assembly of units has no
-     * way to say. Named so that what comes of it is expected rather than discovered.
-     */
-    static final List<String> KNOWN_WRONG = List.of("GeneratorSynchronousFourWindingsTGov1Sexs");
+    private static final Set<String> NOT_OURS = Set.of(
+            "GeneratorSynchronousProportionalRegulationsInternalParameters");
 
     @Test
     void shouldWriteTheWholeCorpusAsDynawo170HasIt() throws IOException {
@@ -71,7 +64,7 @@ class CorpusGenerationTest {
         List<String> skipped = new ArrayList<>();
         for (Path definition : models()) {
             String name = definition.getFileName().toString().replace(".xml", "");
-            if (NOT_OURS.equals(name)) {
+            if (NOT_OURS.contains(name)) {
                 continue;
             }
             Map<String, String> units = unitsOf(Files.readString(definition));
@@ -118,8 +111,8 @@ class CorpusGenerationTest {
         // every model of the corpus comes out, the two we cannot describe rightly included, so
         // that what is wrong with them is caught by compiling rather than passed over here
         assertThat(skipped).isEmpty();
-        assertThat(written).hasSize(models().size() - 1).doesNotContain(NOT_OURS);
-        assertThat(written).containsAll(KNOWN_WRONG);
+        assertThat(written).hasSize(models().size() - NOT_OURS.size())
+                .doesNotContainAnyElementsOf(NOT_OURS);
         // named the way 1.7.0 has them, which is what says the release was taken into account
         String anyModel = Files.readString(OUTPUT.resolve("GeneratorSynchronousFourWindingsProportionalRegulations.xml"));
         assertThat(anyModel).contains("efdPu.value").doesNotContain("\"efdPu\"");

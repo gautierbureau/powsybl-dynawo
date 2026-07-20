@@ -46,11 +46,21 @@ class CorpusRoundTripTest {
             "<dyn:(initConnect|connect)\\s+id1=\"([^\"]+)\"\\s+var1=\"([^\"]+)\"\\s+id2=\"([^\"]+)\"\\s+var2=\"([^\"]+)\"");
 
     /**
-     * A machine holding its parameters internally rather than taking them from a parameter set,
-     * which is not how anything we generate is meant to be driven. Left out rather than described
-     * wrongly.
+     * A machine holding its parameters within the model rather than taking them from a parameter
+     * set, which is not how anything we generate is meant to be driven. Left out rather than
+     * carried as something we describe wrongly, which would suggest it were waiting to be
+     * described rightly.
      */
-    private static final String NOT_OURS = "GeneratorSynchronousProportionalRegulationsInternalParameters";
+    private static final Set<String> NOT_OURS = Set.of(
+            "GeneratorSynchronousProportionalRegulationsInternalParameters");
+
+    /**
+     * The model whose machine drives its own speed reference, wired to itself where every other
+     * model takes that reference from outside. An assembly says how units are wired to one
+     * another and so has no way to say it, and we leave the reference unconnected, which is the
+     * one thing this comes out short of.
+     */
+    private static final String DRIVES_ITS_OWN_SPEED_REFERENCE = "GeneratorSynchronousFourWindingsTGov1Sexs";
 
     private static final Set<String> REGULATOR_ATTACHED = Set.of("powerSystemStabilizer", "pss",
             "overExcitationLimiter", "underExcitationLimiter", "statorCurrentLimiter");
@@ -79,7 +89,7 @@ class CorpusRoundTripTest {
         List<String> rebuilt = new ArrayList<>();
         try (Stream<Path> definitions = Files.list(CORPUS)) {
             for (Path definition : definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
-                    .filter(p -> !p.getFileName().toString().startsWith(NOT_OURS))
+                    .filter(p -> !NOT_OURS.contains(p.getFileName().toString().replace(".xml", "")))
                     .sorted().toList()) {
                 String name = definition.getFileName().toString().replace(".xml", "");
                 String shipped = Files.readString(definition);
@@ -126,12 +136,12 @@ class CorpusRoundTripTest {
             }
         }
         // Everything the rebuilt model does not match, named so that nothing can join it
-        // unnoticed. One family is not described here yet, a machine driving its own speed
-        // reference. The eight others are the ones Dynawo ships wrong, and we build them the way
-        // every other transformer connected model is written, which is to say deliberately unlike
-        // the reference until it is corrected.
+        // unnoticed. Eight are the ones Dynawo ships wrong, and we build them the way every other
+        // transformer connected model is written, which is to say deliberately unlike the
+        // reference until it is corrected. The ninth is the machine driving its own speed
+        // reference.
         assertThat(different.keySet()).containsExactlyInAnyOrder(
-                "GeneratorSynchronousFourWindingsTGov1Sexs",
+                DRIVES_ITS_OWN_SPEED_REFERENCE,
                 "GeneratorSynchronousFourWindingsPmConstVRNordicTfo",
                 "GeneratorSynchronousThreeWindingsGoverNordicVRNordicTfo",
                 "GeneratorSynchronousThreeWindingsHyGovScrxTfo",
@@ -142,6 +152,11 @@ class CorpusRoundTripTest {
                 "GeneratorSynchronousThreeWindingsPmConstVRNordicTfo");
         // and each of those eight differs by nothing but the four connections carrying the
         // operating point across the transformer, so that a real regression cannot hide among them
+        // and that one comes out short of the connection tying the reference to the speed, and
+        // of nothing else
+        assertThat(different.get(DRIVES_ITS_OWN_SPEED_REFERENCE))
+                .isEqualTo("missing [UnitConnection[id1=generator, var1=omegaRefPu, id2=generator, "
+                        + "var2=omegaPu, initialisation=false]] extra []");
         MIS_INITIALISED_UPSTREAM.forEach(name -> assertThat(different.get(name))
                 .as(name)
                 .startsWith("missing [] extra [")
@@ -159,7 +174,7 @@ class CorpusRoundTripTest {
     private static List<Path> models() throws IOException {
         try (Stream<Path> definitions = Files.list(CORPUS)) {
             return definitions.filter(p -> p.getFileName().toString().startsWith("GeneratorSynchronous"))
-                    .filter(p -> !p.getFileName().toString().startsWith(NOT_OURS))
+                    .filter(p -> !NOT_OURS.contains(p.getFileName().toString().replace(".xml", "")))
                     .sorted().toList();
         }
     }
