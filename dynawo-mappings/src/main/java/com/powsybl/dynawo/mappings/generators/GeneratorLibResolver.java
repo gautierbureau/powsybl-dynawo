@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.generators;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
@@ -105,6 +106,16 @@ public class GeneratorLibResolver {
      *                    cannot tell since it depends on the voltage level the generator sits on
      */
     public Optional<String> resolve(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {
+        return resolve(properties, simplified, transformer, ReportNode.NO_OP, null);
+    }
+
+    /**
+     * @param reportNode  where the model settled on is said, and what the machine asked for and did
+     *                    not get, which is the only place a study is read from afterwards
+     * @param generatorId the machine being resolved, to name it in the report
+     */
+    public Optional<String> resolve(SynchronousGeneratorProperties properties, boolean simplified,
+                                    boolean transformer, ReportNode reportNode, String generatorId) {
         GeneratorControls controls = controls(properties, simplified);
         String core = controlCore(controls, properties);
         Set<GeneratorCapability> wanted = capabilities(properties, simplified, transformer);
@@ -113,17 +124,39 @@ public class GeneratorLibResolver {
         // is built for a generator the catalog already answers
         if (installed.isPresent() && nothingDropped(core, wanted)) {
             installed.ifPresent(this::useInstalled);
+            installed.ifPresent(lib -> GeneratorMappingReports.reportModelSelected(reportNode, generatorId, lib));
             return installed;
         }
         if (missingModelBuilder != null) {
             Optional<String> built = missingModelBuilder.build(controls, properties.getNumberOfWindings(),
                     transformer && !properties.isInternalTransformer(), properties.isAuxiliaries());
             if (built.isPresent()) {
+                built.ifPresent(lib -> GeneratorMappingReports.reportModelBuilt(reportNode, generatorId, lib));
                 return built;
             }
         }
         installed.ifPresent(this::useInstalled);
+        installed.ifPresentOrElse(
+                lib -> GeneratorMappingReports.reportCapabilitiesDropped(reportNode, generatorId, lib,
+                        dropped(core, wanted), missingModelBuilder != null),
+                () -> GeneratorMappingReports.reportNoModel(reportNode, generatorId, core));
         return installed;
+    }
+
+    /**
+     * What the machine asked for that the chosen model does not provide, which is what the report
+     * has to name for the difference to be actionable.
+     */
+    private static Set<GeneratorCapability> dropped(String controlCore, Set<GeneratorCapability> wanted) {
+        Set<GeneratorCapability> dropped = EnumSet.noneOf(GeneratorCapability.class);
+        dropped.addAll(wanted);
+        ModelConfigsHandler.getInstance().getModelConfigStream()
+                .filter(mc -> mc.lib().startsWith(controlCore))
+                .filter(mc -> providedCapabilities(mc).stream().allMatch(wanted::contains))
+                .map(GeneratorLibResolver::providedCapabilities)
+                .max(Comparator.comparingInt(Set::size))
+                .ifPresent(dropped::removeAll);
+        return dropped;
     }
 
     /**

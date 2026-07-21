@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -62,7 +63,13 @@ public class UniversalMapping implements DynamicModelsMapping {
 
     @Override
     public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
-        List<MappedModelsSupplier.MappedModel> models = new ArrayList<>(generators.createModelConfigs(network));
+        return createModelConfigs(network, ReportNode.NO_OP);
+    }
+
+    @Override
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network, ReportNode reportNode) {
+        List<MappedModelsSupplier.MappedModel> models =
+                new ArrayList<>(generators.createModelConfigs(network, reportNode));
         models.addAll(loads.createModelConfigs(network));
         return models;
     }

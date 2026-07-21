@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
@@ -91,7 +92,16 @@ public final class DynamicModelsMappings {
      */
     public DynamicModelsSupplier apply(String name, Network network, DynawoSimulationParameters parameters,
                                        ModelDescriptionLookup descriptions) {
-        return apply(getMapping(name), network, parameters, descriptions);
+        return apply(getMapping(name), network, parameters, descriptions, ReportNode.NO_OP);
+    }
+
+    /**
+     * The same, saying on the report node what each equipment was given and what it asked for and
+     * did not get.
+     */
+    public DynamicModelsSupplier apply(String name, Network network, DynawoSimulationParameters parameters,
+                                       ModelDescriptionLookup descriptions, ReportNode reportNode) {
+        return apply(getMapping(name), network, parameters, descriptions, reportNode);
     }
 
     /**
@@ -100,10 +110,16 @@ public final class DynamicModelsMappings {
      */
     public DynamicModelsSupplier apply(DynamicModelsMapping mapping, Network network,
                                        DynawoSimulationParameters parameters, ModelDescriptionLookup descriptions) {
+        return apply(mapping, network, parameters, descriptions, ReportNode.NO_OP);
+    }
+
+    public DynamicModelsSupplier apply(DynamicModelsMapping mapping, Network network,
+                                       DynawoSimulationParameters parameters, ModelDescriptionLookup descriptions,
+                                       ReportNode reportNode) {
         mapping.createExtensions(network);
         // the models are resolved first, since that is what builds the ones nothing installed
         // provides, and only then is it known whether anything was built
-        DynamicModelsSupplier supplier = new MappedModelsSupplier(mapping.createModelConfigs(network));
+        DynamicModelsSupplier supplier = new MappedModelsSupplier(mapping.createModelConfigs(network, reportNode));
         mapping.createParameters(network, mapping.describeBuiltModels(descriptions))
                 .forEach(parameters::addModelParameters);
         addBuiltModelsDir(mapping, parameters);

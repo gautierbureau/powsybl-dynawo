@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -61,6 +62,14 @@ public interface DynamicModelsMapping {
      * carries.
      */
     List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network);
+
+    /**
+     * The same, saying on the report node what each equipment was given and what it asked for and
+     * did not get. A mapping that has nothing to explain need not override this.
+     */
+    default List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network, ReportNode reportNode) {
+        return createModelConfigs(network);
+    }
 
     /**
      * Builds the parameter sets the models need, one per mapped equipment, from the parameters the

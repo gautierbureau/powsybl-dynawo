@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
@@ -15,6 +16,7 @@ import com.powsybl.dynawo.characteristics.SynchronousGeneratorPropertiesProvider
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
+import com.powsybl.dynawo.mappings.generators.GeneratorMappingReports;
 import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
@@ -151,7 +153,12 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
 
     @Override
     public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
-        return mappedGenerators(network)
+        return createModelConfigs(network, ReportNode.NO_OP);
+    }
+
+    @Override
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network, ReportNode reportNode) {
+        return mappedGenerators(network, GeneratorMappingReports.createGeneratorMappingReportNode(reportNode))
                 .map(mapped -> new MappedModelsSupplier.MappedModel(mapped.lib(), mapped.generator().getId(), mapped.setId()))
                 .toList();
     }
@@ -173,18 +180,22 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
      * built from the very same resolution.
      */
     private Stream<MappedGenerator> mappedGenerators(Network network) {
+        return mappedGenerators(network, ReportNode.NO_OP);
+    }
+
+    private Stream<MappedGenerator> mappedGenerators(Network network, ReportNode reportNode) {
         return network.getGeneratorStream()
-                .map(this::resolve)
+                .map(generator -> resolve(generator, reportNode))
                 .filter(Objects::nonNull);
     }
 
-    private MappedGenerator resolve(Generator generator) {
+    private MappedGenerator resolve(Generator generator, ReportNode reportNode) {
         SynchronousGeneratorProperties properties = generator.getExtension(SynchronousGeneratorProperties.class);
         if (properties == null) {
             return null;
         }
         boolean transformerWanted = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
-        return libResolver.resolve(properties, simplified, transformerWanted)
+        return libResolver.resolve(properties, simplified, transformerWanted, reportNode, generator.getId())
                 .map(lib -> new MappedGenerator(generator, lib, getParameterSetId(generator), hasTransformer(lib)))
                 .orElseGet(() -> {
                     LOGGER.warn("No model found for generator {}, it will not be mapped", generator.getId());
