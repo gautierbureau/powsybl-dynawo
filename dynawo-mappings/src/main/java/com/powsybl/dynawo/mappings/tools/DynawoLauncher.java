@@ -69,6 +69,24 @@ public class DynawoLauncher {
      * @param workingDir where to run it, for the tools that leave their workings beside themselves
      *                   rather than only where they are told to put what they made
      */
+    /**
+     * Whether the distribution ships Boost of its own, which the released one does and a debug
+     * build against the system's does not. Told by the Boost libraries beside its own: a bundled
+     * distribution keeps {@code libboost_*} in its {@code lib}, one linking the system's keeps
+     * none there.
+     */
+    private boolean bundlesBoost() {
+        Path lib = homeDir.resolve("lib");
+        if (!Files.isDirectory(lib)) {
+            return false;
+        }
+        try (var files = Files.newDirectoryStream(lib, "libboost_*")) {
+            return files.iterator().hasNext();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public String run(Path workingDir, long timeoutSeconds, String option, String... arguments) {
         List<String> command = new ArrayList<>(List.of(script().toString(), LAUNCHER_ARGUMENT, option));
         command.addAll(List.of(arguments));
@@ -76,11 +94,16 @@ public class DynawoLauncher {
         if (workingDir != null) {
             builder.directory(workingDir.toFile());
         }
-        // The script sets what its tools need, so nothing of Dynawo's is added here. The one
-        // thing it guesses is the Python it calls, which it takes to be "python"; a system that
-        // only has "python3" would have it fail on a script it runs partway through. It keeps
-        // whatever is already set, so this only fills in what nobody has chosen.
+        // The script sets the rest of what its tools need; only what a distribution cannot be
+        // assumed to carry is filled in, and only where nobody has chosen otherwise, so an
+        // environment that knows better still wins. The script calls Python as "python", which a
+        // system holding only "python3" does not have. And a distribution that ships no Boost of
+        // its own was built against the system's, which lives under /usr: forcing that on one that
+        // bundles Boost would send it to the wrong headers, so it is set only for the one without.
         builder.environment().putIfAbsent("DYNAWO_PYTHON_COMMAND", "python3");
+        if (!bundlesBoost()) {
+            builder.environment().putIfAbsent("DYNAWO_BOOST_HOME", "/usr");
+        }
         builder.redirectErrorStream(true);
         try {
             Process process = builder.start();
