@@ -9,6 +9,7 @@ package com.powsybl.dynawo.mappings.preassembled;
 
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
 import com.powsybl.dynawo.mappings.TestNetworks;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -48,7 +49,7 @@ class GeneratorModelDesignerTest {
     @Test
     void shouldDesignAModelNobodyHasBuilt() {
         Optional<PreassembledModel> model = new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0)
-                .design(properties(GOVERNOR, REGULATOR, null), false);
+                .design(new GeneratorControls(GOVERNOR, REGULATOR, null), Windings.FOUR_WINDINGS, false, false);
 
         assertThat(model).isPresent();
         assertThat(model.get().getId()).isEqualTo(WANTED);
@@ -61,16 +62,16 @@ class GeneratorModelDesignerTest {
     @Test
     void shouldSayNothingOfAControlItDoesNotKnow() {
         GeneratorModelDesigner designer = new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0);
-        assertThat(designer.design(properties("NoSuchGovernor", REGULATOR, null), false)).isEmpty();
-        assertThat(designer.design(properties(GOVERNOR, "NoSuchRegulator", null), false)).isEmpty();
+        assertThat(designer.design(new GeneratorControls("NoSuchGovernor", REGULATOR, null), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+        assertThat(designer.design(new GeneratorControls(GOVERNOR, "NoSuchRegulator", null), Windings.FOUR_WINDINGS, false, false)).isEmpty();
         // a stabiliser we do not know is not quietly left out either
-        assertThat(designer.design(properties(GOVERNOR, REGULATOR, "NoSuchStabiliser"), false)).isEmpty();
+        assertThat(designer.design(new GeneratorControls(GOVERNOR, REGULATOR, "NoSuchStabiliser"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
     }
 
     @Test
     void shouldCarryAStabiliserAndATransformerIntoTheName() {
         GeneratorModelDesigner designer = new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0);
-        Optional<PreassembledModel> model = designer.design(properties(GOVERNOR, REGULATOR, "Pss2b"), true);
+        Optional<PreassembledModel> model = designer.design(new GeneratorControls(GOVERNOR, REGULATOR, "Pss2b"), Windings.FOUR_WINDINGS, true, false);
 
         assertThat(model).isPresent();
         assertThat(model.get().getId()).isEqualTo(WANTED + "Pss2b" + "Tfo");
@@ -86,7 +87,7 @@ class GeneratorModelDesignerTest {
         assertThat(HOME.resolve("ddb").resolve(WANTED + ".so")).doesNotExist();
 
         PreassembledModel model = new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0)
-                .design(properties(GOVERNOR, REGULATOR, null), false)
+                .design(new GeneratorControls(GOVERNOR, REGULATOR, null), Windings.FOUR_WINDINGS, false, false)
                 .orElseThrow();
         Path library = new PreassembledModelCompiler(HOME).compile(model, modelsDir);
 

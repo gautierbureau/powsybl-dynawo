@@ -51,11 +51,4 @@ public interface ControlTranslation {
      */
     Map<String, String> getVoltageRegulatorTranslations();
 
-    /**
-     * Simplified controls couple to the Dynawo model name fragment implementing it. The
-     * simplified libraries do not concatenate both control names (a
-     * {@code (Proportional, Proportional)} couple is named {@code ProportionalRegulations}),
-     * hence this third table.
-     */
-    Map<SimplifiedControls, String> getSimplifiedControlsFragments();
 }

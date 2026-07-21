@@ -9,9 +9,11 @@ package com.powsybl.dynawo.mappings.generators;
 
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
 import com.powsybl.dynawo.mappings.TestNetworks;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import com.powsybl.dynawo.mappings.tools.PreassembledModelCompiler;
@@ -52,7 +54,7 @@ class MissingModelBuilderTest {
         MissingModelBuilder builder = new MissingModelBuilder(
                 new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0),
                 new PreassembledModelCompiler(Path.of("nowhere")), modelsDir);
-        assertThat(builder.build(properties("NoSuchGovernor", "Ac6a"), false)).isEmpty();
+        assertThat(builder.build(new GeneratorControls("NoSuchGovernor", "Ac6a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
     }
 
     @Test

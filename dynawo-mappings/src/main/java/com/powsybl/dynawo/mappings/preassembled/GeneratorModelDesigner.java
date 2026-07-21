@@ -7,9 +7,9 @@
  */
 package com.powsybl.dynawo.mappings.preassembled;
 
-import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,6 +33,13 @@ public class GeneratorModelDesigner {
     private static final String THREE_WINDINGS = "ThreeWindings";
     private static final String FOUR_WINDINGS = "FourWindings";
 
+    /**
+     * The control pairs whose model is not named after the two of them run together.
+     */
+    private static final Map<String, String> NAMED_PAIRS = Map.of(
+            "GoverProportional VRProportional", "ProportionalRegulations",
+            "GoverProportional VRProportionalIntegral", "GoverPropVRPropInt");
+
     private final ControlUnitCatalog catalog;
     private final ModelNaming naming;
 
@@ -46,46 +53,46 @@ public class GeneratorModelDesigner {
     }
 
     /**
-     * The model a generator wants, made of the controls its extension names.
+     * The model made of those controls on a machine of that shape.
      *
-     * @param transformer whether it is connected through a transformer, which the extension alone
-     *                    does not say since it depends on the voltage level the generator sits on
+     * @param controls    the controls settled on, already what the study is to run
+     * @param windings    how many windings the machine is described with
+     * @param transformer whether a transformer stands between it and the grid
+     * @param auxiliaries whether auxiliaries draw from it
      */
-    public Optional<PreassembledModel> design(SynchronousGeneratorProperties properties, boolean transformer) {
-        Optional<MachineControlUnit> governor = catalog.getGovernor(properties.getGovernor());
-        Optional<MachineControlUnit> voltageRegulator = catalog.getVoltageRegulator(properties.getVoltageRegulator());
+    public Optional<PreassembledModel> design(GeneratorControls controls, Windings windings,
+                                              boolean transformer, boolean auxiliaries) {
+        Optional<MachineControlUnit> governor = catalog.getGovernor(controls.governor());
+        Optional<MachineControlUnit> voltageRegulator = catalog.getVoltageRegulator(controls.voltageRegulator());
         if (governor.isEmpty() || voltageRegulator.isEmpty()) {
             return Optional.empty();
         }
         Optional<RegulatorControlUnit> pss = Optional.empty();
-        if (properties.getPss() != null && !properties.getPss().isEmpty()) {
-            pss = catalog.getRegulatorControl(properties.getPss());
+        if (controls.hasPss()) {
+            pss = catalog.getRegulatorControl(controls.pss());
             if (pss.isEmpty()) {
                 return Optional.empty();
             }
         }
 
-        boolean auxiliaries = properties.isAuxiliaries();
-        boolean withTransformer = transformer && !properties.isInternalTransformer();
-        GeneratorAssembly assembly = new GeneratorAssembly(properties.getNumberOfWindings(),
-                withTransformer, auxiliaries, naming);
+        GeneratorAssembly assembly = new GeneratorAssembly(windings, transformer, auxiliaries, naming);
         assembly.add(governor.get());
         assembly.add(voltageRegulator.get());
         pss.ifPresent(assembly::add);
-        return Optional.of(assembly.build(name(properties, withTransformer, auxiliaries)));
+        return Optional.of(assembly.build(name(controls, windings, transformer, auxiliaries)));
     }
 
     /**
      * The name such a model carries, which is what it is made of read in order: the machine, its
      * controls, then what stands between it and the grid.
      */
-    public String name(SynchronousGeneratorProperties properties, boolean transformer, boolean auxiliaries) {
+    public static String name(GeneratorControls controls, Windings windings,
+                              boolean transformer, boolean auxiliaries) {
         StringBuilder name = new StringBuilder(LIB_PREFIX)
-                .append(properties.getNumberOfWindings() == Windings.THREE_WINDINGS ? THREE_WINDINGS : FOUR_WINDINGS)
-                .append(properties.getGovernor())
-                .append(properties.getVoltageRegulator());
-        if (properties.getPss() != null) {
-            name.append(properties.getPss());
+                .append(windings == Windings.THREE_WINDINGS ? THREE_WINDINGS : FOUR_WINDINGS)
+                .append(controlsFragment(controls.governor(), controls.voltageRegulator()));
+        if (controls.hasPss()) {
+            name.append(controls.pss());
         }
         if (transformer) {
             name.append("Tfo");
@@ -94,5 +101,19 @@ public class GeneratorModelDesigner {
             name.append("Aux");
         }
         return name.toString();
+    }
+
+    /**
+     * What a governor and a voltage regulator are called together in a model's name, which is the
+     * two of them run together: a Nordic governor with a Nordic regulator makes
+     * {@code GoverNordicVRNordic}.
+     * <p>
+     * Two pairs are named otherwise, and there is no rule behind it to derive, so they are simply
+     * named here: the simplified regulations Dynawo ships were christened before the convention
+     * settled.
+     */
+    private static String controlsFragment(String governor, String voltageRegulator) {
+        String named = NAMED_PAIRS.get(governor + " " + voltageRegulator);
+        return named != null ? named : governor + voltageRegulator;
     }
 }

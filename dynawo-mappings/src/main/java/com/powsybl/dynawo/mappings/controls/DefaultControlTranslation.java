@@ -25,21 +25,22 @@ import java.util.Map;
 @AutoService(ControlTranslation.class)
 public class DefaultControlTranslation implements ControlTranslation {
 
-    public static final String PROPORTIONAL = "Proportional";
-    public static final String PROPORTIONAL_INTEGRAL = "ProportionalIntegral";
+    public static final String GOVER_PROPORTIONAL = "GoverProportional";
+    public static final String VR_PROPORTIONAL = "VRProportional";
+    public static final String VR_PROPORTIONAL_INTEGRAL = "VRProportionalIntegral";
 
     @Override
     public Map<String, String> getGovernorTranslations() {
         // the detailed turbine governors all reduce to a proportional speed regulation, the
         // dynamics they differ by being faster than a voltage stability study resolves
-        return Map.of("GovCt2", PROPORTIONAL,
-                "GovSteam1", PROPORTIONAL,
-                "GovSteamEu", PROPORTIONAL,
-                "GovHydro4", PROPORTIONAL,
-                "HyGov", PROPORTIONAL,
-                "IEEEG1", PROPORTIONAL,
-                "TGov1", PROPORTIONAL,
-                "TGov3", PROPORTIONAL);
+        return Map.of("GovCt2", GOVER_PROPORTIONAL,
+                "GovSteam1", GOVER_PROPORTIONAL,
+                "GovSteamEu", GOVER_PROPORTIONAL,
+                "GovHydro4", GOVER_PROPORTIONAL,
+                "HyGov", GOVER_PROPORTIONAL,
+                "IEEEG1", GOVER_PROPORTIONAL,
+                "TGov1", GOVER_PROPORTIONAL,
+                "TGov3", GOVER_PROPORTIONAL);
     }
 
     @Override
@@ -47,18 +48,13 @@ public class DefaultControlTranslation implements ControlTranslation {
         // a machine carrying one of these exciters holds no steady state voltage error, which a
         // proportional regulation would not reproduce, hence the integral term. The simple
         // exciters, which do leave an error, reduce to a proportional regulation
-        return Map.of("St4b", PROPORTIONAL_INTEGRAL,
-                "St5b", PROPORTIONAL_INTEGRAL,
-                "St6b", PROPORTIONAL_INTEGRAL,
-                "St7b", PROPORTIONAL_INTEGRAL,
-                "IEEX2A", PROPORTIONAL_INTEGRAL,
-                "SCRX", PROPORTIONAL,
-                "SEXS", PROPORTIONAL);
+        return Map.of("St4b", VR_PROPORTIONAL_INTEGRAL,
+                "St5b", VR_PROPORTIONAL_INTEGRAL,
+                "St6b", VR_PROPORTIONAL_INTEGRAL,
+                "St7b", VR_PROPORTIONAL_INTEGRAL,
+                "IEEX2A", VR_PROPORTIONAL_INTEGRAL,
+                "SCRX", VR_PROPORTIONAL,
+                "SEXS", VR_PROPORTIONAL);
     }
 
-    @Override
-    public Map<SimplifiedControls, String> getSimplifiedControlsFragments() {
-        return Map.of(new SimplifiedControls(PROPORTIONAL, PROPORTIONAL), "ProportionalRegulations",
-                new SimplifiedControls(PROPORTIONAL, PROPORTIONAL_INTEGRAL), "GoverPropVRPropInt");
-    }
 }

@@ -6,13 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings.generators;
+
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.builders.VersionInterval;
-import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
@@ -119,11 +121,12 @@ public class MissingModelBuilder {
      * The model for those properties, built if it is not there already, or nothing if it cannot
      * be.
      */
-    public Optional<String> build(SynchronousGeneratorProperties properties, boolean transformer) {
-        Optional<PreassembledModel> designed = designer.design(properties, transformer);
+    public Optional<String> build(GeneratorControls controls, Windings windings, boolean transformer,
+                                  boolean auxiliaries) {
+        Optional<PreassembledModel> designed = designer.design(controls, windings, transformer, auxiliaries);
         if (designed.isEmpty()) {
             LOGGER.debug("Nothing describes a machine with governor {} and voltage regulator {}",
-                    properties.getGovernor(), properties.getVoltageRegulator());
+                    controls.governor(), controls.voltageRegulator());
             return Optional.empty();
         }
         PreassembledModel model = designed.get();
@@ -132,7 +135,7 @@ public class MissingModelBuilder {
             compiler.compile(model, modelsDir);
             LOGGER.info("Built {} in {}, which no installed model provided ({} ms)",
                     model.getId(), modelsDir, (System.nanoTime() - start) / 1_000_000);
-            builtModelConfigs.computeIfAbsent(model.getId(), lib -> config(lib, properties, transformer));
+            builtModelConfigs.computeIfAbsent(model.getId(), lib -> config(lib, transformer, auxiliaries));
             return Optional.of(model.getId());
         } catch (PowsyblException | UncheckedIOException e) {
             LOGGER.warn("Could not build {}, falling back on an installed model: {}",
@@ -147,13 +150,13 @@ public class MissingModelBuilder {
      * Without these the builder would connect it as a bare machine, which a model behind a
      * transformer is not.
      */
-    private ModelConfig config(String lib, SynchronousGeneratorProperties properties, boolean transformer) {
+    private ModelConfig config(String lib, boolean transformer, boolean auxiliaries) {
         List<String> capabilities = new ArrayList<>();
         capabilities.add(CONTROLLABLE);
-        if (transformer && !properties.isInternalTransformer()) {
+        if (transformer) {
             capabilities.add(TRANSFORMER);
         }
-        if (properties.isAuxiliaries()) {
+        if (auxiliaries) {
             capabilities.add(AUXILIARY);
         }
         return new ModelConfig(lib, capabilities);

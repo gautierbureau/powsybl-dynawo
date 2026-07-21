@@ -34,8 +34,8 @@ class GeneratorLibResolverTest {
         // simplified models: the governor reduces to proportional, the exciter keeps its integral term
         "FOUR_WINDINGS, GovCt2, St4b, true, GeneratorSynchronousFourWindingsGoverPropVRPropInt",
         "THREE_WINDINGS, GovHydro4, St4b, true, GeneratorSynchronousThreeWindingsGoverPropVRPropInt",
-        // a machine already described with proportional regulations keeps them
-        "THREE_WINDINGS, GovHydro4, Proportional, true, GeneratorSynchronousThreeWindingsProportionalRegulations"
+        // a machine already described with a simplified regulation keeps it, named as its model is
+        "THREE_WINDINGS, GovHydro4, VRProportional, true, GeneratorSynchronousThreeWindingsProportionalRegulations"
     })
     void shouldResolveLibFromControls(String windings, String governor, String voltageRegulator, boolean simplified, String expectedLib) {
         SynchronousGeneratorProperties properties = properties(windings, governor, voltageRegulator, false);
@@ -49,9 +49,9 @@ class GeneratorLibResolverTest {
         "FOUR_WINDINGS, PmConst, VRNordic, GeneratorSynchronousFourWindingsPmConstVRNordic",
         "THREE_WINDINGS, GoverNordic, VRNordic, GeneratorSynchronousThreeWindingsGoverNordicVRNordic",
         "THREE_WINDINGS, PmConst, VRNordic, GeneratorSynchronousThreeWindingsPmConstVRNordic",
-        // a machine already described by proportional regulations keeps them
-        "FOUR_WINDINGS, Proportional, Proportional, GeneratorSynchronousFourWindingsProportionalRegulations",
-        "THREE_WINDINGS, Proportional, Proportional, GeneratorSynchronousThreeWindingsProportionalRegulations"
+        // a machine already described by the simplified regulations keeps them, named as their models are
+        "FOUR_WINDINGS, GoverProportional, VRProportional, GeneratorSynchronousFourWindingsProportionalRegulations",
+        "THREE_WINDINGS, GoverProportional, VRProportional, GeneratorSynchronousThreeWindingsProportionalRegulations"
     })
     void shouldLeaveAlreadySimpleControlsAlone(String windings, String governor, String voltageRegulator, String expectedLib) {
         SynchronousGeneratorProperties properties = properties(windings, governor, voltageRegulator, false);

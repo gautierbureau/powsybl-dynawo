@@ -13,6 +13,8 @@ import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,20 +105,19 @@ public class GeneratorLibResolver {
      *                    cannot tell since it depends on the voltage level the generator sits on
      */
     public Optional<String> resolve(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {
-        Optional<String> core = controlCore(properties, simplified);
-        if (core.isEmpty()) {
-            return Optional.empty();
-        }
+        GeneratorControls controls = controls(properties, simplified);
+        String core = controlCore(controls, properties);
         Set<GeneratorCapability> wanted = capabilities(properties, simplified, transformer);
-        Optional<String> installed = selectLib(core.get(), wanted);
+        Optional<String> installed = selectLib(core, wanted);
         // an installed model providing everything asked for is the model asked for, and nothing
         // is built for a generator the catalog already answers
-        if (installed.isPresent() && nothingDropped(core.get(), wanted)) {
+        if (installed.isPresent() && nothingDropped(core, wanted)) {
             installed.ifPresent(this::useInstalled);
             return installed;
         }
         if (missingModelBuilder != null) {
-            Optional<String> built = missingModelBuilder.build(properties, transformer);
+            Optional<String> built = missingModelBuilder.build(controls, properties.getNumberOfWindings(),
+                    transformer && !properties.isInternalTransformer(), properties.isAuxiliaries());
             if (built.isPresent()) {
                 return built;
             }
@@ -146,21 +147,23 @@ public class GeneratorLibResolver {
     }
 
     /**
-     * Builds the control part of the library name, common to every capability variant.
+     * The controls the study is to run, which is where a simplified study turns the detailed ones
+     * a machine carries into the simplified regulations standing for them. Everything downstream,
+     * the name looked up and any model built, works from these and no longer from what the
+     * extension happens to hold.
      */
-    private Optional<String> controlCore(SynchronousGeneratorProperties properties, boolean simplified) {
-        String windings = properties.getNumberOfWindings() == SynchronousGeneratorProperties.Windings.THREE_WINDINGS
-                ? THREE_WINDINGS : FOUR_WINDINGS;
-        if (simplified) {
-            Optional<String> fragment = controlTranslations.getSimplifiedFragment(properties.getGovernor(), properties.getVoltageRegulator());
-            if (fragment.isEmpty()) {
-                LOGGER.warn("No simplified model for governor {} and voltage regulator {}",
-                        properties.getGovernor(), properties.getVoltageRegulator());
-            }
-            return fragment.map(f -> LIB_PREFIX + windings + f);
-        }
-        String pss = properties.getPss() != null ? properties.getPss() : "";
-        return Optional.of(LIB_PREFIX + windings + properties.getGovernor() + properties.getVoltageRegulator() + pss);
+    private GeneratorControls controls(SynchronousGeneratorProperties properties, boolean simplified) {
+        GeneratorControls carried = new GeneratorControls(properties.getGovernor(),
+                properties.getVoltageRegulator(), properties.getPss());
+        return simplified ? controlTranslations.simplify(carried) : carried;
+    }
+
+    /**
+     * Builds the control part of the library name, common to every capability variant, naming the
+     * controls the way the model carrying them is named.
+     */
+    private static String controlCore(GeneratorControls controls, SynchronousGeneratorProperties properties) {
+        return GeneratorModelDesigner.name(controls, properties.getNumberOfWindings(), false, false);
     }
 
     private static Set<GeneratorCapability> capabilities(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {

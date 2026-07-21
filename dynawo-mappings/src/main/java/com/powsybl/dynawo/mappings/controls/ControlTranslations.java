@@ -7,11 +7,12 @@
  */
 package com.powsybl.dynawo.mappings.controls;
 
+import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
@@ -77,20 +78,16 @@ public final class ControlTranslations {
     }
 
     /**
-     * Returns the Dynawo model name fragment implementing the given controls once simplified.
-     * <p>
-     * The simplified regulations have names of their own rather than the concatenation of the two
-     * controls, a proportional governor with a proportional regulator being named
-     * {@code ProportionalRegulations}. Any other couple names itself, the way the detailed models
-     * do.
+     * The controls a voltage stability study runs in place of the ones a machine carries: the
+     * detailed turbine governors and exciters answered by the simplified regulations that stand
+     * for them, each named as the model carrying it is. A control no table names is already simple
+     * enough and stands for itself.
      */
-    public Optional<String> getSimplifiedFragment(String governor, String voltageRegulator) {
-        SimplifiedControls simplified = new SimplifiedControls(translateGovernor(governor),
-                translateVoltageRegulator(voltageRegulator));
-        return Optional.of(translations.stream()
-                .map(t -> t.getSimplifiedControlsFragments().get(simplified))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElseGet(() -> simplified.governor() + simplified.voltageRegulator()));
+    public GeneratorControls simplify(GeneratorControls controls) {
+        return new GeneratorControls(translateGovernor(controls.governor()),
+                translateVoltageRegulator(controls.voltageRegulator()),
+                // a simplified regulation stands for the whole of what a machine does, a
+                // stabiliser included, so none is carried beside it
+                null);
     }
 }

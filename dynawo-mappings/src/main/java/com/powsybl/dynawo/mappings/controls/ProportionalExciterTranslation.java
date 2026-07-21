@@ -32,11 +32,11 @@ public class ProportionalExciterTranslation implements ControlTranslation {
     public Map<String, String> getVoltageRegulatorTranslations() {
         // named rather than a wildcard: only the detailed exciters are rewritten, so a machine
         // deliberately described with a simplified regulation keeps the one it was given
-        return Map.of("St4b", DefaultControlTranslation.PROPORTIONAL,
-                "St5b", DefaultControlTranslation.PROPORTIONAL,
-                "St6b", DefaultControlTranslation.PROPORTIONAL,
-                "St7b", DefaultControlTranslation.PROPORTIONAL,
-                "IEEX2A", DefaultControlTranslation.PROPORTIONAL);
+        return Map.of("St4b", DefaultControlTranslation.VR_PROPORTIONAL,
+                "St5b", DefaultControlTranslation.VR_PROPORTIONAL,
+                "St6b", DefaultControlTranslation.VR_PROPORTIONAL,
+                "St7b", DefaultControlTranslation.VR_PROPORTIONAL,
+                "IEEX2A", DefaultControlTranslation.VR_PROPORTIONAL);
     }
 
     @Override
@@ -44,8 +44,4 @@ public class ProportionalExciterTranslation implements ControlTranslation {
         return Map.of();
     }
 
-    @Override
-    public Map<SimplifiedControls, String> getSimplifiedControlsFragments() {
-        return Map.of();
-    }
 }
