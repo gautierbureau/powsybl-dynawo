@@ -91,22 +91,40 @@ public final class ModelConfigsHandler {
     }
 
     public void addModels(AdditionalModelConfigLoader additionalModelsLoader) {
-        additionalModelsLoader.loadModelConfigs().forEach(
-                (cat, modelsMap) -> {
-                    ModelConfigs currentModelConfigs = modelConfigsCat.get(cat);
-                    if (currentModelConfigs != null) {
-                        currentModelConfigs.addModelConfigs(modelsMap);
-                        BuilderConfig.ModelBuilderConstructor constructor = builderConfigs.stream()
-                                    .filter(bc -> bc.getCategory().equals(cat))
-                                    .map(BuilderConfig::getBuilderConstructor)
-                                    .findFirst()
-                                    .orElse(null);
-                        modelsMap.getModelsName().forEach(lib -> builderConstructorByName.put(lib, constructor));
-                    } else {
-                        LOGGER.warn("Category {} not found, the additional models under this category will be skipped", cat);
-                    }
-                }
-        );
+        additionalModelsLoader.loadModelConfigs().forEach(this::mergeModelConfigs);
+    }
+
+    /**
+     * Registers additional model configurations programmatically, without going through a JSON file.
+     * The models are provided by category name (the same categories used in the models.json catalog);
+     * models declared in an unknown category are skipped, and models overwriting an existing one are ignored.
+     *
+     * @param modelConfigsByCategory the additional model configurations grouped by category name
+     */
+    public void addModels(Map<String, List<ModelConfig>> modelConfigsByCategory) {
+        modelConfigsByCategory.forEach((cat, modelConfigList) ->
+                mergeModelConfigs(cat, toModelConfigs(modelConfigList)));
+    }
+
+    private static ModelConfigs toModelConfigs(List<ModelConfig> modelConfigList) {
+        SortedMap<String, ModelConfig> modelConfigMap = new TreeMap<>();
+        modelConfigList.forEach(modelConfig -> modelConfigMap.put(modelConfig.name(), modelConfig));
+        return new ModelConfigs(modelConfigMap, null);
+    }
+
+    private void mergeModelConfigs(String cat, ModelConfigs modelsMap) {
+        ModelConfigs currentModelConfigs = modelConfigsCat.get(cat);
+        if (currentModelConfigs != null) {
+            currentModelConfigs.addModelConfigs(modelsMap);
+            BuilderConfig.ModelBuilderConstructor constructor = builderConfigs.stream()
+                        .filter(bc -> bc.getCategory().equals(cat))
+                        .map(BuilderConfig::getBuilderConstructor)
+                        .findFirst()
+                        .orElse(null);
+            modelsMap.getModelsName().forEach(lib -> builderConstructorByName.put(lib, constructor));
+        } else {
+            LOGGER.warn("Category {} not found, the additional models under this category will be skipped", cat);
+        }
     }
 
     public Set<String> getCategories() {
