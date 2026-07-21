@@ -50,6 +50,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     public static final String DEFAULT_NETWORK_PAR_ID = "Network";
     public static final String DEFAULT_SOLVER_PAR_ID = "SIM";
     public static final boolean DEFAULT_MERGE_LOADS = false;
+    public static final boolean DEFAULT_DUMP_INIT_VALUES = false;
     public static final double DEFAULT_PRECISION = 1e-6;
     public static final ExportMode DEFAULT_TIMELINE_EXPORT_MODE = ExportMode.XML;
     public static final LogLevel DEFAULT_LOG_LEVEL_FILTER = LogLevel.INFO;
@@ -61,6 +62,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private static final String SOLVER_PARAMETERS_ID = "solver.parametersId";
     private static final String SOLVER_TYPE = "solver.type";
     private static final String MERGE_LOADS = "mergeLoads";
+    private static final String DUMP_INIT_VALUES = "dumpInitValues";
     private static final String MODEL_SIMPLIFIERS = "modelSimplifiers";
     private static final String PRECISION_PROPERTY_NAME = "precision";
     private static final String TIMELINE_EXPORT_MODE = "timeline.exportMode";
@@ -117,6 +119,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private ParametersSet solverParameters;
     private SolverType solverType = DEFAULT_SOLVER_TYPE;
     private boolean mergeLoads = DEFAULT_MERGE_LOADS;
+    private boolean dumpInitValues = DEFAULT_DUMP_INIT_VALUES;
     private Set<String> modelSimplifiers = new LinkedHashSet<>();
     private DumpFileParameters dumpFileParameters = DumpFileParameters.createDefaultDumpFileParameters();
     private double precision = DEFAULT_PRECISION;
@@ -135,6 +138,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             new Parameter(SOLVER_PARAMETERS_ID, ParameterType.STRING, "Solver parameters set id", DEFAULT_SOLVER_PAR_ID),
             new Parameter(SOLVER_TYPE, ParameterType.STRING, "Solver used in the simulation", DEFAULT_SOLVER_TYPE.toString(), getEnumPossibleValues(SolverType.class)),
             new Parameter(MERGE_LOADS, ParameterType.BOOLEAN, "Merge loads connected to same bus", DEFAULT_MERGE_LOADS),
+            new Parameter(DUMP_INIT_VALUES, ParameterType.BOOLEAN, "Dump the initial values each model computes", DEFAULT_DUMP_INIT_VALUES),
             new Parameter(MODEL_SIMPLIFIERS, ParameterType.STRING, "Simplifiers used before macro connection computation", null),
             new Parameter(PRECISION_PROPERTY_NAME, ParameterType.DOUBLE, "Simulation step precision", DEFAULT_PRECISION),
             new Parameter(TIMELINE_EXPORT_MODE, ParameterType.STRING, "Timeline export file extension", DEFAULT_TIMELINE_EXPORT_MODE.toString(), getEnumPossibleValues(ExportMode.class)),
@@ -197,6 +201,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         parameters.setDumpFileParameters(DumpFileParameters.createDumpFileParametersFromConfig(moduleConfig, filePathResolver));
         moduleConfig.getOptionalEnumProperty(SOLVER_TYPE, SolverType.class).ifPresent(parameters::setSolverType);
         moduleConfig.getOptionalBooleanProperty(MERGE_LOADS).ifPresent(parameters::setMergeLoads);
+        moduleConfig.getOptionalBooleanProperty(DUMP_INIT_VALUES).ifPresent(parameters::setDumpInitValues);
         moduleConfig.getOptionalStringListProperty(MODEL_SIMPLIFIERS).ifPresent(parameters::setModelSimplifiers);
         moduleConfig.getOptionalDoubleProperty(PRECISION_PROPERTY_NAME).ifPresent(parameters::setPrecision);
         moduleConfig.getOptionalEnumProperty(TIMELINE_EXPORT_MODE, ExportMode.class).ifPresent(parameters::setTimelineExportMode);
@@ -259,6 +264,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         });
         Optional.ofNullable(properties.get(SOLVER_TYPE)).ifPresent(prop -> setSolverType(SolverType.valueOf(prop)));
         Optional.ofNullable(properties.get(MERGE_LOADS)).ifPresent(prop -> setMergeLoads(Boolean.parseBoolean(prop)));
+        Optional.ofNullable(properties.get(DUMP_INIT_VALUES)).ifPresent(prop -> setDumpInitValues(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(MODEL_SIMPLIFIERS)).ifPresent(prop ->
                 setModelSimplifiers(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim).collect(Collectors.toSet())));
         Optional.ofNullable(properties.get(PRECISION_PROPERTY_NAME)).ifPresent(prop -> setPrecision(Double.parseDouble(prop)));
@@ -281,6 +287,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         addNotNullEntry("solverParameters", solverParameters, properties::put);
         addNotNullEntry(SOLVER_TYPE, solverType, properties::put);
         addNotNullEntry(MERGE_LOADS, mergeLoads, properties::put);
+        addNotNullEntry(DUMP_INIT_VALUES, dumpInitValues, properties::put);
         if (!modelSimplifiers.isEmpty()) {
             properties.put(MODEL_SIMPLIFIERS, String.join(PROPERTY_LIST_DELIMITER, modelSimplifiers));
         }
@@ -368,6 +375,20 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
 
     public boolean isMergeLoads() {
         return mergeLoads;
+    }
+
+    /**
+     * Whether each model writes the initial values it computes, which says what a model starts
+     * from when a run will not solve. Off by default, being a study's own diagnostic rather than
+     * something a plain run needs.
+     */
+    public boolean isDumpInitValues() {
+        return dumpInitValues;
+    }
+
+    public DynawoSimulationParameters setDumpInitValues(boolean dumpInitValues) {
+        this.dumpInitValues = dumpInitValues;
+        return this;
     }
 
     public DynawoSimulationParameters setMergeLoads(boolean mergeLoads) {

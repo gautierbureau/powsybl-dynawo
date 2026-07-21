@@ -168,8 +168,10 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writer.writeAttribute("directory", OUTPUTS_FOLDER);
 
         writer.writeEmptyElement(DYN_URI, "dumpInitValues");
-        writer.writeAttribute("local", Boolean.toString(false));
-        writer.writeAttribute("global", Boolean.toString(false));
+        // both the per-model values and the whole-system ones, so a run that will not solve says
+        // both what each model started from and what they made together
+        writer.writeAttribute("local", Boolean.toString(parameters.isDumpInitValues()));
+        writer.writeAttribute("global", Boolean.toString(parameters.isDumpInitValues()));
 
         if (context.withConstraints()) {
             writer.writeEmptyElement(DYN_URI, "constraints");

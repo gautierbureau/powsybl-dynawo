@@ -298,6 +298,7 @@ class DynawoParametersTest extends AbstractSerDeTest {
                         "solverParametersId,{order=Parameter[name=order, type=INT, value=1], absAccuracy=Parameter[name=absAccuracy, type=DOUBLE, value=1e-4]},{},{}"),
                 Map.entry("solver.type", "IDA"),
                 Map.entry("mergeLoads", "true"),
+                Map.entry("dumpInitValues", "false"),
                 Map.entry("modelSimplifiers", "Substitution,Filter"),
                 Map.entry("precision", "1.0E-8"),
                 Map.entry("timeline.exportMode", "XML"),
