@@ -132,6 +132,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private Path additionalModelsPath = null;
     private List<Path> precompiledModelsDirs = new ArrayList<>();
     private Map<String, List<ModelConfig>> additionalModels = new LinkedHashMap<>();
+    private Map<String, List<ModelConfig>> additionalModelOverrides = new LinkedHashMap<>();
 
     public static final List<Parameter> SPECIFIC_PARAMETERS = Stream.concat(Stream.of(
             new Parameter(PARAMETERS_FILE, ParameterType.STRING, "Main parameters file path", DEFAULT_INPUT_PARAMETERS_FILE),
@@ -547,6 +548,27 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
 
     public DynawoSimulationParameters addAdditionalModel(String category, ModelConfig modelConfig) {
         additionalModels.computeIfAbsent(Objects.requireNonNull(category), k -> new ArrayList<>())
+                .add(Objects.requireNonNull(modelConfig));
+        return this;
+    }
+
+    /**
+     * Model definitions registered over the ones already known rather than beside them, for a
+     * model whose configuration is to be corrected. Kept apart from {@link #getAdditionalModels()},
+     * which are added and a name already present kept, since these are meant to replace it.
+     */
+    @JsonIgnore
+    public Map<String, List<ModelConfig>> getAdditionalModelOverrides() {
+        return additionalModelOverrides;
+    }
+
+    public DynawoSimulationParameters setAdditionalModelOverrides(Map<String, List<ModelConfig>> additionalModelOverrides) {
+        this.additionalModelOverrides = new LinkedHashMap<>(Objects.requireNonNull(additionalModelOverrides));
+        return this;
+    }
+
+    public DynawoSimulationParameters overrideAdditionalModel(String category, ModelConfig modelConfig) {
+        additionalModelOverrides.computeIfAbsent(Objects.requireNonNull(category), k -> new ArrayList<>())
                 .add(Objects.requireNonNull(modelConfig));
         return this;
     }

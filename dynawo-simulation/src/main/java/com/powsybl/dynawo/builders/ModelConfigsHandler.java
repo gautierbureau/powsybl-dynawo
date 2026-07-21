@@ -91,7 +91,7 @@ public final class ModelConfigsHandler {
     }
 
     public void addModels(AdditionalModelConfigLoader additionalModelsLoader) {
-        additionalModelsLoader.loadModelConfigs().forEach(this::mergeModelConfigs);
+        additionalModelsLoader.loadModelConfigs().forEach((cat, modelsMap) -> mergeModelConfigs(cat, modelsMap, false));
     }
 
     /**
@@ -103,7 +103,17 @@ public final class ModelConfigsHandler {
      */
     public void addModels(Map<String, List<ModelConfig>> modelConfigsByCategory) {
         modelConfigsByCategory.forEach((cat, modelConfigList) ->
-                mergeModelConfigs(cat, toModelConfigs(modelConfigList)));
+                mergeModelConfigs(cat, toModelConfigs(modelConfigList), false));
+    }
+
+    /**
+     * Registers configurations that stand in for ones already there, correcting them rather than
+     * adding beside them. Where {@link #addModels} keeps a name already present, this replaces it,
+     * for a caller that means to change a model's configuration, its version among the reasons.
+     */
+    public void overrideModels(Map<String, List<ModelConfig>> modelConfigsByCategory) {
+        modelConfigsByCategory.forEach((cat, modelConfigList) ->
+                mergeModelConfigs(cat, toModelConfigs(modelConfigList), true));
     }
 
     private static ModelConfigs toModelConfigs(List<ModelConfig> modelConfigList) {
@@ -112,10 +122,14 @@ public final class ModelConfigsHandler {
         return new ModelConfigs(modelConfigMap, null);
     }
 
-    private void mergeModelConfigs(String cat, ModelConfigs modelsMap) {
+    private void mergeModelConfigs(String cat, ModelConfigs modelsMap, boolean override) {
         ModelConfigs currentModelConfigs = modelConfigsCat.get(cat);
         if (currentModelConfigs != null) {
-            currentModelConfigs.addModelConfigs(modelsMap);
+            if (override) {
+                currentModelConfigs.overrideModelConfigs(modelsMap);
+            } else {
+                currentModelConfigs.addModelConfigs(modelsMap);
+            }
             BuilderConfig.ModelBuilderConstructor constructor = builderConfigs.stream()
                         .filter(bc -> bc.getCategory().equals(cat))
                         .map(BuilderConfig::getBuilderConstructor)

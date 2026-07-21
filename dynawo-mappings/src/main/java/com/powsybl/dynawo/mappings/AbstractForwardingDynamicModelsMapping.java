@@ -73,6 +73,11 @@ public abstract class AbstractForwardingDynamicModelsMapping implements DynamicM
     }
 
     @Override
+    public Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return delegate().getModelConfigOverrides();
+    }
+
+    @Override
     public ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
         return delegate().describeBuiltModels(installed);
     }

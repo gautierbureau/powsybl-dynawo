@@ -92,4 +92,12 @@ public interface DynamicModelsMapping {
     default Map<String, List<ModelConfig>> getBuiltModelConfigs() {
         return Map.of();
     }
+
+    /**
+     * Corrections to models already in the catalog, where this mapping found one the catalog dates
+     * later than the installation can run it. Registered over the catalog rather than beside it.
+     */
+    default Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return Map.of();
+    }
 }

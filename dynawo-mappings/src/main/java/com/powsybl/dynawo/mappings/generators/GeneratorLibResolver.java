@@ -112,6 +112,7 @@ public class GeneratorLibResolver {
         // an installed model providing everything asked for is the model asked for, and nothing
         // is built for a generator the catalog already answers
         if (installed.isPresent() && nothingDropped(core.get(), wanted)) {
+            installed.ifPresent(this::useInstalled);
             return installed;
         }
         if (missingModelBuilder != null) {
@@ -120,7 +121,18 @@ public class GeneratorLibResolver {
                 return built;
             }
         }
+        installed.ifPresent(this::useInstalled);
         return installed;
+    }
+
+    /**
+     * Where a model comes from the catalog rather than being built, lets the builder note it, in
+     * case the catalog dates it later than the installation can run it.
+     */
+    private void useInstalled(String lib) {
+        if (missingModelBuilder != null) {
+            missingModelBuilder.useInstalled(lib);
+        }
     }
 
     /**

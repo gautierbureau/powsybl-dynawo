@@ -138,6 +138,10 @@ public final class DynamicModelsMappings {
     private static void registerBuiltModels(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
         mapping.getBuiltModelConfigs().forEach((category, configs) ->
                 configs.forEach(config -> parameters.addAdditionalModel(category, config)));
+        // corrections to models the catalog dates later than they run go over the catalog, so a
+        // model whose library the installation holds is not held out for being too new
+        mapping.getModelConfigOverrides().forEach((category, configs) ->
+                configs.forEach(config -> parameters.overrideAdditionalModel(category, config)));
     }
 
     private static boolean holdsALibrary(Path dir) {

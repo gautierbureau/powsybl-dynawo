@@ -133,6 +133,13 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     }
 
     @Override
+    public Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getModelConfigOverrides)
+                .orElseGet(Map::of);
+    }
+
+    @Override
     public DynawoSimulationParameters.SolverType getSolverType() {
         return simplified ? DynawoSimulationParameters.SolverType.SIM : DynawoSimulationParameters.SolverType.IDA;
     }

@@ -107,6 +107,9 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
         DynawoSimulationParameters dynawoParameters = DynawoSimulationParameters.load(parameters);
         dynawoParameters.getAdditionalModelsPath().ifPresent(additionalModelPath ->
                 ModelConfigsHandler.getInstance().addModels(new AdditionalModelConfigLoader(additionalModelPath)));
+        if (!dynawoParameters.getAdditionalModelOverrides().isEmpty()) {
+            ModelConfigsHandler.getInstance().overrideModels(dynawoParameters.getAdditionalModelOverrides());
+        }
         if (!dynawoParameters.getAdditionalModels().isEmpty()) {
             ModelConfigsHandler.getInstance().addModels(dynawoParameters.getAdditionalModels());
         }

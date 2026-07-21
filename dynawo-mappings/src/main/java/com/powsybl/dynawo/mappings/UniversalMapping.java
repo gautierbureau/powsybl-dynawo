@@ -88,6 +88,11 @@ public class UniversalMapping implements DynamicModelsMapping {
     }
 
     @Override
+    public Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return generators.getModelConfigOverrides();
+    }
+
+    @Override
     public ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
         return generators.describeBuiltModels(installed);
     }

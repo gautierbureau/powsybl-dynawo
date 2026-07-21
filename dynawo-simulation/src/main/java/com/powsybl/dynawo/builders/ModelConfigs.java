@@ -79,4 +79,13 @@ public class ModelConfigs {
             }
         });
     }
+
+    /**
+     * Puts these configurations in, a name already present standing aside for the one brought in.
+     * Where adding keeps the first, this keeps the last, for a caller that means to correct a
+     * configuration already there rather than add beside it.
+     */
+    void overrideModelConfigs(ModelConfigs modelConfigsToMerge) {
+        modelConfigMap.putAll(modelConfigsToMerge.modelConfigMap);
+    }
 }

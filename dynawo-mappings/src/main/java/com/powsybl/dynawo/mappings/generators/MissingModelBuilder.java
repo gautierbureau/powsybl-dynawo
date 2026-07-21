@@ -8,6 +8,8 @@
 package com.powsybl.dynawo.mappings.generators;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.builders.ModelConfig;
+import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.builders.VersionInterval;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,6 +51,7 @@ public class MissingModelBuilder {
      * The category a built generator is registered under, the one its builder is declared for.
      */
     static final String GENERATOR_CATEGORY = "SYNCHRONOUS_GENERATOR";
+    private static final String LIBRARY_EXTENSION = ".so";
     private static final String CONTROLLABLE = "CONTROLLABLE";
     private static final String TRANSFORMER = "TRANSFORMER";
     private static final String AUXILIARY = "AUXILIARY";
@@ -58,6 +62,8 @@ public class MissingModelBuilder {
     private final Path dynawoHomeDir;
     // what was built, so the simulation can be told the model exists and how to connect it
     private final Map<String, ModelConfig> builtModelConfigs = new LinkedHashMap<>();
+    // installed models the catalog dates later than they run, corrected to their true availability
+    private final Map<String, ModelConfig> versionOverrides = new LinkedHashMap<>();
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
         this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
@@ -161,5 +167,36 @@ public class MissingModelBuilder {
     public Map<String, List<ModelConfig>> getBuiltModelConfigs() {
         return builtModelConfigs.isEmpty() ? Map.of()
                 : Map.of(GENERATOR_CATEGORY, List.copyOf(builtModelConfigs.values()));
+    }
+
+    /**
+     * Notes that an installed model is used, in case the catalog dates it later than the
+     * installation can actually run it.
+     * <p>
+     * A model whose library sits in the database runs there whatever version the catalog first
+     * shipped it in, so where the catalog holds it out for being too new its configuration is
+     * corrected to say it is available from as far back as any model is. Only a model the catalog
+     * dates above the floor is touched, and only if its library is there to load, so a model that
+     * needs no correction gets none.
+     */
+    public void useInstalled(String lib) {
+        if (dynawoHomeDir == null || builtModelConfigs.containsKey(lib) || versionOverrides.containsKey(lib)) {
+            return;
+        }
+        if (!Files.exists(dynawoHomeDir.resolve("ddb").resolve(lib + LIBRARY_EXTENSION))) {
+            return;
+        }
+        ModelConfigsHandler.getInstance().findModelConfig(lib)
+                .filter(config -> config.version().min().compareTo(VersionInterval.MODEL_DEFAULT_MIN_VERSION) > 0)
+                .ifPresent(config -> versionOverrides.put(lib, config.availableFromDefaultVersion()));
+    }
+
+    /**
+     * The installed models whose availability had to be corrected, to be registered over the ones
+     * the catalog holds rather than beside them. Empty where none needed correcting.
+     */
+    public Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return versionOverrides.isEmpty() ? Map.of()
+                : Map.of(GENERATOR_CATEGORY, List.copyOf(versionOverrides.values()));
     }
 }
