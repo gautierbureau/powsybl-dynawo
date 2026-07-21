@@ -59,21 +59,18 @@ public class DynawoLauncher {
      * way is the installation, which is asked here rather than assumed: the launcher has to be
      * there and to carry the option that builds a model.
      * <p>
-     * This says the option is offered, not that it works: an installation carrying it can still
-     * fail to compile, for want of a toolchain it needs, and only trying tells. That is settled by
+     * What is looked for is the launcher, and nothing behind it. The tool that builds a model is
+     * reached only through {@code dynawo.sh}, which sets the environment it needs, so looking for
+     * that tool in {@code sbin} would be reading past the entry point and finding something that
+     * cannot be run as found.
+     * <p>
+     * This says there is an installation to ask, not that it can build: whether the option is
+     * there and works only shows on going through the launcher and trying. That is settled by
      * {@link com.powsybl.dynawo.mappings.generators.MissingModelBuilder}, which stops asking an
      * installation that has failed once.
      */
     public boolean canGeneratePreassembled() {
-        Path script = homeDir.resolve("dynawo" + (SystemUtils.IS_OS_WINDOWS ? ".cmd" : ".sh"));
-        if (!Files.exists(script)) {
-            return false;
-        }
-        try {
-            return Files.readString(script).contains(GENERATE_PREASSEMBLED);
-        } catch (IOException e) {
-            return false;
-        }
+        return Files.exists(homeDir.resolve("dynawo" + (SystemUtils.IS_OS_WINDOWS ? ".cmd" : ".sh")));
     }
 
     public Path getHomeDir() {

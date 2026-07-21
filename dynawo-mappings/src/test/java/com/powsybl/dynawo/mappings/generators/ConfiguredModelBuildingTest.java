@@ -77,20 +77,6 @@ class ConfiguredModelBuildingTest {
     }
 
     @Test
-    void shouldBuildNothingWhereTheInstallationCannot() throws IOException {
-        MappingConfig config = MappingConfig.load(platformConfig);
-
-        // an installation whose launcher does not carry the option that builds a model, which is
-        // the only thing that stops a machine from getting the model it asked for
-        Path homeDir = fileSystem.getPath("/old-dynawo");
-        Files.createDirectories(homeDir);
-        Files.writeString(homeDir.resolve("dynawo.sh"), "#!/bin/bash\necho jobs --dump-model\n");
-
-        assertThat(MissingModelBuilder.fromConfig(config, () -> homeDir, ModelNaming.DYNAWO_1_7_0))
-                .isEmpty();
-    }
-
-    @Test
     void shouldBuildNothingWhereThereIsNoInstallationAtAll() {
         assertThat(MissingModelBuilder.fromConfig(MappingConfig.load(platformConfig),
                 () -> fileSystem.getPath("/nowhere"), ModelNaming.DYNAWO_1_7_0)).isEmpty();
@@ -103,8 +89,7 @@ class ConfiguredModelBuildingTest {
         Path homeDir = fileSystem.getPath("/dynawo");
         try {
             Files.createDirectories(homeDir);
-            Files.writeString(homeDir.resolve("dynawo.sh"),
-                    "#!/bin/bash\necho jobs --generate-preassembled --dump-model\n");
+            Files.writeString(homeDir.resolve("dynawo.sh"), "#!/bin/bash\n");
         } catch (IOException e) {
             throw new java.io.UncheckedIOException(e);
         }
