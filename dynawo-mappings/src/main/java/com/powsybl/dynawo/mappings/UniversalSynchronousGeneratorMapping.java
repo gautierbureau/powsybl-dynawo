@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
 import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -124,6 +126,13 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     }
 
     @Override
+    public Map<String, List<ModelConfig>> getBuiltModelConfigs() {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getBuiltModelConfigs)
+                .orElseGet(Map::of);
+    }
+
+    @Override
     public DynawoSimulationParameters.SolverType getSolverType() {
         return simplified ? DynawoSimulationParameters.SolverType.SIM : DynawoSimulationParameters.SolverType.IDA;
     }
@@ -169,7 +178,7 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
         }
         boolean transformerWanted = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
         return libResolver.resolve(properties, simplified, transformerWanted)
-                .map(lib -> new MappedGenerator(generator, lib, getParameterSetId(generator), modelHasTransformer(lib)))
+                .map(lib -> new MappedGenerator(generator, lib, getParameterSetId(generator), hasTransformer(lib)))
                 .orElseGet(() -> {
                     LOGGER.warn("No model found for generator {}, it will not be mapped", generator.getId());
                     return null;
@@ -180,10 +189,26 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
      * Whether the selected model represents the generator transformer, which the wanted capability
      * does not tell since the catalog may not provide it.
      */
-    private static boolean modelHasTransformer(String lib) {
+    /**
+     * Whether the model has a transformer between the machine and the grid, which decides the
+     * parameters generated for it. A model Dynawo ships says so through its catalog entry; one
+     * built here is not in the catalog yet, so its own description is consulted too.
+     */
+    private boolean hasTransformer(String lib) {
         return ModelConfigsHandler.getInstance().findModelConfig(lib)
+                .or(() -> builtConfig(lib))
                 .filter(GeneratorCapability.TRANSFORMER::isProvidedBy)
                 .isPresent();
+    }
+
+    private Optional<ModelConfig> builtConfig(String lib) {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getBuiltModelConfigs)
+                .stream()
+                .flatMap(byCategory -> byCategory.values().stream())
+                .flatMap(List::stream)
+                .filter(config -> config.name().equals(lib))
+                .findFirst();
     }
 
     private record MappedGenerator(Generator generator, String lib, String setId, boolean hasTransformer) {

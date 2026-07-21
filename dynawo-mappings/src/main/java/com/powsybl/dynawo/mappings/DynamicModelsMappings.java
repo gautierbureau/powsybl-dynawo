@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.mappings;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
@@ -108,6 +107,7 @@ public final class DynamicModelsMappings {
         mapping.createParameters(network, mapping.describeBuiltModels(descriptions))
                 .forEach(parameters::addModelParameters);
         addBuiltModelsDir(mapping, parameters);
+        registerBuiltModels(mapping, parameters);
         addDefaultParameters(mapping, parameters);
         return supplier;
     }
@@ -128,6 +128,16 @@ public final class DynamicModelsMappings {
                     LOGGER.info("Models built for this network are taken from {}", dir);
                     parameters.addPrecompiledModelsDir(dir);
                 });
+    }
+
+    /**
+     * Tells the simulation the models the mapping built exist, so it can stand them up in the dyd
+     * rather than pass them over for want of a builder. Resolving the models is what builds them,
+     * so this comes after.
+     */
+    private static void registerBuiltModels(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
+        mapping.getBuiltModelConfigs().forEach((category, configs) ->
+                configs.forEach(config -> parameters.addAdditionalModel(category, config)));
     }
 
     private static boolean holdsALibrary(Path dir) {

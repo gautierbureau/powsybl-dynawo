@@ -7,12 +7,14 @@
  */
 package com.powsybl.dynawo.mappings;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Network;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -81,5 +83,13 @@ public interface DynamicModelsMapping {
      */
     default ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
         return installed;
+    }
+
+    /**
+     * The models this mapping had to build, under the category their builder is declared for, so a
+     * simulation can be told they exist and stand them up. Empty where it builds none.
+     */
+    default Map<String, List<ModelConfig>> getBuiltModelConfigs() {
+        return Map.of();
     }
 }

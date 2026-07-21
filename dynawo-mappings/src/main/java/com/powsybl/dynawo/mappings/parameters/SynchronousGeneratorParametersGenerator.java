@@ -45,6 +45,11 @@ public class SynchronousGeneratorParametersGenerator {
     private static final double AUXILIARY_RATIO = 0.005;
 
     /**
+     * The base apparent power the per-unit values are expressed on, Dynawo's SnRef.
+     */
+    private static final double SN_REF = 100.0;
+
+    /**
      * Reactive over active power of the auxiliaries.
      */
     private static final double AUXILIARY_POWER_FACTOR = 0.5;
@@ -118,8 +123,11 @@ public class SynchronousGeneratorParametersGenerator {
             // the machine side voltage of a unit connected through its transformer is not
             // described by the network, the usual generation voltage is used instead
             case "generator_UNom", "generator_UNomLV", "generator_UBaseLV", "transformer_UNomLV", "transformer_UBaseLV" -> optional(transformer, GENERATION_VOLTAGE);
-            case "auxHV_P0Pu", "auxLV_P0Pu" -> optional(transformer, AUXILIARY_RATIO * nominalP);
-            case "auxHV_Q0Pu", "auxLV_Q0Pu" -> optional(transformer, AUXILIARY_RATIO * nominalP * AUXILIARY_POWER_FACTOR);
+            // the auxiliaries draw whether or not a transformer stands between the machine and
+            // the grid, so these are not guarded by it: a model is asked for them only when it
+            // has auxiliaries, which is condition enough
+            case "auxHV_P0Pu", "auxLV_P0Pu" -> Optional.of(format(AUXILIARY_RATIO * nominalP / SN_REF));
+            case "auxHV_Q0Pu", "auxLV_Q0Pu" -> Optional.of(format(AUXILIARY_RATIO * nominalP * AUXILIARY_POWER_FACTOR / SN_REF));
             // a unit connected to a transmission voltage level but modelled without its
             // transformer keeps a small leakage reactance standing in for it
             case "generator_XTfPu" -> optional(!transformer && nominalV > GENERATION_VOLTAGE, LEAKAGE_REACTANCE);

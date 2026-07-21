@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.generators;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -19,6 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -39,10 +44,20 @@ public class MissingModelBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MissingModelBuilder.class);
 
+    /**
+     * The category a built generator is registered under, the one its builder is declared for.
+     */
+    static final String GENERATOR_CATEGORY = "SYNCHRONOUS_GENERATOR";
+    private static final String CONTROLLABLE = "CONTROLLABLE";
+    private static final String TRANSFORMER = "TRANSFORMER";
+    private static final String AUXILIARY = "AUXILIARY";
+
     private final GeneratorModelDesigner designer;
     private final PreassembledModelCompiler compiler;
     private final Path modelsDir;
     private final Path dynawoHomeDir;
+    // what was built, so the simulation can be told the model exists and how to connect it
+    private final Map<String, ModelConfig> builtModelConfigs = new LinkedHashMap<>();
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
         this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
@@ -111,11 +126,40 @@ public class MissingModelBuilder {
             compiler.compile(model, modelsDir);
             LOGGER.info("Built {} in {}, which no installed model provided ({} ms)",
                     model.getId(), modelsDir, (System.nanoTime() - start) / 1_000_000);
+            builtModelConfigs.computeIfAbsent(model.getId(), lib -> config(lib, properties, transformer));
             return Optional.of(model.getId());
         } catch (PowsyblException | UncheckedIOException e) {
             LOGGER.warn("Could not build {}, falling back on an installed model: {}",
                     model.getId(), e.getMessage());
             return Optional.empty();
         }
+    }
+
+    /**
+     * How a built model is described to the simulation: its name, and the properties that say how
+     * to connect it, a transformer standing between it and the grid, auxiliaries drawing from it.
+     * Without these the builder would connect it as a bare machine, which a model behind a
+     * transformer is not.
+     */
+    private ModelConfig config(String lib, SynchronousGeneratorProperties properties, boolean transformer) {
+        List<String> capabilities = new ArrayList<>();
+        capabilities.add(CONTROLLABLE);
+        if (transformer && !properties.isInternalTransformer()) {
+            capabilities.add(TRANSFORMER);
+        }
+        if (properties.isAuxiliaries()) {
+            capabilities.add(AUXILIARY);
+        }
+        return new ModelConfig(lib, capabilities);
+    }
+
+    /**
+     * The models built here, under the category their builder is declared for, so a simulation
+     * can be told they exist and stand them up like any model Dynawo ships. Empty until something
+     * is built.
+     */
+    public Map<String, List<ModelConfig>> getBuiltModelConfigs() {
+        return builtModelConfigs.isEmpty() ? Map.of()
+                : Map.of(GENERATOR_CATEGORY, List.copyOf(builtModelConfigs.values()));
     }
 }
