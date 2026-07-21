@@ -199,11 +199,15 @@ class UniversalSynchronousGeneratorMappingTest {
                 UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, network, parameters,
                 lib -> Optional.of(description));
 
-        // every mapped machine gets a set, named after the machine it describes
-        assertThat(supplier.get(network, ReportNode.NO_OP)).hasSize(5);
+        // every machine and every load gets a model, and a set named after the equipment it
+        // describes: the study covers the whole network, a source behind each machine and a sink
+        // behind each load
+        assertThat(supplier.get(network, ReportNode.NO_OP)).hasSize(5 + 11);
         assertThat(parameters.getModelParameters()).extracting(ParametersSet::getId)
-                .containsExactlyInAnyOrder("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G",
-                        "DynaWaltz_B6-G", "DynaWaltz_B8-G");
+                .contains("DynaWaltz_B1-G", "DynaWaltz_B2-G", "DynaWaltz_B3-G",
+                        "DynaWaltz_B6-G", "DynaWaltz_B8-G")
+                .contains("DynaWaltz_B2-L", "DynaWaltz_B14-L")
+                .hasSize(5 + 11);
         assertThat(parameters.getModelParameters("DynaWaltz_B1-G").getDouble("generator_H")).isEqualTo(3.0);
     }
 
@@ -274,7 +278,8 @@ class UniversalSynchronousGeneratorMappingTest {
         Network network = ieee14();
         assertThat(DynamicModelsMappings.getInstance().apply(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME, network)
                 .get(network, ReportNode.NO_OP))
-                .hasSize(5);
+                .as("five machines and eleven loads")
+                .hasSize(5 + 11);
     }
 
     private static Network ieee14() {
