@@ -92,7 +92,15 @@ public final class DynamicModelsMappings {
      */
     public DynamicModelsSupplier apply(String name, Network network, DynawoSimulationParameters parameters,
                                        ModelDescriptionLookup descriptions) {
-        DynamicModelsMapping mapping = getMapping(name);
+        return apply(getMapping(name), network, parameters, descriptions);
+    }
+
+    /**
+     * Applies a mapping given outright rather than by name, for one not among the registered ones:
+     * a mapping built to a particular deployment, or one under test.
+     */
+    public DynamicModelsSupplier apply(DynamicModelsMapping mapping, Network network,
+                                       DynawoSimulationParameters parameters, ModelDescriptionLookup descriptions) {
         mapping.createExtensions(network);
         // the models are resolved first, since that is what builds the ones nothing installed
         // provides, and only then is it known whether anything was built
