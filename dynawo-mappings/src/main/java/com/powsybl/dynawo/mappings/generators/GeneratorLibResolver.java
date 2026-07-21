@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.generators;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.builders.ModelConfig;
@@ -20,11 +21,14 @@ import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Resolves the Dynawo library implementing the controls and capabilities carried by a
@@ -52,18 +56,20 @@ public class GeneratorLibResolver {
     private static final String FOUR_WINDINGS = "FourWindings";
 
     private final ControlTranslations controlTranslations;
-    private final MissingModelBuilder missingModelBuilder;
+    private final Supplier<MissingModelBuilder> builderSupplier;
+    private MissingModelBuilder missingModelBuilder;
+    private boolean builderResolved;
 
     /**
      * A resolver going by what is installed, and building what is not where the deployment has
      * said where to keep such a model.
      */
     public GeneratorLibResolver() {
-        this(ControlTranslations.getInstance(), configuredModelBuilder());
+        this(ControlTranslations.getInstance(), GeneratorLibResolver::configuredModelBuilder);
     }
 
     public GeneratorLibResolver(ControlTranslations controlTranslations) {
-        this(controlTranslations, null);
+        this(controlTranslations, (MissingModelBuilder) null);
     }
 
     /**
@@ -71,8 +77,36 @@ public class GeneratorLibResolver {
      *                            what is installed
      */
     public GeneratorLibResolver(ControlTranslations controlTranslations, MissingModelBuilder missingModelBuilder) {
+        this(controlTranslations, () -> missingModelBuilder);
+    }
+
+    /**
+     * @param builderSupplier what to build missing models with, asked for the first time one is
+     *                        wanted rather than here
+     */
+    public GeneratorLibResolver(ControlTranslations controlTranslations,
+                                Supplier<MissingModelBuilder> builderSupplier) {
         this.controlTranslations = controlTranslations;
-        this.missingModelBuilder = missingModelBuilder;
+        this.builderSupplier = Objects.requireNonNull(builderSupplier);
+    }
+
+    /**
+     * What builds the missing models, worked out the first time one is wanted.
+     * <p>
+     * Deliberately not resolved in the constructor. A registered mapping is constructed by the
+     * {@link java.util.ServiceLoader} held in a static field, and a native image may evaluate that
+     * static initialisation when the image is built rather than when it runs. Reading the
+     * deployment's configuration there would bake in the configuration of the machine that built
+     * the image, which is how a mapping running under pypowsybl came to have no builder whatever
+     * the deployment configured. Asking for it on the way past reads the configuration of the
+     * machine actually running.
+     */
+    private MissingModelBuilder builder() {
+        if (!builderResolved) {
+            missingModelBuilder = builderSupplier.get();
+            builderResolved = true;
+        }
+        return missingModelBuilder;
     }
 
     /**
@@ -84,15 +118,31 @@ public class GeneratorLibResolver {
      * is not.
      */
     private static MissingModelBuilder configuredModelBuilder() {
-        return MissingModelBuilder.fromConfig(MappingConfig.load(),
-                () -> DynawoSimulationConfig.load().getHomeDir(), ModelNaming.DYNAWO_1_7_0).orElse(null);
+        return configuredHomeDir()
+                .flatMap(homeDir -> MissingModelBuilder.fromConfig(MappingConfig.load(), () -> homeDir,
+                        ModelNaming.DYNAWO_1_7_0))
+                .orElse(null);
+    }
+
+    /**
+     * The installation to build with, or nothing where the deployment configured none: a mapping
+     * is usable without Dynawo, to see which models a network would be given, and asking for an
+     * installation that is not there to answer that would refuse the question.
+     */
+    private static Optional<Path> configuredHomeDir() {
+        try {
+            return Optional.of(DynawoSimulationConfig.load().getHomeDir());
+        } catch (PowsyblException e) {
+            LOGGER.debug("No Dynawo installation configured, no model will be built: {}", e.getMessage());
+            return Optional.empty();
+        }
     }
 
     /**
      * What builds the models nothing installed provides, where anything does.
      */
     public Optional<MissingModelBuilder> getMissingModelBuilder() {
-        return Optional.ofNullable(missingModelBuilder);
+        return Optional.ofNullable(builder());
     }
 
     /**
@@ -127,8 +177,9 @@ public class GeneratorLibResolver {
             installed.ifPresent(lib -> GeneratorMappingReports.reportModelSelected(reportNode, generatorId, lib));
             return installed;
         }
-        if (missingModelBuilder != null) {
-            Optional<String> built = missingModelBuilder.build(controls, properties.getNumberOfWindings(),
+        MissingModelBuilder modelBuilder = builder();
+        if (modelBuilder != null) {
+            Optional<String> built = modelBuilder.build(controls, properties.getNumberOfWindings(),
                     transformer && !properties.isInternalTransformer(), properties.isAuxiliaries());
             if (built.isPresent()) {
                 built.ifPresent(lib -> GeneratorMappingReports.reportModelBuilt(reportNode, generatorId, lib));
@@ -138,7 +189,7 @@ public class GeneratorLibResolver {
         installed.ifPresent(this::useInstalled);
         installed.ifPresentOrElse(
                 lib -> GeneratorMappingReports.reportCapabilitiesDropped(reportNode, generatorId, lib,
-                        dropped(core, wanted), missingModelBuilder != null),
+                        dropped(core, wanted), modelBuilder != null),
                 () -> GeneratorMappingReports.reportNoModel(reportNode, generatorId, core));
         return installed;
     }
@@ -164,8 +215,9 @@ public class GeneratorLibResolver {
      * case the catalog dates it later than the installation can run it.
      */
     private void useInstalled(String lib) {
-        if (missingModelBuilder != null) {
-            missingModelBuilder.useInstalled(lib);
+        MissingModelBuilder modelBuilder = builder();
+        if (modelBuilder != null) {
+            modelBuilder.useInstalled(lib);
         }
     }
 

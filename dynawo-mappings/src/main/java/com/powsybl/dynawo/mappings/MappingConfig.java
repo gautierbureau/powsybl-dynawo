@@ -48,14 +48,30 @@ public record MappingConfig(boolean strict, Path builtModelsDir) {
     }
 
     /**
-     * Where a model built for a generator no installed model suits is kept, or nothing where a
-     * deployment would rather make do with what is installed.
-     * <p>
-     * Naming one turns on building: a generator whose controls the catalog cannot answer gets a
-     * model compiled for it there, which the simulation is then told to look in besides the models
-     * Dynawo ships. Left unset, such a generator goes unmapped as before.
+     * Where a model built for a generator no installed model suits is kept, as the deployment set
+     * it, or nothing where it said nothing and the default below is used.
      */
     public Optional<Path> getBuiltModelsDir() {
         return Optional.ofNullable(builtModelsDir);
+    }
+
+    /**
+     * Where such a model is kept, whether or not the deployment said anything.
+     * <p>
+     * A machine asking for controls no installed model implements is a machine we can compile a
+     * model for, so it gets one: needing a study to be configured before it can have the model it
+     * asked for only means that a study nobody configured quietly ran on the wrong models. What a
+     * deployment chooses is where they are kept, not whether they exist, so an unset directory
+     * falls back here rather than turning building off.
+     * <p>
+     * The default sits beside the rest of the user's powsybl state and is kept between runs, since
+     * a model costs half a minute to compile and none at all to find already built.
+     */
+    public Path getOrCreateBuiltModelsDir() {
+        return builtModelsDir != null ? builtModelsDir : defaultBuiltModelsDir();
+    }
+
+    private static Path defaultBuiltModelsDir() {
+        return Path.of(System.getProperty("user.home"), ".powsybl", "dynawo-built-models");
     }
 }

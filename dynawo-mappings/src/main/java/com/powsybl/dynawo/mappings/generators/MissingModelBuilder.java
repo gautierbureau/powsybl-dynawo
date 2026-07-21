@@ -18,10 +18,12 @@ import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
+import com.powsybl.dynawo.mappings.tools.DynawoLauncher;
 import com.powsybl.dynawo.mappings.tools.PreassembledModelCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,6 +68,9 @@ public class MissingModelBuilder {
     private final Map<String, ModelConfig> builtModelConfigs = new LinkedHashMap<>();
     // installed models the catalog dates later than they run, corrected to their true availability
     private final Map<String, ModelConfig> versionOverrides = new LinkedHashMap<>();
+    // set once an installation has shown it cannot build, so the rest of the network does not pay
+    // half a minute each to be told the same thing
+    private boolean installationCannotBuild;
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
         this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
@@ -94,19 +99,19 @@ public class MissingModelBuilder {
     }
 
     /**
-     * The builder a deployment has configured, or nothing where it would rather make do with what
-     * is installed, which is the default.
-     * <p>
-     * Naming a directory to keep them in is what turns building on, since a model has to be left
-     * somewhere a simulation can be pointed at, and choosing where is the one thing that cannot
-     * be guessed.
+     * The builder for this deployment, which every deployment has: a model a machine asks for and
+     * nothing installed provides is one we can compile, so the only question a deployment answers
+     * is where such a model is kept, see {@link MappingConfig#getOrCreateBuiltModelsDir()}.
      */
     public static Optional<MissingModelBuilder> fromConfig(MappingConfig mappingConfig,
                                                            Supplier<Path> dynawoHomeDir, ModelNaming naming) {
-        // the installation is asked for only where something is to be built with it, so a
-        // deployment building nothing needs no Dynawo configured to say so
-        return mappingConfig.getBuiltModelsDir()
-                .map(dir -> new MissingModelBuilder(dynawoHomeDir.get(), dir, naming));
+        Path homeDir = dynawoHomeDir.get();
+        if (!new DynawoLauncher(homeDir).canGeneratePreassembled()) {
+            LOGGER.info("The Dynawo installation at {} cannot generate preassembled models, "
+                    + "a machine no installed model suits will get the nearest one instead", homeDir);
+            return Optional.empty();
+        }
+        return Optional.of(new MissingModelBuilder(homeDir, mappingConfig.getOrCreateBuiltModelsDir(), naming));
     }
 
     /**
@@ -123,6 +128,9 @@ public class MissingModelBuilder {
      */
     public Optional<String> build(GeneratorControls controls, Windings windings, boolean transformer,
                                   boolean auxiliaries) {
+        if (installationCannotBuild) {
+            return Optional.empty();
+        }
         Optional<PreassembledModel> designed = designer.design(controls, windings, transformer, auxiliaries);
         if (designed.isEmpty()) {
             LOGGER.debug("Nothing describes a machine with governor {} and voltage regulator {}",
@@ -132,14 +140,20 @@ public class MissingModelBuilder {
         PreassembledModel model = designed.get();
         try {
             long start = System.nanoTime();
+            Files.createDirectories(modelsDir);
             compiler.compile(model, modelsDir);
             LOGGER.info("Built {} in {}, which no installed model provided ({} ms)",
                     model.getId(), modelsDir, (System.nanoTime() - start) / 1_000_000);
             builtModelConfigs.computeIfAbsent(model.getId(), lib -> config(lib, transformer, auxiliaries));
             return Optional.of(model.getId());
-        } catch (PowsyblException | UncheckedIOException e) {
-            LOGGER.warn("Could not build {}, falling back on an installed model: {}",
-                    model.getId(), e.getMessage());
+        } catch (PowsyblException | UncheckedIOException | IOException e) {
+            // whether the option is there is one thing, whether it works is another: an
+            // installation can carry generate-preassembled and still not compile, for want of a
+            // toolchain it needs. Which it is only shows on trying, so the first machine to try
+            // settles it for the rest, and the study carries on with the models that are there
+            installationCannotBuild = true;
+            LOGGER.warn("Could not build {} with the Dynawo installation at {}, falling back on the "
+                    + "installed models for this network: {}", model.getId(), dynawoHomeDir, e.getMessage());
             return Optional.empty();
         }
     }

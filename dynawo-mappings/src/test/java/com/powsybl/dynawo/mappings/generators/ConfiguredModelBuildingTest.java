@@ -18,14 +18,17 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Checks that naming a directory to keep built models in is all a deployment has to say, and that
- * saying nothing asks nothing of it.
+ * Checks what settles whether a missing model is built: the installation, not the configuration.
+ * <p>
+ * A deployment that says nothing still gets its models built, somewhere sensible. What stops
+ * building is an installation that cannot do it, which is asked rather than assumed.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -46,17 +49,21 @@ class ConfiguredModelBuildingTest {
     }
 
     @Test
-    void shouldBuildNothingWhenNoDirectoryIsNamed() {
+    void shouldBuildSomewhereByDefaultWhenNoDirectoryIsNamed() throws IOException {
         MappingConfig config = MappingConfig.load(platformConfig);
         assertThat(config.getBuiltModelsDir()).isEmpty();
-        // and the installation is never asked for, so a deployment building nothing needs no
-        // Dynawo configured to say so
-        assertThat(MissingModelBuilder.fromConfig(config, ConfiguredModelBuildingTest::noDynawo,
-                ModelNaming.DYNAWO_1_7_0)).isEmpty();
+
+        // a deployment that says nothing still builds what a machine asks for, since needing a
+        // study to be configured before it can have its model only means an unconfigured study
+        // quietly ran on the wrong one
+        Optional<MissingModelBuilder> builder = MissingModelBuilder.fromConfig(config,
+                this::installationThatBuilds, ModelNaming.DYNAWO_1_7_0);
+        assertThat(builder).isPresent();
+        assertThat(builder.get().getModelsDir()).isEqualTo(config.getOrCreateBuiltModelsDir());
     }
 
     @Test
-    void shouldBuildWhereTheDirectoryIsNamed() {
+    void shouldBuildWhereTheDirectoryIsNamed() throws IOException {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MappingConfig.MODULE_NAME);
         moduleConfig.setStringProperty("builtModelsDir", "/models");
 
@@ -64,12 +71,43 @@ class ConfiguredModelBuildingTest {
         assertThat(config.getBuiltModelsDir()).isPresent();
 
         Optional<MissingModelBuilder> builder = MissingModelBuilder.fromConfig(config,
-                () -> fileSystem.getPath("/dynawo"), ModelNaming.DYNAWO_1_7_0);
+                this::installationThatBuilds, ModelNaming.DYNAWO_1_7_0);
         assertThat(builder).isPresent();
         assertThat(builder.get().getModelsDir()).isEqualTo(fileSystem.getPath("/models"));
     }
 
-    private static Path noDynawo() {
-        throw new AssertionError("the installation was asked for although nothing is to be built");
+    @Test
+    void shouldBuildNothingWhereTheInstallationCannot() throws IOException {
+        MappingConfig config = MappingConfig.load(platformConfig);
+
+        // an installation whose launcher does not carry the option that builds a model, which is
+        // the only thing that stops a machine from getting the model it asked for
+        Path homeDir = fileSystem.getPath("/old-dynawo");
+        Files.createDirectories(homeDir);
+        Files.writeString(homeDir.resolve("dynawo.sh"), "#!/bin/bash\necho jobs --dump-model\n");
+
+        assertThat(MissingModelBuilder.fromConfig(config, () -> homeDir, ModelNaming.DYNAWO_1_7_0))
+                .isEmpty();
+    }
+
+    @Test
+    void shouldBuildNothingWhereThereIsNoInstallationAtAll() {
+        assertThat(MissingModelBuilder.fromConfig(MappingConfig.load(platformConfig),
+                () -> fileSystem.getPath("/nowhere"), ModelNaming.DYNAWO_1_7_0)).isEmpty();
+    }
+
+    /**
+     * An installation whose launcher carries the option that builds a preassembled model.
+     */
+    private Path installationThatBuilds() {
+        Path homeDir = fileSystem.getPath("/dynawo");
+        try {
+            Files.createDirectories(homeDir);
+            Files.writeString(homeDir.resolve("dynawo.sh"),
+                    "#!/bin/bash\necho jobs --generate-preassembled --dump-model\n");
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+        return homeDir;
     }
 }

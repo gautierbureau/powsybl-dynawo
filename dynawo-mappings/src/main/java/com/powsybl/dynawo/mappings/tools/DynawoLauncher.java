@@ -51,6 +51,31 @@ public class DynawoLauncher {
         this.homeDir = homeDir.toAbsolutePath().normalize();
     }
 
+    /**
+     * Whether this installation offers to build a preassembled model at all.
+     * <p>
+     * Building is not something a deployment turns on: a machine asking for controls no installed
+     * model implements is one we can compile a model for, so it gets one. What can stand in the
+     * way is the installation, which is asked here rather than assumed: the launcher has to be
+     * there and to carry the option that builds a model.
+     * <p>
+     * This says the option is offered, not that it works: an installation carrying it can still
+     * fail to compile, for want of a toolchain it needs, and only trying tells. That is settled by
+     * {@link com.powsybl.dynawo.mappings.generators.MissingModelBuilder}, which stops asking an
+     * installation that has failed once.
+     */
+    public boolean canGeneratePreassembled() {
+        Path script = homeDir.resolve("dynawo" + (SystemUtils.IS_OS_WINDOWS ? ".cmd" : ".sh"));
+        if (!Files.exists(script)) {
+            return false;
+        }
+        try {
+            return Files.readString(script).contains(GENERATE_PREASSEMBLED);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     public Path getHomeDir() {
         return homeDir;
     }
