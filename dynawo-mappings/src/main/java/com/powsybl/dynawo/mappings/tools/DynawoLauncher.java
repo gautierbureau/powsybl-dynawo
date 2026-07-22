@@ -109,6 +109,19 @@ public class DynawoLauncher {
         }
     }
 
+    /**
+     * Where what a run said is left, under the name a Dynawo run leaves it under.
+     * <p>
+     * A simulation is run through the computation framework, which puts a command's output in the
+     * directory it ran in as {@code <command>_<execution>.out} beside the {@code .err} of the same
+     * name: that is where {@code dyn_fs_0.err} comes from, and where anyone who has looked into a
+     * Dynawo working directory looks first. A tool run here is one command run once, so it lands
+     * under the same rule, with the errors merged into it.
+     */
+    private static Path outputFile(Path workingDir, String option) {
+        return workingDir.resolve(option.replaceFirst("^--", "") + "_0.out");
+    }
+
     public String run(Path workingDir, long timeoutSeconds, String option, String... arguments) {
         List<String> command = new ArrayList<>(List.of(script().toString(), LAUNCHER_ARGUMENT, option));
         command.addAll(List.of(arguments));
@@ -130,6 +143,11 @@ public class DynawoLauncher {
         try {
             Process process = builder.start();
             String output = new String(process.getInputStream().readAllBytes());
+            if (workingDir != null) {
+                // said to a shell nobody is watching, and the only account of what the tool did,
+                // so it is kept where the run happened rather than lost with the pipe
+                Files.writeString(outputFile(workingDir, option), output);
+            }
             if (!process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
                 process.destroyForcibly();
                 throw new PowsyblException(option + " did not answer within " + timeoutSeconds + "s");

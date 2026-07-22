@@ -82,7 +82,7 @@ public class PreassembledModelCompiler {
             return library;
         }
         // the tool leaves what it makes in the directory it is run from as well as the one it is
-        // given, so it is run somewhere of its own and only the library is kept
+        // given, so it is run somewhere of its own, which is also where it says what it did
         Path work = modelsDir.resolve("." + name + ".work");
         try {
             Files.createDirectories(work);
@@ -94,11 +94,12 @@ public class PreassembledModelCompiler {
                 throw new PowsyblException("generate-preassembled reported success but built no library for " + name);
             }
             Files.move(built, library);
+            // swept only where it built: what the tool wrote is the whole account of why it did
+            // not, and a directory cleared in a finally takes that away with it
+            deleteRecursively(work);
             return library;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } finally {
-            deleteRecursively(work);
         }
     }
 

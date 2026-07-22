@@ -189,7 +189,8 @@ public class GeneratorLibResolver {
         installed.ifPresent(this::useInstalled);
         installed.ifPresentOrElse(
                 lib -> GeneratorMappingReports.reportCapabilitiesDropped(reportNode, generatorId, lib,
-                        dropped(core, wanted), modelBuilder != null),
+                        dropped(core, wanted),
+                        modelBuilder == null ? null : modelBuilder.getLastFailure().orElse("no reason given")),
                 () -> GeneratorMappingReports.reportNoModel(reportNode, generatorId, core));
         return installed;
     }

@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings.generators;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeAdder;
 import com.powsybl.commons.report.TypedValue;
 
 import java.util.Set;
@@ -30,6 +31,7 @@ public final class GeneratorMappingReports {
     private static final String CONTROLS = "controls";
     private static final String LIB = "lib";
     private static final String DROPPED = "dropped";
+    private static final String REASON = "reason";
 
     private GeneratorMappingReports() {
     }
@@ -70,16 +72,19 @@ public final class GeneratorMappingReports {
      * to build the missing one, or building it did not work.
      */
     public static void reportCapabilitiesDropped(ReportNode reportNode, String generatorId, String lib,
-                                                 Set<GeneratorCapability> dropped, boolean builderConfigured) {
-        reportNode.newReportNode()
-                .withMessageTemplate(builderConfigured
-                        ? "dynawo.mappings.capabilitiesDroppedBuildFailed"
-                        : "dynawo.mappings.capabilitiesDroppedNoBuilder")
+                                                 Set<GeneratorCapability> dropped, String failure) {
+        ReportNodeAdder adder = reportNode.newReportNode()
                 .withTypedValue(GENERATOR_ID, generatorId, TypedValue.ID)
                 .withUntypedValue(LIB, lib)
                 .withUntypedValue(DROPPED, format(dropped))
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+                .withSeverity(TypedValue.WARN_SEVERITY);
+        if (failure == null) {
+            adder.withMessageTemplate("dynawo.mappings.capabilitiesDroppedNoBuilder");
+        } else {
+            adder.withMessageTemplate("dynawo.mappings.capabilitiesDroppedBuildFailed")
+                    .withUntypedValue(REASON, failure);
+        }
+        adder.add();
     }
 
     /**

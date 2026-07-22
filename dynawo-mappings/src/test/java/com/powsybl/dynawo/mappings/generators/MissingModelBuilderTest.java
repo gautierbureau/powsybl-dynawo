@@ -66,9 +66,10 @@ class MissingModelBuilderTest {
         assertThat(new GeneratorLibResolver(ControlTranslations.getInstance(), builder)
                 .resolve(properties("GovCt2", "Ac6a"), false, false))
                 .isEmpty();
-        // and nothing of the attempt is left behind, a definition for a model that was not built
-        // describing nothing true
-        assertThat(modelsDir.toFile().list()).isEmpty();
+        // and what the attempt wrote is kept, since it is the whole of the evidence of why the
+        // model was not built, with no library beside it to be mistaken for one that was
+        assertThat(modelsDir.toFile().list()).containsExactly(".GeneratorSynchronousFourWindingsGovCt2Ac6a.work");
+        assertThat(builder.getLastFailure()).isPresent();
     }
 
     @Test

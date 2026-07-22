@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.tools;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorAssembly;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Describes a model, compiles it and asks it what it expects, which is the whole way from
@@ -62,6 +64,33 @@ class PreassembledModelCompilerTest {
         assertThat(description).isPresent();
         assertThat(description.get().name()).isEqualTo(model.getId());
         assertThat(description.get().parameters()).isNotEmpty();
+    }
+
+    @Test
+    void shouldKeepWhatTheToolSaidWhereItFailed(@TempDir Path modelsDir) throws Exception {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")),
+                "no Dynawo installation at " + HOME);
+
+        // a definition naming units that do not exist, which the tool takes and refuses
+        Path definition = modelsDir.resolve("NoSuchModel.xml");
+        Files.writeString(definition, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <preassembledModels xmlns="http://www.rte-france.com/dynawo">
+                  <modelicaModel id="NoSuchModel">
+                    <unitDynamicModel id="nothing" name="Dynawo.NoSuchPackage.NoSuchModel"/>
+                  </modelicaModel>
+                </preassembledModels>
+                """);
+
+        assertThatThrownBy(() -> new PreassembledModelCompiler(HOME).compile(definition, modelsDir))
+                .isInstanceOf(PowsyblException.class);
+
+        // what the tool said is where a Dynawo run leaves it, in the directory it ran in and named
+        // after the command, so a build nobody watched can still be read afterwards
+        Path work = modelsDir.resolve(".NoSuchModel.work");
+        assertThat(work).isDirectory();
+        assertThat(work.resolve("generate-preassembled_0.out")).exists();
+        assertThat(Files.readString(work.resolve("generate-preassembled_0.out"))).isNotBlank();
     }
 
     @Test

@@ -71,6 +71,8 @@ public class MissingModelBuilder {
     // set once an installation has shown it cannot build, so the rest of the network does not pay
     // half a minute each to be told the same thing
     private boolean installationCannotBuild;
+    // why the last model asked for was not built, to be said where anyone will read it
+    private String lastFailure;
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
         this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
@@ -131,10 +133,12 @@ public class MissingModelBuilder {
         if (installationCannotBuild) {
             return Optional.empty();
         }
+        lastFailure = null;
         Optional<PreassembledModel> designed = designer.design(controls, windings, transformer, auxiliaries);
         if (designed.isEmpty()) {
-            LOGGER.debug("Nothing describes a machine with governor {} and voltage regulator {}",
-                    controls.governor(), controls.voltageRegulator());
+            lastFailure = "nothing describes a machine with governor " + controls.governor()
+                    + " and voltage regulator " + controls.voltageRegulator();
+            LOGGER.debug("Not building a model: {}", lastFailure);
             return Optional.empty();
         }
         PreassembledModel model = designed.get();
@@ -152,8 +156,9 @@ public class MissingModelBuilder {
             // toolchain it needs. Which it is only shows on trying, so the first machine to try
             // settles it for the rest, and the study carries on with the models that are there
             installationCannotBuild = true;
+            lastFailure = e.getMessage();
             LOGGER.warn("Could not build {} with the Dynawo installation at {}, falling back on the "
-                    + "installed models for this network: {}", model.getId(), dynawoHomeDir, e.getMessage());
+                    + "installed models for this network: {}", model.getId(), dynawoHomeDir, lastFailure);
             return Optional.empty();
         }
     }
@@ -206,6 +211,14 @@ public class MissingModelBuilder {
         ModelConfigsHandler.getInstance().findModelConfig(lib)
                 .filter(config -> config.version().min().compareTo(VersionInterval.MODEL_DEFAULT_MIN_VERSION) > 0)
                 .ifPresent(config -> versionOverrides.put(lib, config.availableFromDefaultVersion()));
+    }
+
+    /**
+     * Why the last model asked for was not built, where one was not, which is the only account of
+     * it outside the log: a native image has none, and a study is read from its report.
+     */
+    public Optional<String> getLastFailure() {
+        return Optional.ofNullable(lastFailure);
     }
 
     /**
