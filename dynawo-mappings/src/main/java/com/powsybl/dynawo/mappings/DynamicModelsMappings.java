@@ -22,13 +22,20 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Registry of the {@link DynamicModelsMapping} found on the classpath.
+ * Registry of the {@link DynamicMappingProvider} found on the classpath, each making one of the
+ * named mappings a study is selected by.
+ * <p>
+ * A mapping is not held ready made: it is configured, and a caller chooses it by name and creates
+ * it with the settings it takes, see {@link #create(String, MappingParameters)}. What is held here
+ * is the provider that makes it, which is what carries the name and the description the mappings
+ * are listed by.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -36,7 +43,7 @@ public final class DynamicModelsMappings {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicModelsMappings.class);
 
-    private static final DynamicModelsMappings INSTANCE = new DynamicModelsMappings(ServiceLoader.load(DynamicModelsMapping.class));
+    private static final DynamicModelsMappings INSTANCE = new DynamicModelsMappings(ServiceLoader.load(DynamicMappingProvider.class));
 
     /**
      * A mapping describes every equipment it recognises, including the ones a simulation cannot
@@ -46,10 +53,10 @@ public final class DynamicModelsMappings {
      */
     private static final Set<String> DEFAULT_SIMPLIFIERS = Set.of("energizedEquipment", "mainComponentEquipment");
 
-    private final Map<String, DynamicModelsMapping> mappings = new LinkedHashMap<>();
+    private final Map<String, DynamicMappingProvider> providers = new LinkedHashMap<>();
 
-    DynamicModelsMappings(Iterable<DynamicModelsMapping> mappings) {
-        mappings.forEach(m -> this.mappings.put(m.getName(), m));
+    DynamicModelsMappings(Iterable<DynamicMappingProvider> providers) {
+        providers.forEach(p -> this.providers.put(p.getName(), p));
     }
 
     public static DynamicModelsMappings getInstance() {
@@ -57,15 +64,45 @@ public final class DynamicModelsMappings {
     }
 
     public Set<String> getMappingNames() {
-        return mappings.keySet();
+        return providers.keySet();
     }
 
-    public DynamicModelsMapping getMapping(String name) {
-        DynamicModelsMapping mapping = mappings.get(name);
-        if (mapping == null) {
+    /**
+     * What each registered mapping is: its name and the one line it is chosen by. Meant to be
+     * shown to whoever is choosing one, from a listing on the python side or a help command.
+     */
+    public List<MappingInfo> getMappingInfos() {
+        return providers.values().stream()
+                .map(p -> new MappingInfo(p.getName(), p.getDescription()))
+                .toList();
+    }
+
+    private DynamicMappingProvider getProvider(String name) {
+        DynamicMappingProvider provider = providers.get(name);
+        if (provider == null) {
             throw new PowsyblException("Mapping " + name + " not found, available mappings are " + getMappingNames());
         }
-        return mapping;
+        return provider;
+    }
+
+    /**
+     * The named mapping, configured with the settings given.
+     */
+    public DynamicModelsMapping create(String name, MappingParameters parameters) {
+        return getProvider(name).create(parameters);
+    }
+
+    /**
+     * The named mapping in its default configuration, for a caller with nothing to set.
+     */
+    public DynamicModelsMapping getMapping(String name) {
+        return create(name, MappingParameters.empty());
+    }
+
+    /**
+     * The name and description of one registered mapping.
+     */
+    public record MappingInfo(String name, String description) {
     }
 
     /**
