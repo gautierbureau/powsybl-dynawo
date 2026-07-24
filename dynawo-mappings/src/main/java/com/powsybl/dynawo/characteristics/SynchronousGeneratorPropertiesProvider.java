@@ -7,22 +7,43 @@
  */
 package com.powsybl.dynawo.characteristics;
 
+import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
 /**
  * Creates the {@code synchronousGeneratorProperties} extensions a mapping relies on.
  * <p>
- * Implementations are discovered with a {@link java.util.ServiceLoader} and selected by name.
- * The open source implementation derives the controls from the IIDM characteristics of each
- * generator; another implementation may read them from a control database instead. Both write
- * the very same extension, only the control names differ, so nothing downstream changes.
+ * Implementations are discovered with a {@link java.util.ServiceLoader} and selected by name,
+ * the way a mapping is, and reached from a study as its own step so the controls can be set and
+ * looked at before a model is chosen for them. One derives the controls from the IIDM
+ * characteristics of each machine; another holds the controls of a known system by name; another
+ * may read them from a control database. All write the very same extension, only the control
+ * names differ, so nothing downstream changes.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public interface SynchronousGeneratorPropertiesProvider {
 
     String getName();
+
+    /**
+     * One line saying what this provider describes, shown where the providers are listed so a
+     * study can tell them apart.
+     */
+    default String getDescription() {
+        return getName();
+    }
+
+    /**
+     * The provider set up with the given settings, for one selected by name and given a study's
+     * own values. A provider reading a setting, the voltage a machine is taken to sit behind a
+     * transformer from, returns one holding it; a provider whose controls are fixed returns
+     * itself.
+     */
+    default SynchronousGeneratorPropertiesProvider configured(MappingParameters parameters) {
+        return this;
+    }
 
     /**
      * Creates the extension of every generator it can describe. Generators already carrying the

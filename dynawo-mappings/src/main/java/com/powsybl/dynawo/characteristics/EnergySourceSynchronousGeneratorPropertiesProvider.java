@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
+import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -37,10 +38,17 @@ import java.util.function.Predicate;
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 @AutoService(SynchronousGeneratorPropertiesProvider.class)
-public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGeneratorPropertiesProvider {
+public class EnergySourceSynchronousGeneratorPropertiesProvider implements SynchronousGeneratorPropertiesProvider {
 
-    public static final String NAME = "IidmRules";
-    private static final Logger LOGGER = LoggerFactory.getLogger(IidmSynchronousGeneratorPropertiesProvider.class);
+    public static final String NAME = "EnergySource";
+
+    /**
+     * The voltage below which a machine is taken not to sit behind a transformer, named the same
+     * as it is for a mapping so a study sets it once and both read it.
+     */
+    public static final String TSO_VOLTAGE_MIN_PARAM = "tso_voltage_min";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnergySourceSynchronousGeneratorPropertiesProvider.class);
 
     /**
      * Voltage level nominal voltage above which a generator is connected through a transformer and
@@ -62,18 +70,18 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
     private final double tsoVoltageMin;
     private final Predicate<Generator> filter;
 
-    public IidmSynchronousGeneratorPropertiesProvider() {
+    public EnergySourceSynchronousGeneratorPropertiesProvider() {
         this(DEFAULT_TSO_VOLTAGE_MIN);
     }
 
-    public IidmSynchronousGeneratorPropertiesProvider(double tsoVoltageMin) {
+    public EnergySourceSynchronousGeneratorPropertiesProvider(double tsoVoltageMin) {
         this(tsoVoltageMin, GeneratorFilters.connected());
     }
 
     /**
      * @param filter which machines get an extension, see {@link GeneratorFilters}
      */
-    public IidmSynchronousGeneratorPropertiesProvider(double tsoVoltageMin, Predicate<Generator> filter) {
+    public EnergySourceSynchronousGeneratorPropertiesProvider(double tsoVoltageMin, Predicate<Generator> filter) {
         this.tsoVoltageMin = tsoVoltageMin;
         this.filter = Objects.requireNonNull(filter);
     }
@@ -81,6 +89,18 @@ public class IidmSynchronousGeneratorPropertiesProvider implements SynchronousGe
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Controls deduced from each machine's energy source, for a network carrying no "
+                + "dynamic data of its own, as the IEEE and PEGASE test systems.";
+    }
+
+    @Override
+    public SynchronousGeneratorPropertiesProvider configured(MappingParameters parameters) {
+        return new EnergySourceSynchronousGeneratorPropertiesProvider(
+                parameters.getDouble(TSO_VOLTAGE_MIN_PARAM, DEFAULT_TSO_VOLTAGE_MIN));
     }
 
     @Override

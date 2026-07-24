@@ -7,7 +7,7 @@
  */
 package com.powsybl.dynawo.mappings;
 
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
 import com.powsybl.dynawo.mappings.controls.DefaultControlTranslation;
 import com.powsybl.dynawo.mappings.controls.ProportionalExciterTranslation;
@@ -42,10 +42,10 @@ public final class IeeeTestSystemMappings {
     }
 
     private static UniversalSynchronousGeneratorMapping create(String name, boolean simplified) {
-        double tsoVoltageMin = IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
+        double tsoVoltageMin = EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
         GeneratorLibResolver resolver = new GeneratorLibResolver(
                 ControlTranslations.of(new ProportionalExciterTranslation(), new DefaultControlTranslation()));
         return new UniversalSynchronousGeneratorMapping(name, simplified, tsoVoltageMin,
-                new IidmSynchronousGeneratorPropertiesProvider(tsoVoltageMin), resolver);
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tsoVoltageMin), resolver);
     }
 }

@@ -7,8 +7,8 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
@@ -55,9 +55,9 @@ class BuildMissingModelsOnIeee14Test {
         // a transient study, whose detailed controls name a model that is what a unit is assembled
         // from, so what a machine wants can be built
         UniversalSynchronousGeneratorMapping mapping = new UniversalSynchronousGeneratorMapping(
-                "DynaSwing", false, IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN,
-                new IidmSynchronousGeneratorPropertiesProvider(
-                        IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN,
+                "DynaSwing", false, EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN,
+                new EnergySourceSynchronousGeneratorPropertiesProvider(
+                        EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN,
                         GeneratorFilters.connected()),
                 new GeneratorLibResolver(ControlTranslations.getInstance(), builder));
 

@@ -20,8 +20,8 @@ import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.DynawoSimulationProvider;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
@@ -70,10 +70,10 @@ class SimplifiedStudyRunsOnBuiltModelsTest {
         Ieee14EnergySources.apply(network);
 
         MissingModelBuilder builder = new MissingModelBuilder(home, modelsDir, ModelNaming.DYNAWO_1_7_0);
-        double tso = IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
+        double tso = EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
         UniversalSynchronousGeneratorMapping generators = new UniversalSynchronousGeneratorMapping(
                 "DynaWaltz", true, tso,
-                new IidmSynchronousGeneratorPropertiesProvider(tso, GeneratorFilters.connected()),
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tso, GeneratorFilters.connected()),
                 new GeneratorLibResolver(ControlTranslations.getInstance(), builder));
         UniversalMapping mapping = new UniversalMapping("DynaWaltz", generators, new LoadMapping("DynaWaltz_"));
 

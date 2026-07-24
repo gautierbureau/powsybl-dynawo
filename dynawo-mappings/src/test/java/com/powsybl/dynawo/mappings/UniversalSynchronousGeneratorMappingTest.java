@@ -10,8 +10,8 @@ package com.powsybl.dynawo.mappings;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.desc.FilteredDescriptionXml;
 import com.powsybl.dynawo.desc.ModelDescription;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
@@ -164,7 +164,7 @@ class UniversalSynchronousGeneratorMappingTest {
     void shouldKeepOnlyGeneratingMachinesWhenAsked() {
         Network network = ieee14();
         UniversalSynchronousGeneratorMapping mapping = UniversalSynchronousGeneratorMapping.dynaWaltz(
-                IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN, GeneratorFilters.generating());
+                EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN, GeneratorFilters.generating());
         mapping.createExtensions(network);
 
         // no load flow has run here, so the targets decide: only B1-G and B2-G generate

@@ -12,8 +12,8 @@ import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
@@ -54,10 +54,10 @@ class BuiltModelsEnterTheDydTest {
         Ieee14EnergySources.apply(network);
 
         MissingModelBuilder builder = new MissingModelBuilder(home, modelsDir, ModelNaming.DYNAWO_1_7_0);
-        double tso = IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
+        double tso = EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN;
         UniversalSynchronousGeneratorMapping mapping = new UniversalSynchronousGeneratorMapping(
                 "DynaSwing", false, tso,
-                new IidmSynchronousGeneratorPropertiesProvider(tso, GeneratorFilters.connected()),
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tso, GeneratorFilters.connected()),
                 new GeneratorLibResolver(ControlTranslations.getInstance(), builder));
 
         DynawoSimulationParameters parameters = new DynawoSimulationParameters();

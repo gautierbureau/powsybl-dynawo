@@ -8,7 +8,7 @@
 package com.powsybl.dynawo.mappings;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 
 /**
  * Registers the detailed whole network study: every synchronous generator on the model carrying
@@ -33,7 +33,7 @@ public class UniversalDynaSwingProvider implements DynamicMappingProvider {
     @Override
     public DynamicModelsMapping create(MappingParameters parameters) {
         double tsoVoltageMin = parameters.getDouble(UniversalDynaWaltzProvider.TSO_VOLTAGE_MIN,
-                IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
+                EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
         return new UniversalMapping(UniversalSynchronousGeneratorMapping.DYNASWING_NAME,
                 UniversalSynchronousGeneratorMapping.dynaSwing(tsoVoltageMin), new LoadMapping("DynaSwing_"));
     }

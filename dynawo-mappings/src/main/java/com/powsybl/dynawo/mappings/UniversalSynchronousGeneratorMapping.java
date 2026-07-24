@@ -10,8 +10,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.GeneratorFilters;
-import com.powsybl.dynawo.characteristics.IidmSynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.characteristics.SynchronousGeneratorPropertiesProvider;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
@@ -79,7 +79,7 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
     }
 
     public static UniversalSynchronousGeneratorMapping dynaWaltz() {
-        return dynaWaltz(IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
+        return dynaWaltz(EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
     }
 
     public static UniversalSynchronousGeneratorMapping dynaWaltz(double tsoVoltageMin) {
@@ -91,11 +91,11 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
      */
     public static UniversalSynchronousGeneratorMapping dynaWaltz(double tsoVoltageMin, Predicate<Generator> filter) {
         return new UniversalSynchronousGeneratorMapping(DYNAWALTZ_NAME, true, tsoVoltageMin,
-                new IidmSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
     }
 
     public static UniversalSynchronousGeneratorMapping dynaSwing() {
-        return dynaSwing(IidmSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
+        return dynaSwing(EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
     }
 
     public static UniversalSynchronousGeneratorMapping dynaSwing(double tsoVoltageMin) {
@@ -107,7 +107,7 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
      */
     public static UniversalSynchronousGeneratorMapping dynaSwing(double tsoVoltageMin, Predicate<Generator> filter) {
         return new UniversalSynchronousGeneratorMapping(DYNASWING_NAME, false, tsoVoltageMin,
-                new IidmSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
     }
 
     @Override
