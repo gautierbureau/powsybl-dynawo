@@ -19,6 +19,7 @@ import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
 import com.powsybl.dynawo.mappings.generators.GeneratorMappingReports;
 import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.mappings.parameters.ReferenceGeneratorParameters;
 import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Generator;
@@ -168,8 +169,12 @@ public class UniversalSynchronousGeneratorMapping implements DynamicModelsMappin
         List<ParametersSet> sets = new ArrayList<>();
         mappedGenerators(network).forEach(mapped -> descriptions.find(mapped.lib())
                 .ifPresentOrElse(
-                        description -> sets.add(parametersGenerator.generate(mapped.setId(), description,
-                                mapped.generator(), mapped.hasTransformer())),
+                        // a known system's model is valued from the parameters shipped with it,
+                        // which are not derivable, and any other model from its characteristics
+                        description -> sets.add(ReferenceGeneratorParameters.getInstance()
+                                .forModel(mapped.setId(), mapped.lib())
+                                .orElseGet(() -> parametersGenerator.generate(mapped.setId(), description,
+                                        mapped.generator(), mapped.hasTransformer()))),
                         () -> LOGGER.warn("No description found for model {}, no parameter set generated for generator {}",
                                 mapped.lib(), mapped.generator().getId())));
         return sets;

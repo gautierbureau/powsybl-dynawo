@@ -1,0 +1,8 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "\\Qparameters/nordic32.par\\E"},
+      {"pattern": "\\QgovernorTables.txt\\E"}
+    ]
+  }
+}
