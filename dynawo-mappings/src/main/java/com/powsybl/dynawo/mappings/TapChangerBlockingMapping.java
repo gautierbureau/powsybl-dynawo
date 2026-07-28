@@ -44,10 +44,10 @@ public final class TapChangerBlockingMapping {
 
     static final String LIB = "TapChangerBlockingAutomationSystem";
 
-    // plausible defaults where a study says nothing: block below nine tenths of nominal voltage,
-    // after a minute of it, the transient lags kept at zero
-    private static final String DEFAULT_U_MIN = "0.9";
-    private static final String DEFAULT_T_LAG_BEFORE_BLOCKED = "60";
+    // defaults where a study says nothing, the values the Nordic reference blocks with: a
+    // threshold in kV, and no lag before or on blocking
+    private static final String DEFAULT_U_MIN = "120";
+    private static final String DEFAULT_T_LAG_BEFORE_BLOCKED = "0";
     private static final String DEFAULT_T_LAG_TRANS_BLOCKED_D = "0";
     private static final String DEFAULT_T_LAG_TRANS_BLOCKED_T = "0";
 
@@ -128,10 +128,16 @@ public final class TapChangerBlockingMapping {
 
     private ParametersSet parameters(TapChangerBlocking tcb) {
         ParametersSet set = new ParametersSet(setId(tcb));
-        // one threshold per point the automaton watches, and the timers common to them
+        // one threshold per point the automaton watches, and the timers common to them. The model
+        // that watches a single point names its threshold without a number, the ones watching
+        // several number them from one
         int points = tcb.getMeasurementPoints().size();
-        for (int i = 1; i <= points; i++) {
-            set.addParameter("tapChangerBlocking_UMin" + i, ParameterType.DOUBLE, DEFAULT_U_MIN);
+        if (points == 1) {
+            set.addParameter("tapChangerBlocking_UMin", ParameterType.DOUBLE, DEFAULT_U_MIN);
+        } else {
+            for (int i = 1; i <= points; i++) {
+                set.addParameter("tapChangerBlocking_UMin" + i, ParameterType.DOUBLE, DEFAULT_U_MIN);
+            }
         }
         set.addParameter("tapChangerBlocking_tLagBeforeBlocked", ParameterType.DOUBLE, DEFAULT_T_LAG_BEFORE_BLOCKED);
         set.addParameter("tapChangerBlocking_tLagTransBlockedD", ParameterType.DOUBLE, DEFAULT_T_LAG_TRANS_BLOCKED_D);

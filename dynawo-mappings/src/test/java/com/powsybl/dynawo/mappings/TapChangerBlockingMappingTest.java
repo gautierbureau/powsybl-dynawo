@@ -87,7 +87,9 @@ class TapChangerBlockingMappingTest {
         List<ParametersSet> sets = new TapChangerBlockingMapping("DynaWaltz_").createParameters(network);
         assertThat(sets).singleElement().satisfies(set -> {
             assertThat(set.getId()).isEqualTo("DynaWaltz_tcb1");
-            assertThat(set.hasParameter("tapChangerBlocking_UMin1")).isTrue();
+            // one measurement point, so the threshold is named without a number
+            assertThat(set.hasParameter("tapChangerBlocking_UMin")).isTrue();
+            assertThat(set.hasParameter("tapChangerBlocking_UMin1")).isFalse();
             assertThat(set.hasParameter("tapChangerBlocking_tLagBeforeBlocked")).isTrue();
         });
     }
