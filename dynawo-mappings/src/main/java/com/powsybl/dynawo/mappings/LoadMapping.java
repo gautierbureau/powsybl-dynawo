@@ -43,6 +43,14 @@ public final class LoadMapping {
         this.parameterSetPrefix = parameterSetPrefix;
     }
 
+    /**
+     * The prefix a study names its sets with, so another part of the same study names its own the
+     * same way.
+     */
+    public String getParameterSetPrefix() {
+        return parameterSetPrefix;
+    }
+
     public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
         return loads(network)
                 .map(load -> new MappedModelsSupplier.MappedModel(LIB, load.getId(), setId(load)))

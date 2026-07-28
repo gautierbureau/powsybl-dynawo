@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Builds the models a mapping resolved.
@@ -28,6 +29,11 @@ import java.util.Objects;
  * nothing else, so the builders are called for what they are instead of by reflection the way a
  * model read from a file has to be. That keeps a mapping usable from a natively compiled image,
  * where a method reached by reflection has to be declared beforehand.
+ * <p>
+ * A model that is not one equipment's, an automation system watching several, is set up by a hand
+ * of its own rather than by a static id: it names what it watches and what it acts on, which a
+ * bare equipment id cannot say. The mapping that resolved it gives that hand, casting the builder
+ * to the one it knows, so a native image still reaches the methods without reflection.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -36,11 +42,19 @@ public class MappedModelsSupplier implements DynamicModelsSupplier {
     private static final Logger LOGGER = LoggerFactory.getLogger(MappedModelsSupplier.class);
 
     /**
-     * @param lib           library of the model
-     * @param staticId      identifier of the equipment the model stands for
+     * @param lib            library of the model
+     * @param staticId       identifier of the equipment the model stands for, or a name for a model
+     *                       that stands for none
      * @param parameterSetId identifier of the set holding its parameters
+     * @param configurer     sets the builder up where a static id and a set do not say enough, an
+     *                       automation system's for one, or {@code null} for an equipment's model
      */
-    public record MappedModel(String lib, String staticId, String parameterSetId) {
+    public record MappedModel(String lib, String staticId, String parameterSetId,
+                              Consumer<ModelBuilder<DynamicModel>> configurer) {
+
+        public MappedModel(String lib, String staticId, String parameterSetId) {
+            this(lib, staticId, parameterSetId, null);
+        }
     }
 
     private final List<MappedModel> models;
@@ -68,6 +82,10 @@ public class MappedModelsSupplier implements DynamicModelsSupplier {
         if (builder == null) {
             LOGGER.warn("No builder found for model {}, {} will not be modelled", model.lib(), model.staticId());
             return null;
+        }
+        if (model.configurer() != null) {
+            model.configurer().accept(builder);
+            return builder.build();
         }
         if (builder instanceof AbstractEquipmentModelBuilder<?, ?> equipmentBuilder) {
             equipmentBuilder.staticId(model.staticId());
