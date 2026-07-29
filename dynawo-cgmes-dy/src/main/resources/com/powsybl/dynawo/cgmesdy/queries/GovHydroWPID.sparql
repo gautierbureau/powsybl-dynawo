@@ -1,0 +1,36 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovHydroWPID .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovHydroWPID.mwbase ?mwbase . }
+  OPTIONAL { ?id cim:GovHydroWPID.reg ?reg . }
+  OPTIONAL { ?id cim:GovHydroWPID.treg ?treg . }
+  OPTIONAL { ?id cim:GovHydroWPID.tw ?tw . }
+  OPTIONAL { ?id cim:GovHydroWPID.ta ?ta . }
+  OPTIONAL { ?id cim:GovHydroWPID.tb ?tb . }
+  OPTIONAL { ?id cim:GovHydroWPID.pmax ?pmax . }
+  OPTIONAL { ?id cim:GovHydroWPID.pmin ?pmin . }
+  OPTIONAL { ?id cim:GovHydroWPID.gatmax ?gatmax . }
+  OPTIONAL { ?id cim:GovHydroWPID.gatmin ?gatmin . }
+  OPTIONAL { ?id cim:GovHydroWPID.d ?d . }
+  OPTIONAL { ?id cim:GovHydroWPID.kd ?kd . }
+  OPTIONAL { ?id cim:GovHydroWPID.ki ?ki . }
+  OPTIONAL { ?id cim:GovHydroWPID.kp ?kp . }
+  OPTIONAL { ?id cim:GovHydroWPID.velmax ?velmax . }
+  OPTIONAL { ?id cim:GovHydroWPID.velmin ?velmin . }
+  OPTIONAL { ?id cim:GovHydroWPID.gv1 ?gv1 . }
+  OPTIONAL { ?id cim:GovHydroWPID.pgv1 ?pgv1 . }
+  OPTIONAL { ?id cim:GovHydroWPID.gv2 ?gv2 . }
+  OPTIONAL { ?id cim:GovHydroWPID.pgv2 ?pgv2 . }
+  OPTIONAL { ?id cim:GovHydroWPID.gv3 ?gv3 . }
+  OPTIONAL { ?id cim:GovHydroWPID.pgv3 ?pgv3 . }
+}

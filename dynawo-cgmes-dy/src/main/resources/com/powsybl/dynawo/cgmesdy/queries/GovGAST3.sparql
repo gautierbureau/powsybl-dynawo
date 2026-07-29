@@ -1,0 +1,35 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovGAST3 .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovGAST3.bca ?bca . }
+  OPTIONAL { ?id cim:GovGAST3.bp ?bp . }
+  OPTIONAL { ?id cim:GovGAST3.dtc ?dtc . }
+  OPTIONAL { ?id cim:GovGAST3.ka ?ka . }
+  OPTIONAL { ?id cim:GovGAST3.kac ?kac . }
+  OPTIONAL { ?id cim:GovGAST3.kca ?kca . }
+  OPTIONAL { ?id cim:GovGAST3.ksi ?ksi . }
+  OPTIONAL { ?id cim:GovGAST3.ky ?ky . }
+  OPTIONAL { ?id cim:GovGAST3.mnef ?mnef . }
+  OPTIONAL { ?id cim:GovGAST3.mxef ?mxef . }
+  OPTIONAL { ?id cim:GovGAST3.rcmn ?rcmn . }
+  OPTIONAL { ?id cim:GovGAST3.rcmx ?rcmx . }
+  OPTIONAL { ?id cim:GovGAST3.tac ?tac . }
+  OPTIONAL { ?id cim:GovGAST3.tc ?tc . }
+  OPTIONAL { ?id cim:GovGAST3.td ?td . }
+  OPTIONAL { ?id cim:GovGAST3.tfen ?tfen . }
+  OPTIONAL { ?id cim:GovGAST3.tg ?tg . }
+  OPTIONAL { ?id cim:GovGAST3.tsi ?tsi . }
+  OPTIONAL { ?id cim:GovGAST3.tt ?tt . }
+  OPTIONAL { ?id cim:GovGAST3.ttc ?ttc . }
+  OPTIONAL { ?id cim:GovGAST3.ty ?ty . }
+}

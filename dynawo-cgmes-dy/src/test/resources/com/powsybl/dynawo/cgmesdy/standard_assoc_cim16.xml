@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2026, RTE (http://www.rte-france.com)
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ SPDX-License-Identifier: MPL-2.0
+
+ Regression fixture: association links use the STANDARD CGMES 2.4.15 role names
+ (declaring-class-qualified PascalCase) rather than the parser's private xxxId
+ convention. Exercises the tolerant OPTIONAL siblings added to the Load/Wind
+ queries. Role names verified against the CIM++/libcimpp generated classes,
+ including the standard's own "WIndContQIEC" typo.
+-->
+<rdf:RDF
+    xmlns:rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:cim = "http://iec.ch/TC57/2013/CIM-schema-cim16#"
+    xmlns:md  = "http://iec.ch/TC57/61970-552/ModelDescription/1#">
+
+  <!-- LoadAggregate: EnergyConsumer is declared on the parent LoadDynamics -->
+  <cim:LoadAggregate rdf:ID="_std-load-aggregate">
+    <cim:LoadDynamics.EnergyConsumer rdf:resource="#_std-ec"/>
+    <cim:LoadAggregate.LoadMotor rdf:resource="#_std-load-motor"/>
+    <cim:LoadAggregate.LoadStatic rdf:resource="#_std-load-static"/>
+  </cim:LoadAggregate>
+
+  <!-- WindPlantIEC: roles declared on WindPlantIEC itself -->
+  <cim:WindPlantIEC rdf:ID="_std-wplant">
+    <cim:WindPlantIEC.WindPlantFreqPcontrolIEC rdf:resource="#_std-wplantfreq"/>
+    <cim:WindPlantIEC.WindPlantReactiveControlIEC rdf:resource="#_std-wplantreact"/>
+  </cim:WindPlantIEC>
+
+  <!-- WindGenTurbineType3aIEC: roles declared on parent WindGenTurbineType3IEC
+       and grandparent WindTurbineType3or4IEC (incl. the WIndContQIEC typo) -->
+  <cim:WindGenTurbineType3aIEC rdf:ID="_std-wt3a">
+    <cim:WindGenTurbineType3IEC.WindContPType3IEC rdf:resource="#_std-wpt3"/>
+    <cim:WindTurbineType3or4IEC.WIndContQIEC rdf:resource="#_std-wcontq"/>
+    <cim:WindGenTurbineType3IEC.WindMechIEC rdf:resource="#_std-wmech"/>
+    <cim:WindTurbineType3or4IEC.WindContCurrLimIEC rdf:resource="#_std-wcurrlim"/>
+    <cim:WindTurbineType3or4IEC.WindProtectionIEC rdf:resource="#_std-wprot"/>
+    <cim:WindGenTurbineType3aIEC.kpc>0.05</cim:WindGenTurbineType3aIEC.kpc>
+    <cim:WindGenTurbineType3aIEC.tic>0.01</cim:WindGenTurbineType3aIEC.tic>
+    <cim:WindGenTurbineType3aIEC.xs>0.2</cim:WindGenTurbineType3aIEC.xs>
+  </cim:WindGenTurbineType3aIEC>
+
+</rdf:RDF>

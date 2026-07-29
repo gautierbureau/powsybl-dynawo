@@ -1,0 +1,48 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovGAST1 .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovGAST1.mwbase ?mwbase . }
+  OPTIONAL { ?id cim:GovGAST1.r ?r . }
+  OPTIONAL { ?id cim:GovGAST1.db1 ?db1 . }
+  OPTIONAL { ?id cim:GovGAST1.db2 ?db2 . }
+  OPTIONAL { ?id cim:GovGAST1.eps ?eps . }
+  OPTIONAL { ?id cim:GovGAST1.t1 ?t1 . }
+  OPTIONAL { ?id cim:GovGAST1.t2 ?t2 . }
+  OPTIONAL { ?id cim:GovGAST1.t3 ?t3 . }
+  OPTIONAL { ?id cim:GovGAST1.t4 ?t4 . }
+  OPTIONAL { ?id cim:GovGAST1.t5 ?t5 . }
+  OPTIONAL { ?id cim:GovGAST1.tltr ?tltr . }
+  OPTIONAL { ?id cim:GovGAST1.ka ?ka . }
+  OPTIONAL { ?id cim:GovGAST1.kt ?kt . }
+  OPTIONAL { ?id cim:GovGAST1.a ?a . }
+  OPTIONAL { ?id cim:GovGAST1.b ?b . }
+  OPTIONAL { ?id cim:GovGAST1.lmax ?lmax . }
+  OPTIONAL { ?id cim:GovGAST1.loadinc ?loadinc . }
+  OPTIONAL { ?id cim:GovGAST1.ltrate ?ltrate . }
+  OPTIONAL { ?id cim:GovGAST1.rmax ?rmax . }
+  OPTIONAL { ?id cim:GovGAST1.fidle ?fidle . }
+  OPTIONAL { ?id cim:GovGAST1.gv1 ?gv1 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv1 ?pgv1 . }
+  OPTIONAL { ?id cim:GovGAST1.gv2 ?gv2 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv2 ?pgv2 . }
+  OPTIONAL { ?id cim:GovGAST1.gv3 ?gv3 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv3 ?pgv3 . }
+  OPTIONAL { ?id cim:GovGAST1.gv4 ?gv4 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv4 ?pgv4 . }
+  OPTIONAL { ?id cim:GovGAST1.gv5 ?gv5 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv5 ?pgv5 . }
+  OPTIONAL { ?id cim:GovGAST1.gv6 ?gv6 . }
+  OPTIONAL { ?id cim:GovGAST1.pgv6 ?pgv6 . }
+  OPTIONAL { ?id cim:GovGAST1.vmax ?vmax . }
+  OPTIONAL { ?id cim:GovGAST1.vmin ?vmin . }
+}

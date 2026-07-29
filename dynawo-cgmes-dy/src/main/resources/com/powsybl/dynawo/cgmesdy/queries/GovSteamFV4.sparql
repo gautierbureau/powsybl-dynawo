@@ -1,0 +1,65 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovSteamFV4 .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovSteamFV4.cpsmn ?cpsmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.cpsmx ?cpsmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.crmn ?crmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.crmx ?crmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.kdc ?kdc . }
+  OPTIONAL { ?id cim:GovSteamFV4.kf1 ?kf1 . }
+  OPTIONAL { ?id cim:GovSteamFV4.kf3 ?kf3 . }
+  OPTIONAL { ?id cim:GovSteamFV4.khp ?khp . }
+  OPTIONAL { ?id cim:GovSteamFV4.kic ?kic . }
+  OPTIONAL { ?id cim:GovSteamFV4.kip ?kip . }
+  OPTIONAL { ?id cim:GovSteamFV4.kit ?kit . }
+  OPTIONAL { ?id cim:GovSteamFV4.kmp1 ?kmp1 . }
+  OPTIONAL { ?id cim:GovSteamFV4.kmp2 ?kmp2 . }
+  OPTIONAL { ?id cim:GovSteamFV4.kpc ?kpc . }
+  OPTIONAL { ?id cim:GovSteamFV4.kpp ?kpp . }
+  OPTIONAL { ?id cim:GovSteamFV4.kpt ?kpt . }
+  OPTIONAL { ?id cim:GovSteamFV4.krc ?krc . }
+  OPTIONAL { ?id cim:GovSteamFV4.ksh ?ksh . }
+  OPTIONAL { ?id cim:GovSteamFV4.lpi ?lpi . }
+  OPTIONAL { ?id cim:GovSteamFV4.lps ?lps . }
+  OPTIONAL { ?id cim:GovSteamFV4.mnef ?mnef . }
+  OPTIONAL { ?id cim:GovSteamFV4.mxef ?mxef . }
+  OPTIONAL { ?id cim:GovSteamFV4.pr1 ?pr1 . }
+  OPTIONAL { ?id cim:GovSteamFV4.pr2 ?pr2 . }
+  OPTIONAL { ?id cim:GovSteamFV4.psmn ?psmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.rsmimn ?rsmimn . }
+  OPTIONAL { ?id cim:GovSteamFV4.rsmimx ?rsmimx . }
+  OPTIONAL { ?id cim:GovSteamFV4.rvgmn ?rvgmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.rvgmx ?rvgmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.srmn ?srmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.srmx ?srmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.srsmp ?srsmp . }
+  OPTIONAL { ?id cim:GovSteamFV4.svmn ?svmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.svmx ?svmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.ta ?ta . }
+  OPTIONAL { ?id cim:GovSteamFV4.tam ?tam . }
+  OPTIONAL { ?id cim:GovSteamFV4.tc ?tc . }
+  OPTIONAL { ?id cim:GovSteamFV4.tcm ?tcm . }
+  OPTIONAL { ?id cim:GovSteamFV4.tdc ?tdc . }
+  OPTIONAL { ?id cim:GovSteamFV4.tf1 ?tf1 . }
+  OPTIONAL { ?id cim:GovSteamFV4.tf2 ?tf2 . }
+  OPTIONAL { ?id cim:GovSteamFV4.thp ?thp . }
+  OPTIONAL { ?id cim:GovSteamFV4.tmp ?tmp . }
+  OPTIONAL { ?id cim:GovSteamFV4.trh ?trh . }
+  OPTIONAL { ?id cim:GovSteamFV4.tv ?tv . }
+  OPTIONAL { ?id cim:GovSteamFV4.ty ?ty . }
+  OPTIONAL { ?id cim:GovSteamFV4.y ?y . }
+  OPTIONAL { ?id cim:GovSteamFV4.yhpmn ?yhpmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.yhpmx ?yhpmx . }
+  OPTIONAL { ?id cim:GovSteamFV4.ympmn ?ympmn . }
+  OPTIONAL { ?id cim:GovSteamFV4.ympmx ?ympmx . }
+}

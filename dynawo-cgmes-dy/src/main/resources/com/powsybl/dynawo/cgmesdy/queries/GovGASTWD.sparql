@@ -1,0 +1,47 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovGASTWD .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovGASTWD.a ?a . }
+  OPTIONAL { ?id cim:GovGASTWD.af1 ?af1 . }
+  OPTIONAL { ?id cim:GovGASTWD.af2 ?af2 . }
+  OPTIONAL { ?id cim:GovGASTWD.b ?b . }
+  OPTIONAL { ?id cim:GovGASTWD.bf1 ?bf1 . }
+  OPTIONAL { ?id cim:GovGASTWD.bf2 ?bf2 . }
+  OPTIONAL { ?id cim:GovGASTWD.c ?c . }
+  OPTIONAL { ?id cim:GovGASTWD.cf2 ?cf2 . }
+  OPTIONAL { ?id cim:GovGASTWD.ecr ?ecr . }
+  OPTIONAL { ?id cim:GovGASTWD.etd ?etd . }
+  OPTIONAL { ?id cim:GovGASTWD.k3 ?k3 . }
+  OPTIONAL { ?id cim:GovGASTWD.k4 ?k4 . }
+  OPTIONAL { ?id cim:GovGASTWD.k5 ?k5 . }
+  OPTIONAL { ?id cim:GovGASTWD.k6 ?k6 . }
+  OPTIONAL { ?id cim:GovGASTWD.kd ?kd . }
+  OPTIONAL { ?id cim:GovGASTWD.kdroop ?kdroop . }
+  OPTIONAL { ?id cim:GovGASTWD.kf ?kf . }
+  OPTIONAL { ?id cim:GovGASTWD.ki ?ki . }
+  OPTIONAL { ?id cim:GovGASTWD.kp ?kp . }
+  OPTIONAL { ?id cim:GovGASTWD.mwbase ?mwbase . }
+  OPTIONAL { ?id cim:GovGASTWD.t ?t . }
+  OPTIONAL { ?id cim:GovGASTWD.t3 ?t3 . }
+  OPTIONAL { ?id cim:GovGASTWD.t4 ?t4 . }
+  OPTIONAL { ?id cim:GovGASTWD.t5 ?t5 . }
+  OPTIONAL { ?id cim:GovGASTWD.tc ?tc . }
+  OPTIONAL { ?id cim:GovGASTWD.tcd ?tcd . }
+  OPTIONAL { ?id cim:GovGASTWD.td ?td . }
+  OPTIONAL { ?id cim:GovGASTWD.tf ?tf . }
+  OPTIONAL { ?id cim:GovGASTWD.tmax ?tmax . }
+  OPTIONAL { ?id cim:GovGASTWD.tmin ?tmin . }
+  OPTIONAL { ?id cim:GovGASTWD.tr ?tr . }
+  OPTIONAL { ?id cim:GovGASTWD.trate ?trate . }
+  OPTIONAL { ?id cim:GovGASTWD.tt ?tt . }
+}

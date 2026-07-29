@@ -1,0 +1,56 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovHydroR .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovHydroR.at ?at . }
+  OPTIONAL { ?id cim:GovHydroR.db1 ?db1 . }
+  OPTIONAL { ?id cim:GovHydroR.db2 ?db2 . }
+  OPTIONAL { ?id cim:GovHydroR.dturb ?dturb . }
+  OPTIONAL { ?id cim:GovHydroR.eps ?eps . }
+  OPTIONAL { ?id cim:GovHydroR.gmax ?gmax . }
+  OPTIONAL { ?id cim:GovHydroR.gmin ?gmin . }
+  OPTIONAL { ?id cim:GovHydroR.gv1 ?gv1 . }
+  OPTIONAL { ?id cim:GovHydroR.gv2 ?gv2 . }
+  OPTIONAL { ?id cim:GovHydroR.gv3 ?gv3 . }
+  OPTIONAL { ?id cim:GovHydroR.gv4 ?gv4 . }
+  OPTIONAL { ?id cim:GovHydroR.gv5 ?gv5 . }
+  OPTIONAL { ?id cim:GovHydroR.gv6 ?gv6 . }
+  OPTIONAL { ?id cim:GovHydroR.h0 ?h0 . }
+  OPTIONAL { ?id cim:GovHydroR.inputSignal ?inputSignal . }
+  OPTIONAL { ?id cim:GovHydroR.kg ?kg . }
+  OPTIONAL { ?id cim:GovHydroR.ki ?ki . }
+  OPTIONAL { ?id cim:GovHydroR.mwbase ?mwbase . }
+  OPTIONAL { ?id cim:GovHydroR.pgv1 ?pgv1 . }
+  OPTIONAL { ?id cim:GovHydroR.pgv2 ?pgv2 . }
+  OPTIONAL { ?id cim:GovHydroR.pgv3 ?pgv3 . }
+  OPTIONAL { ?id cim:GovHydroR.pgv4 ?pgv4 . }
+  OPTIONAL { ?id cim:GovHydroR.pgv5 ?pgv5 . }
+  OPTIONAL { ?id cim:GovHydroR.pgv6 ?pgv6 . }
+  OPTIONAL { ?id cim:GovHydroR.pmax ?pmax . }
+  OPTIONAL { ?id cim:GovHydroR.pmin ?pmin . }
+  OPTIONAL { ?id cim:GovHydroR.qnl ?qnl . }
+  OPTIONAL { ?id cim:GovHydroR.r ?r . }
+  OPTIONAL { ?id cim:GovHydroR.t1 ?t1 . }
+  OPTIONAL { ?id cim:GovHydroR.t2 ?t2 . }
+  OPTIONAL { ?id cim:GovHydroR.t3 ?t3 . }
+  OPTIONAL { ?id cim:GovHydroR.t4 ?t4 . }
+  OPTIONAL { ?id cim:GovHydroR.t5 ?t5 . }
+  OPTIONAL { ?id cim:GovHydroR.t6 ?t6 . }
+  OPTIONAL { ?id cim:GovHydroR.t7 ?t7 . }
+  OPTIONAL { ?id cim:GovHydroR.t8 ?t8 . }
+  OPTIONAL { ?id cim:GovHydroR.td ?td . }
+  OPTIONAL { ?id cim:GovHydroR.tp ?tp . }
+  OPTIONAL { ?id cim:GovHydroR.tt ?tt . }
+  OPTIONAL { ?id cim:GovHydroR.tw ?tw . }
+  OPTIONAL { ?id cim:GovHydroR.velcl ?velcl . }
+  OPTIONAL { ?id cim:GovHydroR.velop ?velop . }
+}

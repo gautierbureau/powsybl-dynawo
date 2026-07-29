@@ -1,0 +1,27 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+PREFIX cim:  <%%CIM_NS%%>
+
+PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+
+SELECT * WHERE {
+  ?id rdf:type cim:GovGAST4 .
+  OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:GovGAST4.bp ?bp . }
+  OPTIONAL { ?id cim:GovGAST4.ktm ?ktm . }
+  OPTIONAL { ?id cim:GovGAST4.mnef ?mnef . }
+  OPTIONAL { ?id cim:GovGAST4.mxef ?mxef . }
+  OPTIONAL { ?id cim:GovGAST4.rymn ?rymn . }
+  OPTIONAL { ?id cim:GovGAST4.rymx ?rymx . }
+  OPTIONAL { ?id cim:GovGAST4.ta ?ta . }
+  OPTIONAL { ?id cim:GovGAST4.tc ?tc . }
+  OPTIONAL { ?id cim:GovGAST4.tcm ?tcm . }
+  OPTIONAL { ?id cim:GovGAST4.tm ?tm . }
+  # tv is the CIM16 valve time constant; CIM17 renamed it ty — query both
+  OPTIONAL { ?id cim:GovGAST4.tv ?tv . }
+  OPTIONAL { ?id cim:GovGAST4.ty ?ty . }
+}
