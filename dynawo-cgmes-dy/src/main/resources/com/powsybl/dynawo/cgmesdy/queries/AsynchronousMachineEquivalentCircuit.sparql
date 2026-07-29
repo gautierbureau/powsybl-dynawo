@@ -16,11 +16,14 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics ?excitationSystemId . }
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
+  OPTIONAL { ?id cim:RotatingMachineDynamics.mBase ?mBase . }
+  OPTIONAL { ?id cim:RotatingMachineDynamics.damping ?damping . }
+  OPTIONAL { ?id cim:RotatingMachineDynamics.inertia ?inertia . }
+  OPTIONAL { ?id cim:RotatingMachineDynamics.statorLeakageReactance ?statorLeakageReactance . }
+  OPTIONAL { ?id cim:RotatingMachineDynamics.statorResistance ?statorResistance . }
   OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.rr1 ?rr1 . }
-  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xr1 ?xr1 . }
   OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.rr2 ?rr2 . }
-  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xr2 ?xr2 . }
+  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xlr1 ?xlr1 . }
+  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xlr2 ?xlr2 . }
   OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xm ?xm . }
-  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.xs ?xs . }
-  OPTIONAL { ?id cim:AsynchronousMachineEquivalentCircuit.rs ?rs . }
 }

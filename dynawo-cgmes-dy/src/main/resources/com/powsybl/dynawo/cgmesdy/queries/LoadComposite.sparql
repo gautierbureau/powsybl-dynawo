@@ -17,6 +17,7 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:LoadComposite.energyConsumerId ?energyConsumerId . }
+  OPTIONAL { ?id cim:LoadDynamics.EnergyConsumer ?energyConsumerId . }  # CGMES standard role name
   OPTIONAL { ?id cim:LoadComposite.epvs ?epvs . }
   OPTIONAL { ?id cim:LoadComposite.epfs ?epfs . }
   OPTIONAL { ?id cim:LoadComposite.eqvs ?eqvs . }
@@ -25,20 +26,7 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:LoadComposite.epfd ?epfd . }
   OPTIONAL { ?id cim:LoadComposite.eqvd ?eqvd . }
   OPTIONAL { ?id cim:LoadComposite.eqfd ?eqfd . }
-  OPTIONAL { ?id cim:LoadComposite.mv ?mv . }
-  OPTIONAL { ?id cim:LoadComposite.mf ?mf . }
-  OPTIONAL { ?id cim:LoadComposite.lfmac ?lfmac . }
-  OPTIONAL { ?id cim:LoadComposite.lfs ?lfs . }
   OPTIONAL { ?id cim:LoadComposite.lfrac ?lfrac . }
   OPTIONAL { ?id cim:LoadComposite.pfrac ?pfrac . }
-  OPTIONAL { ?id cim:LoadComposite.td ?td . }
-  OPTIONAL { ?id cim:LoadComposite.tf ?tf . }
-  OPTIONAL { ?id cim:LoadComposite.tc ?tc . }
-  OPTIONAL { ?id cim:LoadComposite.xm ?xm . }
-  OPTIONAL { ?id cim:LoadComposite.xp ?xp . }
-  OPTIONAL { ?id cim:LoadComposite.xpp ?xpp . }
-  OPTIONAL { ?id cim:LoadComposite.ls ?ls . }
-  OPTIONAL { ?id cim:LoadComposite.ra ?ra . }
-  OPTIONAL { ?id cim:LoadComposite.tpo ?tpo . }
-  OPTIONAL { ?id cim:LoadComposite.tppo ?tppo . }
+  OPTIONAL { ?id cim:LoadComposite.h ?h . }
 }

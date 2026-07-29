@@ -6,15 +6,18 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.steam;
-/** GovSteamFV4 – Detailed steam governor with torsional. CIM: GovSteamFV4
+/** GovSteamFV4 – Detailed electro-hydraulic steam turbine governor. CIM: GovSteamFV4
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovSteamFV4(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double t2, double t3, double t4,
-    double pmax, double pmin, double k, double k1, double k2, double k3, double k4,
-    double t5, double t6, double t7, double ta, double tc, double ty, double tt,
-    double kf1, double kf2, double tf2,
-    double rsmimn, double rsmimx, double vvmax, double vvmin,
-    double cpsmn, double cpsmx, double dp, double lpsp, double ovex
+    double cpsmn, double cpsmx, double crmn, double crmx, double kdc,
+    double kf1, double kf3, double khp, double kic, double kip, double kit,
+    double kmp1, double kmp2, double kpc, double kpp, double kpt, double krc, double ksh,
+    double lpi, double lps, double mnef, double mxef, double pr1, double pr2, double psmn,
+    double rsmimn, double rsmimx, double rvgmn, double rvgmx,
+    double srmn, double srmx, double srsmp, double svmn, double svmx,
+    double ta, double tam, double tc, double tcm, double tdc, double tf1, double tf2,
+    double thp, double tmp, double trh, double tv, double ty,
+    double y, double yhpmn, double yhpmx, double ympmn, double ympmx
 ) { }

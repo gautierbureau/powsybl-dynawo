@@ -55,7 +55,8 @@ class CgmesDyModelLoaderTest {
         assertEquals(0.3, sm.xDirectTrans(), 1e-6);
         assertEquals(0.23, sm.xDirectSubtrans(), 1e-6);
         assertEquals(1.01, sm.tpdo(), 1e-6);
-        assertEquals(0.15, sm.xl(), 1e-6);
+        assertEquals("roundRotor", sm.rotorType());
+        assertEquals(0.0, sm.tc(), 1e-6);
     }
 
     @Test

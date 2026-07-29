@@ -12,10 +12,11 @@ SELECT * WHERE {
   ?id rdf:type cim:GovSteamSGO .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:GovSteamSGO.mwbase ?mwbase . }
-  OPTIONAL { ?id cim:GovSteamSGO.r ?r . }
+  # CGMES GovSteamSGO has turbine-fraction gains k1/k2/k3, not a single droop r / vmax / vmin
+  OPTIONAL { ?id cim:GovSteamSGO.k1 ?k1 . }
+  OPTIONAL { ?id cim:GovSteamSGO.k2 ?k2 . }
+  OPTIONAL { ?id cim:GovSteamSGO.k3 ?k3 . }
   OPTIONAL { ?id cim:GovSteamSGO.t1 ?t1 . }
-  OPTIONAL { ?id cim:GovSteamSGO.vmax ?vmax . }
-  OPTIONAL { ?id cim:GovSteamSGO.vmin ?vmin . }
   OPTIONAL { ?id cim:GovSteamSGO.t2 ?t2 . }
   OPTIONAL { ?id cim:GovSteamSGO.t3 ?t3 . }
   OPTIONAL { ?id cim:GovSteamSGO.t4 ?t4 . }

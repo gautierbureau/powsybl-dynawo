@@ -11,8 +11,10 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcSK(
     String id, String synchronousMachineId,
-    double k, double k1, double k2, double kc, double kce, double kd, double kgob, double kp,
-    double kqi, double kqob, double kqp, double nq, double qconoff, double qz,
-    double remote, double sbase, double tc, double te, double ti, double tp, double tr,
-    double uimax, double uimin, double urmax, double urmin, double vtmax, double vtmin, double yp
+    double efdmax, double efdmin, double emax, double emin, double k,
+    double k1, double k2, double kc, double kce, double kd, double kgob,
+    double kp, double kqi, double kqob, double kqp, double nq,
+    boolean qconoff, double qz, boolean remote, double sbase, double tc,
+    double te, double ti, double tp, double tr, double uimax, double uimin,
+    double urmax, double urmin, double vtmax, double vtmin, double yp
 ) { }

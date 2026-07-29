@@ -16,11 +16,12 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics ?excitationSystemId . }
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
-  OPTIONAL { ?id cim:WindProtectionIEC.dfimax ?dfimax . }
   OPTIONAL { ?id cim:WindProtectionIEC.fover ?fover . }
   OPTIONAL { ?id cim:WindProtectionIEC.funder ?funder . }
-  OPTIONAL { ?id cim:WindProtectionIEC.mzc ?mzc . }
-  OPTIONAL { ?id cim:WindProtectionIEC.tfma ?tfma . }
+  OPTIONAL { ?id cim:WindProtectionIEC.tfover ?tfover . }
+  OPTIONAL { ?id cim:WindProtectionIEC.tfunder ?tfunder . }
+  OPTIONAL { ?id cim:WindProtectionIEC.tuover ?tuover . }
+  OPTIONAL { ?id cim:WindProtectionIEC.tuunder ?tuunder . }
   OPTIONAL { ?id cim:WindProtectionIEC.uover ?uover . }
   OPTIONAL { ?id cim:WindProtectionIEC.uunder ?uunder . }
 }

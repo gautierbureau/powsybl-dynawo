@@ -11,6 +11,10 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcSK .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
+  OPTIONAL { ?id cim:ExcSK.efdmax ?efdmax . }
+  OPTIONAL { ?id cim:ExcSK.efdmin ?efdmin . }
+  OPTIONAL { ?id cim:ExcSK.emax ?emax . }
+  OPTIONAL { ?id cim:ExcSK.emin ?emin . }
   OPTIONAL { ?id cim:ExcSK.k ?k . }
   OPTIONAL { ?id cim:ExcSK.k1 ?k1 . }
   OPTIONAL { ?id cim:ExcSK.k2 ?k2 . }

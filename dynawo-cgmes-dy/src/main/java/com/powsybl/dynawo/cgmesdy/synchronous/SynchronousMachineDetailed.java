@@ -49,5 +49,9 @@ public record SynchronousMachineDetailed(
     /** Saturation factor SE at 1.0 PU flux / terminal voltage. */
     double saturationFactor,
     /** Saturation factor SE at 1.2 PU flux / terminal voltage. */
-    double saturationFactor120
+    double saturationFactor120,
+    double efdBaseRatio,
+    double ifdBaseValue,
+    double saturationFactorQAxis,
+    double saturationFactor120QAxis
 ) { }

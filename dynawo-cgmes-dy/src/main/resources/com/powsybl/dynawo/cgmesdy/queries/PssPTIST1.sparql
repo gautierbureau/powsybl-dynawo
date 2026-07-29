@@ -20,7 +20,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssPTIST1.t2 ?t2 . }
   OPTIONAL { ?id cim:PssPTIST1.t3 ?t3 . }
   OPTIONAL { ?id cim:PssPTIST1.t4 ?t4 . }
+  OPTIONAL { ?id cim:PssPTIST1.tf ?tf . }
   OPTIONAL { ?id cim:PssPTIST1.tp ?tp . }
-  OPTIONAL { ?id cim:PssPTIST1.vsmn ?vsmn . }
-  OPTIONAL { ?id cim:PssPTIST1.vsmx ?vsmx . }
 }

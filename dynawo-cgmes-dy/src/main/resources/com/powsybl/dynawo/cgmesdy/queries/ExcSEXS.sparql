@@ -11,11 +11,14 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcSEXS .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcSEXS.tr ?tr . }
+  OPTIONAL { ?id cim:ExcSEXS.efdmax ?efdmax . }
+  OPTIONAL { ?id cim:ExcSEXS.efdmin ?efdmin . }
+  OPTIONAL { ?id cim:ExcSEXS.emax ?emax . }
+  OPTIONAL { ?id cim:ExcSEXS.emin ?emin . }
+  OPTIONAL { ?id cim:ExcSEXS.k ?k . }
+  OPTIONAL { ?id cim:ExcSEXS.kc ?kc . }
   OPTIONAL { ?id cim:ExcSEXS.tatb ?tatb . }
   OPTIONAL { ?id cim:ExcSEXS.tb ?tb . }
-  OPTIONAL { ?id cim:ExcSEXS.k ?k . }
+  OPTIONAL { ?id cim:ExcSEXS.tc ?tc . }
   OPTIONAL { ?id cim:ExcSEXS.te ?te . }
-  OPTIONAL { ?id cim:ExcSEXS.emin ?emin . }
-  OPTIONAL { ?id cim:ExcSEXS.emax ?emax . }
 }

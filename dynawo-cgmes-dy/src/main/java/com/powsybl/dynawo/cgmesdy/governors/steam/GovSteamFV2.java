@@ -6,13 +6,12 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.steam;
-/** GovSteamFV2 – Steam governor with fast valving. CIM: GovSteamFV2
+/** GovSteamFV2 – Steam turbine governor with reheat and fast valve closing. CIM: GovSteamFV2
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovSteamFV2(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double vamax, double vamin,
-    double k, double t2, double t3, double pmax, double pmin,
-    double t4, double k1, double k2, double t5, double k3, double k4,
-    int iFlag
+    double dt, double k, double mwbase, double r,
+    double t1, double t3, double ta, double tb, double tc, double ti, double tt,
+    double vmax, double vmin
 ) { }

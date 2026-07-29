@@ -14,7 +14,8 @@ public record PssPTIST3(
     String id, String excitationSystemId,
     double a0, double a1, double a2, double a3, double a4, double a5,
     double al, double athres, double b0, double b1, double b2, double b3, double b4, double b5,
-    double dl, double dtc, double dtf, double dtp, double isfreq, double k,
-    double lthres, double m, double nav, double ncl, double pmin, double t1, double t2, double t3, double t4,
-    double tp, double vsmn, double vsmx
+    double dl, double dtc, double dtf, double dtp, boolean isw, double k,
+    double lthres, double m, double nav, double ncl, double ncr, double pmin,
+    double t1, double t2, double t3, double t4, double t5, double t6,
+    double tf, double tp
 ) { }

@@ -62,6 +62,10 @@
     <cim:SynchronousMachineDetailed.ifdBaseType>SynchronousMachineIfdBaseKind.ifag</cim:SynchronousMachineDetailed.ifdBaseType>
     <cim:RotatingMachineDynamics.saturationFactor>0.05</cim:RotatingMachineDynamics.saturationFactor>
     <cim:RotatingMachineDynamics.saturationFactor120>0.27</cim:RotatingMachineDynamics.saturationFactor120>
+    <cim:SynchronousMachineDetailed.efdBaseRatio>1.05</cim:SynchronousMachineDetailed.efdBaseRatio>
+    <cim:SynchronousMachineDetailed.ifdBaseValue>2.3</cim:SynchronousMachineDetailed.ifdBaseValue>
+    <cim:SynchronousMachineDetailed.saturationFactorQAxis>0.06</cim:SynchronousMachineDetailed.saturationFactorQAxis>
+    <cim:SynchronousMachineDetailed.saturationFactor120QAxis>0.29</cim:SynchronousMachineDetailed.saturationFactor120QAxis>
   </cim:SynchronousMachineDetailed>
 
   <!-- ===================================================================
@@ -119,6 +123,7 @@
     <cim:RotatingMachineDynamics.saturationFactor120>0.35</cim:RotatingMachineDynamics.saturationFactor120>
     <!-- Time-constant / reactance specific -->
     <cim:SynchronousMachineTimeConstantReactance.modelType>SynchronousMachineModelKind.subtransient</cim:SynchronousMachineTimeConstantReactance.modelType>
+    <cim:SynchronousMachineTimeConstantReactance.rotorType>RotorKind.roundRotor</cim:SynchronousMachineTimeConstantReactance.rotorType>
     <cim:SynchronousMachineTimeConstantReactance.ks>0.0</cim:SynchronousMachineTimeConstantReactance.ks>
     <!-- d-axis reactances -->
     <cim:SynchronousMachineTimeConstantReactance.xDirectSync>1.05</cim:SynchronousMachineTimeConstantReactance.xDirectSync>
@@ -133,7 +138,7 @@
     <cim:SynchronousMachineTimeConstantReactance.tppdo>0.04</cim:SynchronousMachineTimeConstantReactance.tppdo>
     <cim:SynchronousMachineTimeConstantReactance.tpqo>1.5</cim:SynchronousMachineTimeConstantReactance.tpqo>
     <cim:SynchronousMachineTimeConstantReactance.tppqo>0.05</cim:SynchronousMachineTimeConstantReactance.tppqo>
-    <cim:SynchronousMachineTimeConstantReactance.xl>0.18</cim:SynchronousMachineTimeConstantReactance.xl>
+    <cim:SynchronousMachineTimeConstantReactance.tc>0.0</cim:SynchronousMachineTimeConstantReactance.tc>
   </cim:SynchronousMachineTimeConstantReactance>
 
   <!-- ===================================================================

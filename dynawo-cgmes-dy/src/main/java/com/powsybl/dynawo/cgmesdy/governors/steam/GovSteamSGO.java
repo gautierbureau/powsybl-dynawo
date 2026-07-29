@@ -11,7 +11,7 @@ package com.powsybl.dynawo.cgmesdy.governors.steam;
  */
 public record GovSteamSGO(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double vmax, double vmin,
-    double t2, double t3, double t4, double t5, double t6,
+    double mwbase, double k1, double k2, double k3,
+    double t1, double t2, double t3, double t4, double t5, double t6,
     double pmax, double pmin
 ) { }

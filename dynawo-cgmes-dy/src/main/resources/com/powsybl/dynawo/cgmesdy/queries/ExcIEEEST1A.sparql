@@ -11,7 +11,6 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcIEEEST1A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcIEEEST1A.tr ?tr . }
   OPTIONAL { ?id cim:ExcIEEEST1A.vimax ?vimax . }
   OPTIONAL { ?id cim:ExcIEEEST1A.vimin ?vimin . }
   OPTIONAL { ?id cim:ExcIEEEST1A.tb ?tb . }

@@ -13,6 +13,5 @@ public record LoadMotor(
     String id,
     double pfrac, double ls, double ra, double lp, double lpp,
     double tpo, double tppo, double h, double d,
-    double vt, double tv, double tbkr, double lfac,
-    double compPF, double vbrkr, double vc1off, double vc2off, double vc1on, double vc2on
+    double vt, double tv, double tbkr, double lfac
 ) { }

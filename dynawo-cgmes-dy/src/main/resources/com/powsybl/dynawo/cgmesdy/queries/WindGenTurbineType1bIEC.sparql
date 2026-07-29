@@ -18,7 +18,9 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:WindGenTurbineType1bIEC.windAeroLinearIECId ?windAeroLinearIECId . }
   OPTIONAL { ?id cim:WindGenTurbineType1bIEC.windProtectionIECId ?windProtectionIECId . }
+  OPTIONAL { ?id cim:WindTurbineType1or2IEC.WindProtectionIEC ?windProtectionIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType1bIEC.windContPitchAngleIECId ?windContPitchAngleIECId . }
   OPTIONAL { ?id cim:WindGenTurbineType1bIEC.windMechIECId ?windMechIECId . }
+  OPTIONAL { ?id cim:WindTurbineType1or2IEC.WindMechIEC ?windMechIECId . }  # CGMES standard role name
   OPTIONAL { ?id cim:WindGenTurbineType1bIEC.asynchronousMachineId ?asynchronousMachineId . }
 }

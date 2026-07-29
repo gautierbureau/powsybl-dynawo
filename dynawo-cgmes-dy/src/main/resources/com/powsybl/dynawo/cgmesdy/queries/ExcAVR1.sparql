@@ -15,11 +15,12 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcAVR1.ta ?ta . }
   OPTIONAL { ?id cim:ExcAVR1.tb ?tb . }
   OPTIONAL { ?id cim:ExcAVR1.te ?te . }
+  OPTIONAL { ?id cim:ExcAVR1.kf ?kf . }
+  OPTIONAL { ?id cim:ExcAVR1.tf ?tf . }
   OPTIONAL { ?id cim:ExcAVR1.e1 ?e1 . }
   OPTIONAL { ?id cim:ExcAVR1.se1 ?se1 . }
   OPTIONAL { ?id cim:ExcAVR1.e2 ?e2 . }
   OPTIONAL { ?id cim:ExcAVR1.se2 ?se2 . }
-  OPTIONAL { ?id cim:ExcAVR1.tr ?tr . }
   OPTIONAL { ?id cim:ExcAVR1.vrmn ?vrmn . }
   OPTIONAL { ?id cim:ExcAVR1.vrmx ?vrmx . }
 }

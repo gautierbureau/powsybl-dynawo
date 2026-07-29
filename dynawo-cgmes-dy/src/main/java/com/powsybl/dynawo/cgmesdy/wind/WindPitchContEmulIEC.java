@@ -11,6 +11,14 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindPitchContEmulIEC(
     String id,
-    double kdroop, double kipce, double kppce, double omegatr, double pimax, double pimin,
-    double t1, double t2, double t3, double thetamax, double thetamin
+    double kdroop,
+    double kipce,
+    double komegaaero,
+    double kppce,
+    double omegaref,
+    double pimax,
+    double pimin,
+    double t1,
+    double t2,
+    double tpe
 ) { }

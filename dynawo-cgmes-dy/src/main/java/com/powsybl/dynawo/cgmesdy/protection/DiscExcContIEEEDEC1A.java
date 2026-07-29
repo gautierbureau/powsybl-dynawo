@@ -12,8 +12,22 @@ package com.powsybl.dynawo.cgmesdy.protection;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public record DiscExcContIEEEDEC1A(
     String id, String excitationSystemId,
-    double vtlmt, double vomax, double vomin, double vdis,
-    double vethr, double vanmax, double vtm, double vtn,
-    double vsmin, double escrv, double kan, double td, double vsmax,
-    double tan, double esc
+    double esc,
+    double kan,
+    double ketl,
+    double tan,
+    double td,
+    double tl1,
+    double tl2,
+    double tw5,
+    double val,
+    double vanmax,
+    double vomax,
+    double vomin,
+    double vsmax,
+    double vsmin,
+    double vtc,
+    double vtlmt,
+    double vtm,
+    double vtn
 ) { }

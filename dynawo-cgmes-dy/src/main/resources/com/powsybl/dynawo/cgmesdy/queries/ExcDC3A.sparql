@@ -11,17 +11,21 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcDC3A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcDC3A.trh ?trh . }
-  OPTIONAL { ?id cim:ExcDC3A.kv ?kv . }
-  OPTIONAL { ?id cim:ExcDC3A.vmax ?vmax . }
-  OPTIONAL { ?id cim:ExcDC3A.vmin ?vmin . }
-  OPTIONAL { ?id cim:ExcDC3A.ke ?ke . }
-  OPTIONAL { ?id cim:ExcDC3A.te ?te . }
-  OPTIONAL { ?id cim:ExcDC3A.kf ?kf . }
-  OPTIONAL { ?id cim:ExcDC3A.tf1 ?tf1 . }
   OPTIONAL { ?id cim:ExcDC3A.efd1 ?efd1 . }
-  OPTIONAL { ?id cim:ExcDC3A.seefd1 ?seefd1 . }
   OPTIONAL { ?id cim:ExcDC3A.efd2 ?efd2 . }
-  OPTIONAL { ?id cim:ExcDC3A.seefd2 ?seefd2 . }
+  OPTIONAL { ?id cim:ExcDC3A.efdlim ?efdlim . }
+  OPTIONAL { ?id cim:ExcDC3A.efdmax ?efdmax . }
+  OPTIONAL { ?id cim:ExcDC3A.edfmax ?efdmax . }  # CIM16 spelling (typo in CGMES 2.4.15); same attribute
+  OPTIONAL { ?id cim:ExcDC3A.efdmin ?efdmin . }
   OPTIONAL { ?id cim:ExcDC3A.exclim ?exclim . }
+  OPTIONAL { ?id cim:ExcDC3A.ke ?ke . }
+  OPTIONAL { ?id cim:ExcDC3A.kr ?kr . }
+  OPTIONAL { ?id cim:ExcDC3A.ks ?ks . }
+  OPTIONAL { ?id cim:ExcDC3A.kv ?kv . }
+  OPTIONAL { ?id cim:ExcDC3A.seefd1 ?seefd1 . }
+  OPTIONAL { ?id cim:ExcDC3A.seefd2 ?seefd2 . }
+  OPTIONAL { ?id cim:ExcDC3A.te ?te . }
+  OPTIONAL { ?id cim:ExcDC3A.trh ?trh . }
+  OPTIONAL { ?id cim:ExcDC3A.vrmax ?vrmax . }
+  OPTIONAL { ?id cim:ExcDC3A.vrmin ?vrmin . }
 }

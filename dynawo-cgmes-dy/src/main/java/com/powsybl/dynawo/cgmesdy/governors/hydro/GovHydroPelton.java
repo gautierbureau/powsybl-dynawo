@@ -11,10 +11,10 @@ package com.powsybl.dynawo.cgmesdy.governors.hydro;
  */
 public record GovHydroPelton(
     String id, String synchronousMachineId,
-    double mwbase, double av0, double av1, double bp, double db1,
-    double db2, double h1, double h2, double hn, double kc, double kg,
-    double qc0, double qn, double simplifiedPelton, double staticCompensating,
-    double ta, double td, double ts, double twnc, double twng, double tx,
+    double av0, double av1, double bp, double db1, double db2,
+    double h1, double h2, double hn, double kc, double kg,
+    double qc0, double qn, boolean simplifiedPelton, boolean staticCompensating,
+    double ta, double ts, double tv, double twnc, double twng, double tx,
     double va, double valvmax, double valvmin, double vav, double vc, double vcv,
-    boolean cfrac, boolean sfrac
+    boolean waterTunnelSurgeChamberSimulation, double zsfc
 ) { }

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.pss;
-/** Pss2ST – PSS with 2-stage torsional filter. CIM: Pss2ST
+/** Pss2ST – IEEE dual-input stabilizing model (IEE2ST). CIM: Pss2ST
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record Pss2ST(
@@ -14,5 +14,5 @@ public record Pss2ST(
     String inputSignal1Type, String inputSignal2Type,
     double k1, double k2, double t1, double t2, double t3, double t4,
     double t5, double t6, double t7, double t8, double t9, double t10,
-    double lsmax, double lsmin
+    double lsmax, double lsmin, double vcl, double vcu
 ) { }

@@ -11,16 +11,17 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcAVR2 .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
+  OPTIONAL { ?id cim:ExcAVR2.e1 ?e1 . }
+  OPTIONAL { ?id cim:ExcAVR2.e2 ?e2 . }
   OPTIONAL { ?id cim:ExcAVR2.ka ?ka . }
+  OPTIONAL { ?id cim:ExcAVR2.kf ?kf . }
+  OPTIONAL { ?id cim:ExcAVR2.se1 ?se1 . }
+  OPTIONAL { ?id cim:ExcAVR2.se2 ?se2 . }
   OPTIONAL { ?id cim:ExcAVR2.ta ?ta . }
   OPTIONAL { ?id cim:ExcAVR2.tb ?tb . }
-  OPTIONAL { ?id cim:ExcAVR2.tc ?tc . }
   OPTIONAL { ?id cim:ExcAVR2.te ?te . }
+  OPTIONAL { ?id cim:ExcAVR2.tf1 ?tf1 . }
+  OPTIONAL { ?id cim:ExcAVR2.tf2 ?tf2 . }
   OPTIONAL { ?id cim:ExcAVR2.vrmn ?vrmn . }
   OPTIONAL { ?id cim:ExcAVR2.vrmx ?vrmx . }
-  OPTIONAL { ?id cim:ExcAVR2.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcAVR2.se1 ?se1 . }
-  OPTIONAL { ?id cim:ExcAVR2.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcAVR2.se2 ?se2 . }
-  OPTIONAL { ?id cim:ExcAVR2.tr ?tr . }
 }

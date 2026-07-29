@@ -14,7 +14,6 @@ package com.powsybl.dynawo.cgmesdy.exciters.dc;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public record ExcIEEEDC1A(
     String id, String synchronousMachineId,
-    double tr,     // Filter time constant (s)
     double ka,     // Voltage regulator gain (PU)
     double ta,     // Voltage regulator time constant (s)
     double tb,     // Voltage regulator time constant (s)
@@ -25,9 +24,6 @@ public record ExcIEEEDC1A(
     double te,     // Exciter field time constant (s)
     double kf,     // Exciter rate feedback gain (PU)
     double tf,     // Exciter rate feedback lag time constant (s)
-    double kc,     // Rectifier loading factor
-    double kd,     // Demagnetizing factor
-    double ki,     // Potential circuit gain (PU)
     double efd1,   // Exciter voltage at which saturation begins (PU)
     double seefd1, // Saturation function value at efd1 (PU)
     double efd2,   // Higher exciter voltage for saturation (PU)

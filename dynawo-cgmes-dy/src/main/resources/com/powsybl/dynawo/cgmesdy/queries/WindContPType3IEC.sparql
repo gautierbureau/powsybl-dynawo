@@ -17,9 +17,7 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:WindContPType3IEC.dpmax ?dpmax . }
-  OPTIONAL { ?id cim:WindContPType3IEC.dprefmax ?dprefmax . }
-  OPTIONAL { ?id cim:WindContPType3IEC.dprefmin ?dprefmin . }
-  OPTIONAL { ?id cim:WindContPType3IEC.dthetamx ?dthetamx . }
+  OPTIONAL { ?id cim:WindContPType3IEC.dtrisemaxlvrt ?dtrisemaxlvrt . }
   OPTIONAL { ?id cim:WindContPType3IEC.kdtd ?kdtd . }
   OPTIONAL { ?id cim:WindContPType3IEC.kip ?kip . }
   OPTIONAL { ?id cim:WindContPType3IEC.kpp ?kpp . }
@@ -29,6 +27,8 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindContPType3IEC.rramp ?rramp . }
   OPTIONAL { ?id cim:WindContPType3IEC.tdvs ?tdvs . }
   OPTIONAL { ?id cim:WindContPType3IEC.temin ?temin . }
+  OPTIONAL { ?id cim:WindContPType3IEC.tomegafilt ?tomegafilt . }
+  OPTIONAL { ?id cim:WindContPType3IEC.tpfilt ?tpfilt . }
   OPTIONAL { ?id cim:WindContPType3IEC.tpord ?tpord . }
   OPTIONAL { ?id cim:WindContPType3IEC.tufilt ?tufilt . }
   OPTIONAL { ?id cim:WindContPType3IEC.tuscale ?tuscale . }
@@ -37,5 +37,4 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindContPType3IEC.updip ?updip . }
   OPTIONAL { ?id cim:WindContPType3IEC.wdtd ?wdtd . }
   OPTIONAL { ?id cim:WindContPType3IEC.zeta ?zeta . }
-  OPTIONAL { ?id cim:WindContPType3IEC.recrossflag ?recrossflag . }
 }

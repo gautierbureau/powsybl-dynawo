@@ -14,5 +14,4 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcAVR5.ka ?ka . }
   OPTIONAL { ?id cim:ExcAVR5.rex ?rex . }
   OPTIONAL { ?id cim:ExcAVR5.ta ?ta . }
-  OPTIONAL { ?id cim:ExcAVR5.tr ?tr . }
 }

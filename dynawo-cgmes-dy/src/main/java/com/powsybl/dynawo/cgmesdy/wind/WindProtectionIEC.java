@@ -11,6 +11,12 @@ package com.powsybl.dynawo.cgmesdy.wind;
  */
 public record WindProtectionIEC(
     String id,
-    double dfimax, double fover, double funder, double mzc,
-    double tfma, double uover, double uunder
+    double fover,
+    double funder,
+    double tfover,
+    double tfunder,
+    double tuover,
+    double tuunder,
+    double uover,
+    double uunder
 ) { }

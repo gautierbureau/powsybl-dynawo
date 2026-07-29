@@ -11,7 +11,9 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcBBC(
     String id, String synchronousMachineId,
-    double ka, double t1, double t2, double t3, double t4,
-    double vrmin, double vrmax, double kn, double kp, double switch1,
-    double efdmin, double efdmax, double xe
+    double efdmax, double efdmin, double k,
+    // CGMES attribute name is "switch" (a Java reserved word); the SPARQL binds cim:ExcBBC.switch here.
+    boolean switchDetector,
+    double t1, double t2, double t3, double t4,
+    double vrmax, double vrmin, double xe
 ) { }

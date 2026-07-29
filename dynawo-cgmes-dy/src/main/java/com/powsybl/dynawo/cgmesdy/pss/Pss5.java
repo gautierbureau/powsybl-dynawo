@@ -11,7 +11,21 @@ package com.powsybl.dynawo.cgmesdy.pss;
  */
 public record Pss5(
     String id, String excitationSystemId,
-    double deadband, double isfreq, double kf, double kpe, double kpss, double ktgov,
-    double pmin, double tl1, double tl2, double tl3, double tl4, double tpe,
-    double tw1, double tw2, double vadat, double vsmn, double vsmx
+    boolean ctw2,
+    double deadband,
+    boolean isfreq,
+    double kf,
+    double kpe,
+    double kpss,
+    double pmm,
+    double tl1,
+    double tl2,
+    double tl3,
+    double tl4,
+    double tpe,
+    double tw1,
+    double tw2,
+    double vadat,
+    double vsmn,
+    double vsmx
 ) { }

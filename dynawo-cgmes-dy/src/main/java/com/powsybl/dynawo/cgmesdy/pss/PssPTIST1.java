@@ -13,5 +13,5 @@ package com.powsybl.dynawo.cgmesdy.pss;
 public record PssPTIST1(
     String id, String excitationSystemId,
     double dtc, double dtf, double dtp, double k, double m, double t1, double t2, double t3, double t4,
-    double tp, double vsmn, double vsmx
+    double tf, double tp
 ) { }

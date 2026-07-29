@@ -29,10 +29,4 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:LoadMotor.tv ?tv . }
   OPTIONAL { ?id cim:LoadMotor.tbkr ?tbkr . }
   OPTIONAL { ?id cim:LoadMotor.lfac ?lfac . }
-  OPTIONAL { ?id cim:LoadMotor.compPF ?compPF . }
-  OPTIONAL { ?id cim:LoadMotor.vbrkr ?vbrkr . }
-  OPTIONAL { ?id cim:LoadMotor.vc1off ?vc1off . }
-  OPTIONAL { ?id cim:LoadMotor.vc2off ?vc2off . }
-  OPTIONAL { ?id cim:LoadMotor.vc1on ?vc1on . }
-  OPTIONAL { ?id cim:LoadMotor.vc2on ?vc2on . }
 }

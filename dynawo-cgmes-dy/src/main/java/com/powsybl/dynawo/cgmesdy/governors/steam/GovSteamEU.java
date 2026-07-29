@@ -11,9 +11,10 @@ package com.powsybl.dynawo.cgmesdy.governors.steam;
  */
 public record GovSteamEU(
     String id, String synchronousMachineId,
-    double mwbase, double r, double ke, double kfcor, double komegacor,
-    double t1, double t2, double t3, double t4, double t5, double t6,
-    double pmax, double pmin, double te, double tfp, double tvhp, double tvip,
-    double chc, double cho, double db1, double eps, double db2,
-    double simX
+    double chc, double cho, double cic, double cio, double db1, double db2, double hhpmax,
+    double ke, double kfcor, double khp, double klp, double komegacor, double mwbase,
+    double pmax, double prhmax, double simx,
+    double tb, double tdp, double ten, double tf, double tfp, double thp, double tip, double tlp,
+    double tp, double trh, double tvhp, double tvip, double tw,
+    double wfmax, double wfmin, double wmax1, double wmax2, double wwmax, double wwmin
 ) { }

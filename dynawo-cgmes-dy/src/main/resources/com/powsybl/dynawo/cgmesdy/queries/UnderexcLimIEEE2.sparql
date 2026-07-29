@@ -19,12 +19,36 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:UnderexcLimIEEE2.kul ?kul . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.p0 ?p0 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.p1 ?p1 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p2 ?p2 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p3 ?p3 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p4 ?p4 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p5 ?p5 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p6 ?p6 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p7 ?p7 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p8 ?p8 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p9 ?p9 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.p10 ?p10 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.q0 ?q0 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.q1 ?q1 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q2 ?q2 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q3 ?q3 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q4 ?q4 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q5 ?q5 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q6 ?q6 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q7 ?q7 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q8 ?q8 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q9 ?q9 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.q10 ?q10 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.tu1 ?tu1 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.tu2 ?tu2 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.tu3 ?tu3 . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.tu4 ?tu4 . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.tul ?tul . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.tup ?tup . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.tuq ?tuq . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.tuv ?tuv . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.vuimax ?vuimax . }
   OPTIONAL { ?id cim:UnderexcLimIEEE2.vuimin ?vuimin . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.vulmax ?vulmax . }
+  OPTIONAL { ?id cim:UnderexcLimIEEE2.vulmin ?vulmin . }
 }

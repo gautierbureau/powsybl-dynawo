@@ -6,13 +6,20 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynawo.cgmesdy.governors.steam;
-/** GovSteamCC – Combined cycle steam governor. CIM: GovSteamCC
+/** GovSteamCC – Combined cycle (cross-compound) steam governor. CIM: GovSteamCC.
+ *
+ * <p>Two turbine-governor trains (HP and LP) act in parallel: each has its own droop
+ * ({@code rhp}/{@code rlp}), governor time constant ({@code t1hp}/{@code t1lp}), three turbine
+ * time constants ({@code t3,t4,t5}), output fraction ({@code fhp}/{@code flp}, {@code fhp+flp=1}),
+ * damping ({@code dhp}/{@code dlp}) and maximum valve position ({@code pmaxhp}/{@code pmaxlp}).
+ * The two mechanical powers are summed. Attribute set is identical in CGMES 2.4.15 and 3.0.0.
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>
  */
 public record GovSteamCC(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double t2, double t3, double t4,
-    double pmax, double pmin, double uc, double uo,
-    double dhp, double dlp, double fhp, double flp, double fip,
-    double tip, double tlp
+    double mwbase,
+    double rhp, double t1hp, double t3hp, double t4hp, double t5hp,
+    double fhp, double dhp, double pmaxhp,
+    double rlp, double t1lp, double t3lp, double t4lp, double t5lp,
+    double flp, double dlp, double pmaxlp
 ) { }

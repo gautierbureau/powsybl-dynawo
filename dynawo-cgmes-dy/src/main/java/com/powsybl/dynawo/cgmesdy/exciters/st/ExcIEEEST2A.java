@@ -12,7 +12,7 @@ package com.powsybl.dynawo.cgmesdy.exciters.st;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public record ExcIEEEST2A(
     String id, String synchronousMachineId,
-    double tr, double ka, double ta, double vrmax, double vrmin,
-    double te, double kf, double tf, double kp, double ki, double kc, double efdmax,
+    double ka, double ta, double vrmax, double vrmin,
+    double te, double kf, double tf, double kp, double ki, double kc, double ke, double efdmax,
     boolean uelin
 ) { }

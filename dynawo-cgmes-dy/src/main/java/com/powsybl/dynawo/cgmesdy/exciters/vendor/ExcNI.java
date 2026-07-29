@@ -11,5 +11,6 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcNI(
     String id, String synchronousMachineId,
-    double busfedSelector, double ka, double ta, double tb, double te, double vrmn, double vrmx
+    boolean busFedSelector, double ka, double kf, double r, double ta,
+    double tf1, double tf2, double tr, double vrmax, double vrmin
 ) { }

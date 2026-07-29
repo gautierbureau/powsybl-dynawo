@@ -11,20 +11,39 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:GovHydroWEH .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
-  OPTIONAL { ?id cim:GovHydroWEH.mwbase ?mwbase . }
-  OPTIONAL { ?id cim:GovHydroWEH.rpg ?rpg . }
-  OPTIONAL { ?id cim:GovHydroWEH.rpp ?rpp . }
-  OPTIONAL { ?id cim:GovHydroWEH.reg ?reg . }
-  OPTIONAL { ?id cim:GovHydroWEH.tg ?tg . }
-  OPTIONAL { ?id cim:GovHydroWEH.tp ?tp . }
-  OPTIONAL { ?id cim:GovHydroWEH.td ?td . }
-  OPTIONAL { ?id cim:GovHydroWEH.tf ?tf . }
-  OPTIONAL { ?id cim:GovHydroWEH.td2 ?td2 . }
-  OPTIONAL { ?id cim:GovHydroWEH.tw ?tw . }
-  OPTIONAL { ?id cim:GovHydroWEH.pmax ?pmax . }
-  OPTIONAL { ?id cim:GovHydroWEH.pmin ?pmin . }
-  OPTIONAL { ?id cim:GovHydroWEH.gtmxop ?gtmxop . }
+  OPTIONAL { ?id cim:GovHydroWEH.db ?db . }
+  OPTIONAL { ?id cim:GovHydroWEH.dicn ?dicn . }
+  OPTIONAL { ?id cim:GovHydroWEH.dpv ?dpv . }
+  OPTIONAL { ?id cim:GovHydroWEH.dturb ?dturb . }
+  OPTIONAL { ?id cim:GovHydroWEH.feedbackSignal ?feedbackSignal . }
+  OPTIONAL { ?id cim:GovHydroWEH.fl1 ?fl1 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fl2 ?fl2 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fl3 ?fl3 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fl4 ?fl4 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fl5 ?fl5 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp1 ?fp1 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp2 ?fp2 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp3 ?fp3 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp4 ?fp4 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp5 ?fp5 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp6 ?fp6 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp7 ?fp7 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp8 ?fp8 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp9 ?fp9 . }
+  OPTIONAL { ?id cim:GovHydroWEH.fp10 ?fp10 . }
+  OPTIONAL { ?id cim:GovHydroWEH.gmax ?gmax . }
+  OPTIONAL { ?id cim:GovHydroWEH.gmin ?gmin . }
   OPTIONAL { ?id cim:GovHydroWEH.gtmxcl ?gtmxcl . }
+  OPTIONAL { ?id cim:GovHydroWEH.gtmxop ?gtmxop . }
+  OPTIONAL { ?id cim:GovHydroWEH.gv1 ?gv1 . }
+  OPTIONAL { ?id cim:GovHydroWEH.gv2 ?gv2 . }
+  OPTIONAL { ?id cim:GovHydroWEH.gv3 ?gv3 . }
+  OPTIONAL { ?id cim:GovHydroWEH.gv4 ?gv4 . }
+  OPTIONAL { ?id cim:GovHydroWEH.gv5 ?gv5 . }
+  OPTIONAL { ?id cim:GovHydroWEH.kd ?kd . }
+  OPTIONAL { ?id cim:GovHydroWEH.ki ?ki . }
+  OPTIONAL { ?id cim:GovHydroWEH.kp ?kp . }
+  OPTIONAL { ?id cim:GovHydroWEH.mwbase ?mwbase . }
   OPTIONAL { ?id cim:GovHydroWEH.pmss1 ?pmss1 . }
   OPTIONAL { ?id cim:GovHydroWEH.pmss2 ?pmss2 . }
   OPTIONAL { ?id cim:GovHydroWEH.pmss3 ?pmss3 . }
@@ -35,11 +54,12 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:GovHydroWEH.pmss8 ?pmss8 . }
   OPTIONAL { ?id cim:GovHydroWEH.pmss9 ?pmss9 . }
   OPTIONAL { ?id cim:GovHydroWEH.pmss10 ?pmss10 . }
-  OPTIONAL { ?id cim:GovHydroWEH.gpmax ?gpmax . }
-  OPTIONAL { ?id cim:GovHydroWEH.gmax ?gmax . }
-  OPTIONAL { ?id cim:GovHydroWEH.gmin ?gmin . }
-  OPTIONAL { ?id cim:GovHydroWEH.dpv ?dpv . }
-  OPTIONAL { ?id cim:GovHydroWEH.dicn ?dicn . }
-  OPTIONAL { ?id cim:GovHydroWEH.dspv ?dspv . }
-  OPTIONAL { ?id cim:GovHydroWEH.feedbackSignal ?feedbackSignal . }
+  OPTIONAL { ?id cim:GovHydroWEH.rpg ?rpg . }
+  OPTIONAL { ?id cim:GovHydroWEH.rpp ?rpp . }
+  OPTIONAL { ?id cim:GovHydroWEH.td ?td . }
+  OPTIONAL { ?id cim:GovHydroWEH.tdv ?tdv . }
+  OPTIONAL { ?id cim:GovHydroWEH.tg ?tg . }
+  OPTIONAL { ?id cim:GovHydroWEH.tp ?tp . }
+  OPTIONAL { ?id cim:GovHydroWEH.tpe ?tpe . }
+  OPTIONAL { ?id cim:GovHydroWEH.tw ?tw . }
 }

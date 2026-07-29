@@ -11,15 +11,19 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcELIN1 .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcELIN1.tfi ?tfi . }
-  OPTIONAL { ?id cim:ExcELIN1.tnu ?tnu . }
-  OPTIONAL { ?id cim:ExcELIN1.ka ?ka . }
-  OPTIONAL { ?id cim:ExcELIN1.ts1 ?ts1 . }
-  OPTIONAL { ?id cim:ExcELIN1.ts2 ?ts2 . }
   OPTIONAL { ?id cim:ExcELIN1.dpnf ?dpnf . }
-  OPTIONAL { ?id cim:ExcELIN1.vpu ?vpu . }
-  OPTIONAL { ?id cim:ExcELIN1.efmin ?efmin . }
   OPTIONAL { ?id cim:ExcELIN1.efmax ?efmax . }
+  OPTIONAL { ?id cim:ExcELIN1.efmin ?efmin . }
   OPTIONAL { ?id cim:ExcELIN1.ks1 ?ks1 . }
   OPTIONAL { ?id cim:ExcELIN1.ks2 ?ks2 . }
+  OPTIONAL { ?id cim:ExcELIN1.smax ?smax . }
+  OPTIONAL { ?id cim:ExcELIN1.tfi ?tfi . }
+  OPTIONAL { ?id cim:ExcELIN1.tnu ?tnu . }
+  OPTIONAL { ?id cim:ExcELIN1.ts1 ?ts1 . }
+  OPTIONAL { ?id cim:ExcELIN1.ts2 ?ts2 . }
+  OPTIONAL { ?id cim:ExcELIN1.tsw ?tsw . }
+  OPTIONAL { ?id cim:ExcELIN1.vpi ?vpi . }
+  OPTIONAL { ?id cim:ExcELIN1.vpnf ?vpnf . }
+  OPTIONAL { ?id cim:ExcELIN1.vpu ?vpu . }
+  OPTIONAL { ?id cim:ExcELIN1.xe ?xe . }
 }

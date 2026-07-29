@@ -18,13 +18,12 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.kdroop ?kdroop . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.kipce ?kipce . }
+  OPTIONAL { ?id cim:WindPitchContEmulIEC.komegaaero ?komegaaero . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.kppce ?kppce . }
-  OPTIONAL { ?id cim:WindPitchContEmulIEC.omegatr ?omegatr . }
+  OPTIONAL { ?id cim:WindPitchContEmulIEC.omegaref ?omegaref . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.pimax ?pimax . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.pimin ?pimin . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.t1 ?t1 . }
   OPTIONAL { ?id cim:WindPitchContEmulIEC.t2 ?t2 . }
-  OPTIONAL { ?id cim:WindPitchContEmulIEC.t3 ?t3 . }
-  OPTIONAL { ?id cim:WindPitchContEmulIEC.thetamax ?thetamax . }
-  OPTIONAL { ?id cim:WindPitchContEmulIEC.thetamin ?thetamin . }
+  OPTIONAL { ?id cim:WindPitchContEmulIEC.tpe ?tpe . }
 }

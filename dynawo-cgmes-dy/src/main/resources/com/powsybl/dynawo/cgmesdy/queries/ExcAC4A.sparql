@@ -11,8 +11,8 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcAC4A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcAC4A.tr ?tr . }
   OPTIONAL { ?id cim:ExcAC4A.ka ?ka . }
+  OPTIONAL { ?id cim:ExcAC4A.kc ?kc . }
   OPTIONAL { ?id cim:ExcAC4A.ta ?ta . }
   OPTIONAL { ?id cim:ExcAC4A.tb ?tb . }
   OPTIONAL { ?id cim:ExcAC4A.tc ?tc . }
@@ -20,5 +20,4 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:ExcAC4A.vimin ?vimin . }
   OPTIONAL { ?id cim:ExcAC4A.vrmax ?vrmax . }
   OPTIONAL { ?id cim:ExcAC4A.vrmin ?vrmin . }
-  OPTIONAL { ?id cim:ExcAC4A.kc ?kc . }
 }

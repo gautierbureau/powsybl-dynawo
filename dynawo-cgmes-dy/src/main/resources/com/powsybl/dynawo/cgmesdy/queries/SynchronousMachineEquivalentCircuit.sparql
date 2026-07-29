@@ -21,8 +21,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:RotatingMachineDynamics.saturationFactor120 ?saturationFactor120 . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.r1d ?r1d . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.x1d ?x1d . }
-  OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.r2d ?r2d . }
-  OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.x2d ?x2d . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.rfd ?rfd . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xfd ?xfd . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.r1q ?r1q . }
@@ -32,7 +30,4 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xad ?xad . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xaq ?xaq . }
   OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xf1d ?xf1d . }
-  OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xmd ?xmd . }
-  OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xmq ?xmq . }
-  OPTIONAL { ?id cim:SynchronousMachineEquivalentCircuit.xl ?xl . }
 }

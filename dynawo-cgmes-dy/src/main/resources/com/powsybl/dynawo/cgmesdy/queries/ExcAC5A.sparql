@@ -11,19 +11,22 @@ PREFIX md:   <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT * WHERE {
   ?id rdf:type cim:ExcAC5A .
   OPTIONAL { ?id cim:ExcitationSystemDynamics.SynchronousMachineDynamics ?synchronousMachineId . }
-  OPTIONAL { ?id cim:ExcAC5A.tr ?tr . }
+  OPTIONAL { ?id cim:ExcAC5A.a ?a . }
+  OPTIONAL { ?id cim:ExcAC5A.efd1 ?efd1 . }
+  OPTIONAL { ?id cim:ExcAC5A.efd2 ?efd2 . }
   OPTIONAL { ?id cim:ExcAC5A.ka ?ka . }
-  OPTIONAL { ?id cim:ExcAC5A.ta ?ta . }
-  OPTIONAL { ?id cim:ExcAC5A.vrmax ?vrmax . }
-  OPTIONAL { ?id cim:ExcAC5A.vrmin ?vrmin . }
   OPTIONAL { ?id cim:ExcAC5A.ke ?ke . }
-  OPTIONAL { ?id cim:ExcAC5A.te ?te . }
   OPTIONAL { ?id cim:ExcAC5A.kf ?kf . }
+  OPTIONAL { ?id cim:ExcAC5A.ks ?ks . }
+  OPTIONAL { ?id cim:ExcAC5A.seefd1 ?seefd1 . }
+  OPTIONAL { ?id cim:ExcAC5A.seefd2 ?seefd2 . }
+  OPTIONAL { ?id cim:ExcAC5A.ta ?ta . }
+  OPTIONAL { ?id cim:ExcAC5A.tb ?tb . }
+  OPTIONAL { ?id cim:ExcAC5A.tc ?tc . }
+  OPTIONAL { ?id cim:ExcAC5A.te ?te . }
   OPTIONAL { ?id cim:ExcAC5A.tf1 ?tf1 . }
   OPTIONAL { ?id cim:ExcAC5A.tf2 ?tf2 . }
   OPTIONAL { ?id cim:ExcAC5A.tf3 ?tf3 . }
-  OPTIONAL { ?id cim:ExcAC5A.e1 ?e1 . }
-  OPTIONAL { ?id cim:ExcAC5A.se1 ?se1 . }
-  OPTIONAL { ?id cim:ExcAC5A.e2 ?e2 . }
-  OPTIONAL { ?id cim:ExcAC5A.se2 ?se2 . }
+  OPTIONAL { ?id cim:ExcAC5A.vrmax ?vrmax . }
+  OPTIONAL { ?id cim:ExcAC5A.vrmin ?vrmin . }
 }

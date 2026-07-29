@@ -12,19 +12,25 @@ SELECT * WHERE {
   ?id rdf:type cim:GovHydroPID2 .
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:GovHydroPID2.mwbase ?mwbase . }
-  OPTIONAL { ?id cim:GovHydroPID2.r ?r . }
-  OPTIONAL { ?id cim:GovHydroPID2.pmax ?pmax . }
-  OPTIONAL { ?id cim:GovHydroPID2.pmin ?pmin . }
+  OPTIONAL { ?id cim:GovHydroPID2.rperm ?rperm . }
+  OPTIONAL { ?id cim:GovHydroPID2.treg ?treg . }
   OPTIONAL { ?id cim:GovHydroPID2.kp ?kp . }
   OPTIONAL { ?id cim:GovHydroPID2.ki ?ki . }
   OPTIONAL { ?id cim:GovHydroPID2.kd ?kd . }
   OPTIONAL { ?id cim:GovHydroPID2.ta ?ta . }
   OPTIONAL { ?id cim:GovHydroPID2.tb ?tb . }
-  OPTIONAL { ?id cim:GovHydroPID2.treg ?treg . }
   OPTIONAL { ?id cim:GovHydroPID2.tw ?tw . }
   OPTIONAL { ?id cim:GovHydroPID2.velmax ?velmax . }
   OPTIONAL { ?id cim:GovHydroPID2.velmin ?velmin . }
   OPTIONAL { ?id cim:GovHydroPID2.gmax ?gmax . }
   OPTIONAL { ?id cim:GovHydroPID2.gmin ?gmin . }
   OPTIONAL { ?id cim:GovHydroPID2.g0 ?g0 . }
+  OPTIONAL { ?id cim:GovHydroPID2.g1 ?g1 . }
+  OPTIONAL { ?id cim:GovHydroPID2.g2 ?g2 . }
+  OPTIONAL { ?id cim:GovHydroPID2.p1 ?p1 . }
+  OPTIONAL { ?id cim:GovHydroPID2.p2 ?p2 . }
+  OPTIONAL { ?id cim:GovHydroPID2.p3 ?p3 . }
+  OPTIONAL { ?id cim:GovHydroPID2.atw ?atw . }
+  OPTIONAL { ?id cim:GovHydroPID2.d ?d . }
+  OPTIONAL { ?id cim:GovHydroPID2.feedbackSignal ?feedbackSignal . }
 }

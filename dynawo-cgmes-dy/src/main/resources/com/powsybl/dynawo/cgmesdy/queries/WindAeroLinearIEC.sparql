@@ -20,4 +20,5 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindAeroLinearIEC.dptheta ?dptheta . }
   OPTIONAL { ?id cim:WindAeroLinearIEC.omegazero ?omegazero . }
   OPTIONAL { ?id cim:WindAeroLinearIEC.pavail ?pavail . }
+  OPTIONAL { ?id cim:WindAeroLinearIEC.thetazero ?thetazero . }
 }

@@ -16,13 +16,14 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics ?excitationSystemId . }
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.dpref ?dpref . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.ki ?ki . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.kp ?kp . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.dprefmax ?dprefmax . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.dprefmin ?dprefmin . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.kiwpp ?kiwpp . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.kpwpp ?kpwpp . }
   OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.prefmax ?prefmax . }
   OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.prefmin ?prefmin . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.tft ?tft . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.tlag ?tlag . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.twpfiltp ?twpfiltp . }
-  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.twpfiltu ?twpfiltu . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.tpft ?tpft . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.tpfv ?tpfv . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.twpffilt ?twpffilt . }
+  OPTIONAL { ?id cim:WindPlantFreqPcontrolIEC.twppfilt ?twppfilt . }
 }

@@ -17,7 +17,10 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssIEEE3B.ks2 ?ks2 . }
   OPTIONAL { ?id cim:PssIEEE3B.t1 ?t1 . }
   OPTIONAL { ?id cim:PssIEEE3B.t2 ?t2 . }
-  OPTIONAL { ?id cim:PssIEEE3B.t3 ?t3 . }
+  # CGMES PSS3B has three washouts tw1/tw2/tw3 (the recovered parser had a spurious t3)
+  OPTIONAL { ?id cim:PssIEEE3B.tw1 ?tw1 . }
+  OPTIONAL { ?id cim:PssIEEE3B.tw2 ?tw2 . }
+  OPTIONAL { ?id cim:PssIEEE3B.tw3 ?tw3 . }
   OPTIONAL { ?id cim:PssIEEE3B.a1 ?a1 . }
   OPTIONAL { ?id cim:PssIEEE3B.a2 ?a2 . }
   OPTIONAL { ?id cim:PssIEEE3B.a3 ?a3 . }
@@ -26,6 +29,6 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssIEEE3B.a6 ?a6 . }
   OPTIONAL { ?id cim:PssIEEE3B.a7 ?a7 . }
   OPTIONAL { ?id cim:PssIEEE3B.a8 ?a8 . }
-  OPTIONAL { ?id cim:PssIEEE3B.vsmax ?vsmax . }
-  OPTIONAL { ?id cim:PssIEEE3B.vsmin ?vsmin . }
+  OPTIONAL { ?id cim:PssIEEE3B.vstmax ?vstmax . }
+  OPTIONAL { ?id cim:PssIEEE3B.vstmin ?vstmin . }
 }

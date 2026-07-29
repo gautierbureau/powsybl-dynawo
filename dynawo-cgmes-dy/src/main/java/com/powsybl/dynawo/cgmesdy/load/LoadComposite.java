@@ -13,7 +13,5 @@ public record LoadComposite(
     String id, String energyConsumerId,
     double epvs, double epfs, double eqvs, double eqfs,
     double epvd, double epfd, double eqvd, double eqfd,
-    double mv, double mf, double lfmac, double lfs, double lfrac, double pfrac,
-    double td, double tf, double tc,
-    double xm, double xp, double xpp, double ls, double ra, double tpo, double tppo
+    double h, double lfrac, double pfrac
 ) { }

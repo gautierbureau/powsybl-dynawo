@@ -14,5 +14,9 @@ public record WindGenTurbineType3bIEC(
     String id, String powerPlantId,
     String windContPType3IECId, String windContQIECId, String windMechIECId,
     String windContCurrLimIECId, String windProtectionIECId,
-    double fthres, double mwtcwp, double tg, double two
+    double fducw,
+    double mwtcwp,
+    double tg,
+    double two,
+    double xs
 ) { }

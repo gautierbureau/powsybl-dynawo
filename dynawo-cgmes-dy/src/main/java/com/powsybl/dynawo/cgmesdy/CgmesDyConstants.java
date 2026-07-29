@@ -151,7 +151,7 @@ public final class CgmesDyConstants {
     public static final String CLASS_EXC_SK = "ExcSK";
     public static final String CLASS_EXC_ST1A = "ExcST1A";
     public static final String CLASS_EXC_ST2A = "ExcST2A";
-    public static final String CLASS_EXC_ST3 = "ExcST3";
+    public static final String CLASS_EXC_ST3A = "ExcST3A";
     public static final String CLASS_EXC_ST4B = "ExcST4B";
     public static final String CLASS_EXC_ST6B = "ExcST6B";
     public static final String CLASS_EXC_ST7B = "ExcST7B";

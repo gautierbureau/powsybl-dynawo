@@ -60,12 +60,15 @@ class WindAndAsyncLoaderTest {
             AsynchronousMachineTimeConstantReactance a = one(MODEL.asyncTimeConstReactanceList(), "AsyncTCR");
             assertFalse(a.id().isBlank());
             assertFalse(a.asynchronousMachineId().isBlank());
-            assertEquals(2.84, a.xs(), T);
-            assertEquals(0.18, a.xp(), T);
-            assertEquals(0.12, a.xpp(), T);
+            assertEquals(50.0, a.mBase(), T);
+            assertEquals(0.6, a.inertia(), T);
+            assertEquals(0.08, a.statorLeakageReactance(), T);
+            assertEquals(0.01, a.statorResistance(), T);
             assertEquals(1.5, a.tpo(), T);
             assertEquals(0.02, a.tppo(), T);
-            assertEquals(0.08, a.xl(), T);
+            assertEquals(0.18, a.xp(), T);
+            assertEquals(0.12, a.xpp(), T);
+            assertEquals(2.84, a.xs(), T);
         }
 
         @Test void reactanceHierarchy() {
@@ -84,19 +87,21 @@ class WindAndAsyncLoaderTest {
         @Test void fields() {
             AsynchronousMachineEquivalentCircuit a = one(MODEL.asyncEquivCircuitList(), "AsyncEqC");
             assertFalse(a.asynchronousMachineId().isBlank());
+            assertEquals(75.0, a.mBase(), T);
+            assertEquals(0.8, a.inertia(), T);
+            assertEquals(0.08, a.statorLeakageReactance(), T);
+            assertEquals(0.005, a.statorResistance(), T);
             assertEquals(0.03, a.rr1(), T);
-            assertEquals(0.05, a.xr1(), T);
             assertEquals(0.025, a.rr2(), T);
-            assertEquals(0.1, a.xr2(), T);
+            assertEquals(0.05, a.xlr1(), T);
+            assertEquals(0.1, a.xlr2(), T);
             assertEquals(2.5, a.xm(), T);
-            assertEquals(0.08, a.xs(), T);
-            assertEquals(0.005, a.rs(), T);
         }
 
         @Test void positiveResistances() {
             AsynchronousMachineEquivalentCircuit a = MODEL.asyncEquivCircuitList().get(0);
             assertTrue(a.rr1() > 0);
-            assertTrue(a.rs() > 0);
+            assertTrue(a.statorResistance() > 0);
             assertTrue(a.xm() > 0);
         }
     }
@@ -191,7 +196,7 @@ class WindAndAsyncLoaderTest {
             assertEquals(10.0, w.kdtd(), T);
             assertEquals(0.1, w.rramp(), T);
             assertEquals(1.0, w.wdtd(), T);
-            assertTrue(w.recrossflag());
+            assertEquals(0.05, w.tpfilt(), T);
         }
     }
 
@@ -203,7 +208,6 @@ class WindAndAsyncLoaderTest {
         @Test void fields() {
             var w = one(MODEL.windContPType4aList(), "WindContPType4aIEC");
             assertEquals(0.5, w.dpmax(), T);
-            assertEquals(-0.5, w.dpmin(), T);
             assertEquals(0.1, w.tpord(), T);
             assertEquals(0.05, w.tufilt(), T);
         }
@@ -235,9 +239,9 @@ class WindAndAsyncLoaderTest {
             assertEquals(2.0, w.kqv(), T);
             assertEquals(-0.1, w.udb1(), T);
             assertEquals(0.1, w.udb2(), T);
-            assertFalse(w.mconq().isBlank(), "mconq must not be blank");
-            assertFalse(w.mqfrt().isBlank(), "mqfrt must not be blank");
-            assertFalse(w.windLVRTQcontrolModeType().isBlank(), "windLVRTQcontrolModeType must not be blank");
+            assertEquals(1.0, w.qmax(), T);
+            assertFalse(w.windQcontrolModesType().isBlank(), "windQcontrolModesType must not be blank");
+            assertFalse(w.windLVRTQcontrolModesType().isBlank(), "windLVRTQcontrolModesType must not be blank");
         }
 
         @Test void deadbandOrdered() {
@@ -280,10 +284,10 @@ class WindAndAsyncLoaderTest {
 
         @Test void fields() {
             var w = one(MODEL.windProtectionList(), "WindProtectionIEC");
-            assertEquals(1.0, w.dfimax(), T);
+            assertEquals(0.1, w.tfover(), T);
             assertEquals(52.0, w.fover(), T);
             assertEquals(48.0, w.funder(), T);
-            assertEquals(5.0, w.tfma(), T);
+            assertEquals(0.1, w.tfunder(), T);
             assertEquals(1.15, w.uover(), T);
             assertEquals(0.85, w.uunder(), T);
         }
@@ -302,8 +306,8 @@ class WindAndAsyncLoaderTest {
 
         @Test void fields() {
             var w = one(MODEL.windPlantFreqList(), "WindPlantFreqPcontrolIEC");
-            assertEquals(30.0, w.twpfiltp(), T);
-            assertEquals(30.0, w.twpfiltu(), T);
+            assertEquals(0.5, w.kiwpp(), T);
+            assertEquals(0.05, w.twpffilt(), T);
             assertEquals(1.0, w.prefmax(), T);
         }
     }
@@ -315,7 +319,7 @@ class WindAndAsyncLoaderTest {
 
         @Test void fields() {
             var w = one(MODEL.windPlantReactList(), "WindPlantReactiveControlIEC");
-            assertEquals(30.0, w.twpfiltp(), T);
+            assertEquals(0.5, w.kiwpx(), T);
             assertEquals(0.9, w.uwpqdip(), T);
         }
     }
@@ -328,10 +332,10 @@ class WindAndAsyncLoaderTest {
         @Test void fields() {
             var w = one(MODEL.windPitchEmulList(), "WindPitchContEmulIEC");
             assertEquals(3.0, w.kipce(), T);
-            assertEquals(1.0, w.omegatr(), T);
+            assertEquals(0.05, w.tpe(), T);
             assertEquals(1.0, w.pimax(), T);
             assertEquals(0.0, w.pimin(), T);
-            assertEquals(30.0, w.thetamax(), T);
+            assertEquals(0.1, w.komegaaero(), T);
         }
     }
 
@@ -414,7 +418,7 @@ class WindAndAsyncLoaderTest {
 
         @Test void fields() {
             var w = one(MODEL.windType3bList(), "WindGenTurbineType3bIEC");
-            assertEquals(0.02, w.fthres(), T);
+            assertEquals(0.02, w.fducw(), T);
             assertEquals(0.0, w.mwtcwp(), T);
             assertEquals(0.02, w.tg(), T);
             assertEquals(0.05, w.two(), T);

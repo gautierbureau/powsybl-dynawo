@@ -11,6 +11,8 @@ package com.powsybl.dynawo.cgmesdy.governors.gas;
  */
 public record GovGAST3(
     String id, String synchronousMachineId,
-    double mwbase, double r, double t1, double vmax, double vmin,
-    double dturb, double bca, double kca, double tsi, double bp, double tsa, double tsb
+    double bca, double bp, double dtc, double ka, double kac, double kca,
+    double ksi, double ky, double mnef, double mxef, double rcmn, double rcmx,
+    double tac, double tc, double td, double tfen, double tg, double tsi,
+    double tt, double ttc, double ty
 ) { }

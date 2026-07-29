@@ -16,5 +16,7 @@ public record PssIEEE2B(
     double tw1, double tw2, double tw3, double tw4,
     double t1, double t2, double t3, double t4,
     double t6, double t7, double t8, double t9, double t10, double t11,
-    double n, double m, double vstmax, double vstmin
+    double n, double m,
+    double vsi1max, double vsi1min, double vsi2max, double vsi2min,
+    double vstmax, double vstmin
 ) { }

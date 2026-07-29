@@ -32,6 +32,10 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:PssIEEE2B.t11 ?t11 . }
   OPTIONAL { ?id cim:PssIEEE2B.n ?n . }
   OPTIONAL { ?id cim:PssIEEE2B.m ?m . }
+  OPTIONAL { ?id cim:PssIEEE2B.vsi1max ?vsi1max . }
+  OPTIONAL { ?id cim:PssIEEE2B.vsi1min ?vsi1min . }
+  OPTIONAL { ?id cim:PssIEEE2B.vsi2max ?vsi2max . }
+  OPTIONAL { ?id cim:PssIEEE2B.vsi2min ?vsi2min . }
   OPTIONAL { ?id cim:PssIEEE2B.vstmax ?vstmax . }
   OPTIONAL { ?id cim:PssIEEE2B.vstmin ?vstmin . }
 }

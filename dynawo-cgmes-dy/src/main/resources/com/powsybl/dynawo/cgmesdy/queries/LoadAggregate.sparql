@@ -17,6 +17,9 @@ SELECT * WHERE {
   OPTIONAL { ?id cim:WindTurbineType3or4Dynamics.WindPlantDynamics     ?powerPlantId            . }
   OPTIONAL { ?id cim:TurbineGovernorDynamics.SynchronousMachineDynamics ?synchronousMachineId  . }
   OPTIONAL { ?id cim:LoadAggregate.energyConsumerId ?energyConsumerId . }
+  OPTIONAL { ?id cim:LoadDynamics.EnergyConsumer ?energyConsumerId . }  # CGMES standard role name
   OPTIONAL { ?id cim:LoadAggregate.loadMotorId ?loadMotorId . }
+  OPTIONAL { ?id cim:LoadAggregate.LoadMotor ?loadMotorId . }  # CGMES standard role name
   OPTIONAL { ?id cim:LoadAggregate.loadStaticId ?loadStaticId . }
+  OPTIONAL { ?id cim:LoadAggregate.LoadStatic ?loadStaticId . }  # CGMES standard role name
 }

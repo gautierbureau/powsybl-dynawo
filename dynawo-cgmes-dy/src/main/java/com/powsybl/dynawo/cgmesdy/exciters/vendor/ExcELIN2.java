@@ -11,7 +11,10 @@ package com.powsybl.dynawo.cgmesdy.exciters.vendor;
  */
 public record ExcELIN2(
     String id, String synchronousMachineId,
-    double tr4, double k1, double t1, double p1, double p2, double ti1, double ti3, double ti4,
-    double te, double ermin, double ermax, double kcse, double kce, double tc4, double tb4,
-    double efdbas, double iefmax, double iefmax2, double efmin2, double k2, double t2
+    double efdbas, double iefmax, double iefmax2, double iefmin, double k1,
+    double k1ec, double k2, double k3, double k4, double kd1,
+    double ke2, double ketb, double pid1max, double seve1, double seve2,
+    double tb1, double te, double te2, double ti1, double ti3,
+    double ti4, double tr4, double upmax, double upmin, double ve1,
+    double ve2, double xp
 ) { }
