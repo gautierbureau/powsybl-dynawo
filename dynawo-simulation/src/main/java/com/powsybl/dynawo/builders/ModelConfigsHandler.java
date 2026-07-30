@@ -141,6 +141,40 @@ public final class ModelConfigsHandler {
         }
     }
 
+    /**
+     * Opens a scope over the runtime model registrations. The catalog as it stands is captured now;
+     * closing the scope puts it back, dropping every model {@link #addModels} or {@link #overrideModels}
+     * registered while it was open. A run registers the models a mapping built inside such a scope,
+     * so a later run in the same long-lived process does not read them as installed — the handler is
+     * a JVM-wide singleton that nothing else takes models back out of.
+     */
+    public Scope openScope() {
+        return new Scope();
+    }
+
+    /**
+     * A span across which runtime registrations are undone on {@link #close}. Not reentrant and not
+     * thread-safe, like the handler it scopes; use it in a try-with-resources around a run's
+     * registration and the reads that depend on it.
+     */
+    public final class Scope implements AutoCloseable {
+
+        private final Map<String, ModelConfigs.Snapshot> categorySnapshots = new HashMap<>();
+        private final Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorSnapshot;
+
+        private Scope() {
+            modelConfigsCat.forEach((cat, configs) -> categorySnapshots.put(cat, configs.snapshot()));
+            builderConstructorSnapshot = new HashMap<>(builderConstructorByName);
+        }
+
+        @Override
+        public void close() {
+            categorySnapshots.forEach((cat, snapshot) -> modelConfigsCat.get(cat).restore(snapshot));
+            builderConstructorByName.clear();
+            builderConstructorByName.putAll(builderConstructorSnapshot);
+        }
+    }
+
     public Set<String> getCategories() {
         return Collections.unmodifiableSet(modelConfigsCat.keySet());
     }

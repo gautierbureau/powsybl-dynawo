@@ -88,4 +88,22 @@ public class ModelConfigs {
     void overrideModelConfigs(ModelConfigs modelConfigsToMerge) {
         modelConfigMap.putAll(modelConfigsToMerge.modelConfigMap);
     }
+
+    /**
+     * The configurations as they stand, to put back later with {@link #restore}. A configuration is
+     * an immutable record, so a copy of the map holds them; the map itself is shared with the
+     * builders and is reverted in place rather than replaced.
+     */
+    Snapshot snapshot() {
+        return new Snapshot(new TreeMap<>(modelConfigMap), defaultModelConfig);
+    }
+
+    void restore(Snapshot snapshot) {
+        modelConfigMap.clear();
+        modelConfigMap.putAll(snapshot.modelConfigMap());
+        defaultModelConfig = snapshot.defaultModelConfig();
+    }
+
+    record Snapshot(SortedMap<String, ModelConfig> modelConfigMap, ModelConfig defaultModelConfig) {
+    }
 }

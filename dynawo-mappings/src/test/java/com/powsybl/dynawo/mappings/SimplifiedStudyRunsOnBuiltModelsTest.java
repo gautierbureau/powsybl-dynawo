@@ -80,30 +80,34 @@ class SimplifiedStudyRunsOnBuiltModelsTest {
         DynawoSimulationParameters dynawoParameters = new DynawoSimulationParameters();
         DynamicModelsSupplier models = DynamicModelsMappings.getInstance()
                 .apply(mapping, network, dynawoParameters, ModelDescriptionLookup.fromModelDatabase(home));
-        ModelConfigsHandler.getInstance().addModels(dynawoParameters.getAdditionalModels());
-        ModelConfigsHandler.getInstance().overrideModels(dynawoParameters.getAdditionalModelOverrides());
+        // the models the mapping built are registered within a scope, so this study does not leave
+        // them in the JVM-wide catalog for the next one to read as installed
+        try (ModelConfigsHandler.Scope scope = ModelConfigsHandler.getInstance().openScope()) {
+            ModelConfigsHandler.getInstance().addModels(dynawoParameters.getAdditionalModels());
+            ModelConfigsHandler.getInstance().overrideModels(dynawoParameters.getAdditionalModelOverrides());
 
-        // every machine runs proportional regulations, the detailed controls it carries having been
-        // translated before any model was looked for
-        assertThat(mapping.createModelConfigs(network))
-                .filteredOn(model -> model.lib().startsWith("GeneratorSynchronous"))
-                .isNotEmpty()
-                .allSatisfy(model -> assertThat(model.lib()).contains("GoverProp"));
+            // every machine runs proportional regulations, the detailed controls it carries having been
+            // translated before any model was looked for
+            assertThat(mapping.createModelConfigs(network))
+                    .filteredOn(model -> model.lib().startsWith("GeneratorSynchronous"))
+                    .isNotEmpty()
+                    .allSatisfy(model -> assertThat(model.lib()).contains("GoverProp"));
 
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 20);
-        parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
+            DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 20);
+            parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
 
-        DynamicSimulationResult result;
-        try (ComputationManager computationManager = new LocalComputationManager()) {
-            result = new DynawoSimulationProvider(new DynawoSimulationConfig(home, true))
-                    .run(network, models, EventModelsSupplier.empty(), activePowerOfEveryMachine(),
-                            VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters,
-                            ReportNode.NO_OP)
-                    .get();
+            DynamicSimulationResult result;
+            try (ComputationManager computationManager = new LocalComputationManager()) {
+                result = new DynawoSimulationProvider(new DynawoSimulationConfig(home, true))
+                        .run(network, models, EventModelsSupplier.empty(), activePowerOfEveryMachine(),
+                                VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters,
+                                ReportNode.NO_OP)
+                        .get();
+            }
+
+            assertThat(result.getStatus()).as(result.getStatusText()).isEqualTo(DynamicSimulationResult.Status.SUCCESS);
+            assertThat(result.getCurves()).hasSize((int) machineCount(network));
         }
-
-        assertThat(result.getStatus()).as(result.getStatusText()).isEqualTo(DynamicSimulationResult.Status.SUCCESS);
-        assertThat(result.getCurves()).hasSize((int) machineCount(network));
     }
 
     /**

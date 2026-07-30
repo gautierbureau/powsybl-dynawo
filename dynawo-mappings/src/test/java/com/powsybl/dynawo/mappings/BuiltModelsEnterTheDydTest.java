@@ -70,14 +70,17 @@ class BuiltModelsEnterTheDydTest {
         assertThat(built.get("SYNCHRONOUS_GENERATOR")).extracting(ModelConfig::name)
                 .anyMatch(name -> name.contains("Tfo"));
 
-        // registering them, as a run does, is what lets the builder stand them up
-        ModelConfigsHandler.getInstance().addModels(built);
-        var models = supplier.get(network, ReportNode.NO_OP);
+        // registering them, as a run does, is what lets the builder stand them up; a scope keeps
+        // them from leaking into the JVM-wide catalog the next study reads
+        try (ModelConfigsHandler.Scope scope = ModelConfigsHandler.getInstance().openScope()) {
+            ModelConfigsHandler.getInstance().addModels(built);
+            var models = supplier.get(network, ReportNode.NO_OP);
 
-        // every machine is now a model in the dyd, the built ones among them: before they were
-        // registered, the models built for the transmission machines were dropped for want of a
-        // builder and the dyd came out short
-        long machines = network.getGeneratorStream().filter(g -> g.isVoltageRegulatorOn()).count();
-        assertThat(models).as("no machine dropped for want of a builder").hasSize((int) machines);
+            // every machine is now a model in the dyd, the built ones among them: before they were
+            // registered, the models built for the transmission machines were dropped for want of a
+            // builder and the dyd came out short
+            long machines = network.getGeneratorStream().filter(g -> g.isVoltageRegulatorOn()).count();
+            assertThat(models).as("no machine dropped for want of a builder").hasSize((int) machines);
+        }
     }
 }

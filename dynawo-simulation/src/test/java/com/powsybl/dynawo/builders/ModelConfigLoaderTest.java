@@ -203,4 +203,39 @@ class ModelConfigLoaderTest {
         handler.addModels(Map.of("UNKNOWN_CATEGORY", List.of(new ModelConfig("ShouldBeSkipped"))));
         assertNull(handler.getModelBuilder(network, "ShouldBeSkipped", ReportNode.NO_OP));
     }
+
+    @Test
+    void scopedRegistrationsAreUndoneOnClose() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        int baseGenNumber = BaseGeneratorBuilder.getSupportedModelInfos().size();
+
+        ModelConfig scoped = new ModelConfig("ScopedGenerator");
+        try (ModelConfigsHandler.Scope scope = handler.openScope()) {
+            handler.addModels(Map.of("BASE_GENERATOR", List.of(scoped)));
+            // inside the scope the model is registered, catalog and builders alike
+            assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenNumber + 1).contains(scoped);
+            assertNotNull(handler.getModelBuilder(network, "ScopedGenerator", ReportNode.NO_OP));
+        }
+
+        // closing the scope puts the catalog back as it was, the model gone from both
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenNumber).doesNotContain(scoped);
+        assertNull(handler.getModelBuilder(network, "ScopedGenerator", ReportNode.NO_OP));
+        assertThat(handler.findModelConfig("ScopedGenerator")).isEmpty();
+    }
+
+    @Test
+    void scopeRestoresAConfigurationAnOverrideReplaced() {
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        String lib = BaseGeneratorBuilder.getSupportedModelInfos().stream().findFirst().orElseThrow().lib();
+        ModelConfig original = handler.findModelConfig(lib).orElseThrow();
+
+        try (ModelConfigsHandler.Scope scope = handler.openScope()) {
+            handler.overrideModels(Map.of("BASE_GENERATOR", List.of(new ModelConfig(lib, List.of("OVERRIDDEN")))));
+            assertThat(handler.findModelConfig(lib).orElseThrow().properties()).contains("OVERRIDDEN");
+        }
+
+        // an override corrects a configuration in place; the scope brings the original one back
+        assertThat(handler.findModelConfig(lib)).contains(original);
+    }
 }
