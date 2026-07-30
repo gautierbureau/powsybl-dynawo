@@ -33,6 +33,7 @@ public final class ModelConfigsHandler {
     private final Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorByName = new HashMap<>();
     private final List<EventBuilderConfig> eventBuilderConfigs;
     private final Map<String, EventBuilderConfig.EventModelBuilderConstructor> eventBuilderConstructorByName;
+    private final CatalogSnapshot baseCatalog;
 
     private ModelConfigsHandler() {
         List<ModelConfigLoader> modelConfigLoaders = Lists.newArrayList(ServiceLoader.load(ModelConfigLoader.class));
@@ -54,6 +55,8 @@ public final class ModelConfigsHandler {
                 .toList();
         eventBuilderConstructorByName = eventBuilderConfigs.stream()
                 .collect(Collectors.toMap(e -> e.getEventModelInfo().name(), EventBuilderConfig::getBuilderConstructor));
+        // the catalog as the loaders leave it, before any run adds to it, to reset to per study
+        baseCatalog = capture();
     }
 
     public static ModelConfigsHandler getInstance() {
@@ -153,25 +156,46 @@ public final class ModelConfigsHandler {
     }
 
     /**
+     * Drops every runtime registration, putting the catalog back as the loaders left it. Where a
+     * {@link Scope} restores to a point in time, this restores to the base catalog outright, for a
+     * study that means to start from what Dynawo ships rather than from whatever an earlier study in
+     * the same process left behind.
+     */
+    public void resetToBase() {
+        restore(baseCatalog);
+    }
+
+    private CatalogSnapshot capture() {
+        Map<String, ModelConfigs.Snapshot> categorySnapshots = new HashMap<>();
+        modelConfigsCat.forEach((cat, configs) -> categorySnapshots.put(cat, configs.snapshot()));
+        return new CatalogSnapshot(categorySnapshots, new HashMap<>(builderConstructorByName));
+    }
+
+    private void restore(CatalogSnapshot snapshot) {
+        snapshot.categorySnapshots().forEach((cat, s) -> modelConfigsCat.get(cat).restore(s));
+        builderConstructorByName.clear();
+        builderConstructorByName.putAll(snapshot.builderConstructorByName());
+    }
+
+    private record CatalogSnapshot(Map<String, ModelConfigs.Snapshot> categorySnapshots,
+                                   Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorByName) {
+    }
+
+    /**
      * A span across which runtime registrations are undone on {@link #close}. Not reentrant and not
      * thread-safe, like the handler it scopes; use it in a try-with-resources around a run's
      * registration and the reads that depend on it.
      */
     public final class Scope implements AutoCloseable {
 
-        private final Map<String, ModelConfigs.Snapshot> categorySnapshots = new HashMap<>();
-        private final Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorSnapshot;
+        private final CatalogSnapshot snapshot = capture();
 
         private Scope() {
-            modelConfigsCat.forEach((cat, configs) -> categorySnapshots.put(cat, configs.snapshot()));
-            builderConstructorSnapshot = new HashMap<>(builderConstructorByName);
         }
 
         @Override
         public void close() {
-            categorySnapshots.forEach((cat, snapshot) -> modelConfigsCat.get(cat).restore(snapshot));
-            builderConstructorByName.clear();
-            builderConstructorByName.putAll(builderConstructorSnapshot);
+            restore(snapshot);
         }
     }
 

@@ -225,6 +225,26 @@ class ModelConfigLoaderTest {
     }
 
     @Test
+    void resetToBaseDropsRuntimeRegistrations() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        // reset first so an earlier test's leaked registration is not mistaken for the base catalog
+        handler.resetToBase();
+        int baseGenCount = BaseGeneratorBuilder.getSupportedModelInfos().size();
+
+        handler.addModels(Map.of("BASE_GENERATOR", List.of(new ModelConfig("ResetGenerator"))));
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenCount + 1);
+        assertNotNull(handler.getModelBuilder(network, "ResetGenerator", ReportNode.NO_OP));
+
+        handler.resetToBase();
+
+        // the runtime addition is gone and the base catalog is whole again
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenCount);
+        assertNull(handler.getModelBuilder(network, "ResetGenerator", ReportNode.NO_OP));
+        assertThat(handler.findModelConfig("ResetGenerator")).isEmpty();
+    }
+
+    @Test
     void scopeRestoresAConfigurationAnOverrideReplaced() {
         ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
         String lib = BaseGeneratorBuilder.getSupportedModelInfos().stream().findFirst().orElseThrow().lib();
