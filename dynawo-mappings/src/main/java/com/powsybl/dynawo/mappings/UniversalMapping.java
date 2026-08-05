@@ -37,6 +37,7 @@ public class UniversalMapping implements DynamicModelsMapping {
     private final String name;
     private final UniversalSynchronousGeneratorMapping generators;
     private final LoadMapping loads;
+    private final SvarcMapping svarcs;
     private final TapChangerBlockingMapping tapChangerBlockings;
 
     protected UniversalMapping(String name, UniversalSynchronousGeneratorMapping generators, LoadMapping loads) {
@@ -48,6 +49,7 @@ public class UniversalMapping implements DynamicModelsMapping {
         this.name = Objects.requireNonNull(name);
         this.generators = Objects.requireNonNull(generators);
         this.loads = Objects.requireNonNull(loads);
+        this.svarcs = new SvarcMapping(loads.getParameterSetPrefix());
         this.tapChangerBlockings = Objects.requireNonNull(tapChangerBlockings);
     }
 
@@ -78,6 +80,7 @@ public class UniversalMapping implements DynamicModelsMapping {
         List<MappedModelsSupplier.MappedModel> models =
                 new ArrayList<>(generators.createModelConfigs(network, reportNode));
         models.addAll(loads.createModelConfigs(network));
+        models.addAll(svarcs.createModelConfigs(network));
         // the automatons a network carries as extensions, an empty list where it carries none
         models.addAll(tapChangerBlockings.createModelConfigs(network));
         return models;
@@ -87,6 +90,7 @@ public class UniversalMapping implements DynamicModelsMapping {
     public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
         List<ParametersSet> sets = new ArrayList<>(generators.createParameters(network, descriptions));
         sets.addAll(loads.createParameters(network));
+        sets.addAll(svarcs.createParameters(network));
         sets.addAll(tapChangerBlockings.createParameters(network));
         return sets;
     }

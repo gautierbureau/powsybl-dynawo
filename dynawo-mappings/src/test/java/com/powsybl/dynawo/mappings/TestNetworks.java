@@ -9,6 +9,7 @@ package com.powsybl.dynawo.mappings;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -31,6 +32,22 @@ public final class TestNetworks {
         return voltageLevel.newGenerator().setId("g")
                 .setBus("bus").setConnectableBus("bus")
                 .setTargetP(100).setMinP(0).setMaxP(200).setTargetV(nominalV).setVoltageRegulatorOn(true)
+                .add();
+    }
+
+    /**
+     * A network holding a single static var compensator, enough to exercise its mapping.
+     */
+    public static StaticVarCompensator singleStaticVarCompensator(double nominalV) {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation().setId("s").add()
+                .newVoltageLevel().setId("vl").setNominalV(nominalV).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        voltageLevel.getBusBreakerView().newBus().setId("bus").add();
+        return voltageLevel.newStaticVarCompensator().setId("svc")
+                .setBus("bus").setConnectableBus("bus")
+                .setBmin(-0.01).setBmax(0.01)
+                .setRegulating(true).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetpoint(nominalV)
                 .add();
     }
 }
