@@ -7,20 +7,33 @@
  */
 package com.powsybl.dynawo.characteristics;
 
+import com.powsybl.dynawo.mappings.DynamicMappingExtensionsProvider;
 import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.iidm.network.Network;
 
 /**
- * Adds the {@code tcbs} extension a mapping reads its tap changer blockings from.
+ * Adds the {@code tapChangerBlockings} extension a mapping reads its tap changer blockings from.
  * <p>
  * Discovered with a {@link java.util.ServiceLoader} and chosen by name, as the generator controls
  * are, so a study sets the blockings of a known system as a step of its own before a model is
  * chosen for them. A network already carrying the extension is left as it is.
+ * <p>
+ * This is the {@code tapChangerBlockings} kind of {@link DynamicMappingExtensionsProvider}, so it is
+ * reached through the same door as any other extension, by naming the extension and the provider.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-public interface TapChangerBlockingsProvider {
+public interface TapChangerBlockingsProvider extends DynamicMappingExtensionsProvider {
 
+    /** The kind a caller asks these providers for through the extension registry. */
+    String EXTENSION_NAME = "tapChangerBlockings";
+
+    @Override
+    default String getExtensionName() {
+        return EXTENSION_NAME;
+    }
+
+    @Override
     String getName();
 
     /**
@@ -33,6 +46,7 @@ public interface TapChangerBlockingsProvider {
     /**
      * The provider set up with the given settings, or this one where it takes none.
      */
+    @Override
     default TapChangerBlockingsProvider configured(MappingParameters parameters) {
         return this;
     }

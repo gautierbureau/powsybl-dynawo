@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.characteristics;
 
+import com.powsybl.dynawo.mappings.DynamicMappingExtensionsProvider;
 import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -20,11 +21,24 @@ import com.powsybl.iidm.network.Network;
  * characteristics of each machine; another holds the controls of a known system by name; another
  * may read them from a control database. All write the very same extension, only the control
  * names differ, so nothing downstream changes.
+ * <p>
+ * This is the {@code synchronousGeneratorProperties} kind of {@link DynamicMappingExtensionsProvider},
+ * so it is reached through the same door as any other extension, by naming the extension and the
+ * provider, on top of the method of its own the public API offers for it.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-public interface SynchronousGeneratorPropertiesProvider {
+public interface SynchronousGeneratorPropertiesProvider extends DynamicMappingExtensionsProvider {
 
+    /** The kind a caller asks these providers for through the extension registry. */
+    String EXTENSION_NAME = "synchronousGeneratorProperties";
+
+    @Override
+    default String getExtensionName() {
+        return EXTENSION_NAME;
+    }
+
+    @Override
     String getName();
 
     /**
@@ -41,6 +55,7 @@ public interface SynchronousGeneratorPropertiesProvider {
      * transformer from, returns one holding it; a provider whose controls are fixed returns
      * itself.
      */
+    @Override
     default SynchronousGeneratorPropertiesProvider configured(MappingParameters parameters) {
         return this;
     }
