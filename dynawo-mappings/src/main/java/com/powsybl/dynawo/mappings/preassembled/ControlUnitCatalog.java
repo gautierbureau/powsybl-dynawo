@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 /**
@@ -40,6 +41,15 @@ public final class ControlUnitCatalog {
         declare(GovernorUnits.class, MachineControlUnit.class, governors);
         declare(VoltageRegulatorUnits.class, MachineControlUnit.class, voltageRegulators);
         declare(RegulatorControlUnits.class, RegulatorControlUnit.class, regulatorControls);
+        // the units a deployment brings of its own, the RTE detailed controls among them, added
+        // beside the open ones; a name the open framework already declares keeps its place
+        ServiceLoader.load(ControlUnitProvider.class).forEach(this::declare);
+    }
+
+    private void declare(ControlUnitProvider provider) {
+        provider.getGovernors().forEach(unit -> governors.putIfAbsent(nameOf(unit), unit));
+        provider.getVoltageRegulators().forEach(unit -> voltageRegulators.putIfAbsent(nameOf(unit), unit));
+        provider.getRegulatorControls().forEach(unit -> regulatorControls.putIfAbsent(nameOf(unit), unit));
     }
 
     public static ControlUnitCatalog getInstance() {
