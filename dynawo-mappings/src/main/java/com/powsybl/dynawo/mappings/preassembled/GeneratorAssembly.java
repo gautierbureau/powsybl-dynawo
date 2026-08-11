@@ -77,6 +77,7 @@ public class GeneratorAssembly {
     public PreassembledModel build(String id) {
         PreassembledModel model = new PreassembledModel(id, machine);
         controls.forEach(model::add);
+        drivenExciters(model);
         units().forEach(model::addUnit);
         model.addConnections(connections());
         regulatorControls.forEach(control -> {
@@ -84,6 +85,23 @@ public class GeneratorAssembly {
             model.addConnections(control.getConnectionsWith(machine, voltageRegulator(id)));
         });
         return model;
+    }
+
+    /**
+     * The exciter a regulator drives, added beside it and wired to it: it watches the machine on its
+     * own account, its connections following from its being a control of the model, and takes the
+     * regulator's output through the one variable that stands between them.
+     */
+    private void drivenExciters(PreassembledModel model) {
+        controls.stream()
+                .filter(MachineControlUnit.class::isInstance)
+                .map(MachineControlUnit.class::cast)
+                .filter(regulator -> regulator.getExciter() != null)
+                .forEach(regulator -> {
+                    MachineControlUnit exciter = regulator.getExciter();
+                    model.add(exciter);
+                    model.addConnections(exciter.regulatorConnections(regulator));
+                });
     }
 
     /**

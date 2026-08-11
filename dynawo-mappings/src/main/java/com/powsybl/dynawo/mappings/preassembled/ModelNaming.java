@@ -8,22 +8,28 @@
 package com.powsybl.dynawo.mappings.preassembled;
 
 /**
- * What a Dynawo release calls the things a preassembled model is made of.
+ * What a Dynawo release, or a deployment's own library, calls the things a preassembled model is
+ * made of.
  * <p>
  * The models themselves are the same from one release to the next far more often than their names
  * are, so a definition that will not build is usually a definition naming things the way another
  * release does. Everything that differs between the releases we target is gathered here, so that
- * describing a model says what it is made of and this says what to call it.
+ * describing a model says what it is made of and this says what to call it. A deployment naming a
+ * part its own way, the RTE transformer init among them, builds one of these rather than adding a
+ * value to a fixed set.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-public enum ModelNaming {
+public final class ModelNaming {
+
+    private static final String GENERATOR_TRANSFORMER_AUX_INIT = "GeneratorTransformerAux_INIT";
 
     /**
      * What Dynawo calls things today.
      */
-    CURRENT("Dynawo.Electrical.Transformers.TransformersFixedTap.",
-            "", "i0Pu", "U0PuVar", "running.value"),
+    public static final ModelNaming CURRENT = new ModelNaming(
+            "Dynawo.Electrical.Transformers.TransformersFixedTap.", "", "i0Pu", "U0PuVar", "running.value",
+            "Dynawo.Electrical.Transformers.TransformersFixedTap.", GENERATOR_TRANSFORMER_AUX_INIT);
 
     /**
      * What Dynawo 1.7.0 called them.
@@ -35,26 +41,60 @@ public enum ModelNaming {
      * quantity to offer and the wire that would carry it is never made: a regulator behaves as
      * always running either way.
      */
-    DYNAWO_1_7_0("Dynawo.Electrical.Transformers.",
-            ".value", "iStator0Pu", "U0Pu", null);
+    public static final ModelNaming DYNAWO_1_7_0 = new ModelNaming(
+            "Dynawo.Electrical.Transformers.", ".value", "iStator0Pu", "U0Pu", null,
+            "Dynawo.Electrical.Transformers.", GENERATOR_TRANSFORMER_AUX_INIT);
 
     private final String transformerPackage;
     private final String connectorSuffix;
     private final String initCurrent;
     private final String initVoltageMagnitude;
     private final String running;
+    private final String transformerInitPackage;
+    private final String generatorTransformerAuxInitName;
 
-    ModelNaming(String transformerPackage, String connectorSuffix, String initCurrent,
-                String initVoltageMagnitude, String running) {
+    /**
+     * @param transformerPackage             the package the generator transformer model is in
+     * @param connectorSuffix                what a running quantity gains going through a connector
+     * @param initCurrent                    the machine's initial current, named this release's way
+     * @param initVoltageMagnitude           the machine's initial voltage magnitude
+     * @param running                        how the machine says it is running, or null where none
+     * @param transformerInitPackage         the package the generator transformer init model is in,
+     *                                       which a deployment may take from its own library while
+     *                                       the transformer itself stays the open one
+     * @param generatorTransformerAuxInitName the init model of a transformer with auxiliaries, which
+     *                                       RTE names {@code GeneratorTransformerAuxExt_INIT}
+     */
+    public ModelNaming(String transformerPackage, String connectorSuffix, String initCurrent,
+                       String initVoltageMagnitude, String running, String transformerInitPackage,
+                       String generatorTransformerAuxInitName) {
         this.transformerPackage = transformerPackage;
         this.connectorSuffix = connectorSuffix;
         this.initCurrent = initCurrent;
         this.initVoltageMagnitude = initVoltageMagnitude;
         this.running = running;
+        this.transformerInitPackage = transformerInitPackage;
+        this.generatorTransformerAuxInitName = generatorTransformerAuxInitName;
     }
 
     String getTransformerPackage() {
         return transformerPackage;
+    }
+
+    /**
+     * The package the transformer's init model is in, the open package unless a deployment takes it
+     * from its own library.
+     */
+    String getTransformerInitPackage() {
+        return transformerInitPackage;
+    }
+
+    /**
+     * The init model of a transformer carrying auxiliaries, {@code GeneratorTransformerAux_INIT}
+     * unless a deployment names it its own way.
+     */
+    String getGeneratorTransformerAuxInitName() {
+        return generatorTransformerAuxInitName;
     }
 
     /**

@@ -39,6 +39,9 @@ public class MachineControlUnit implements ControlUnit {
         MECHANICAL_POWER(MachineUnit::getMechanicalPowerVarName),
         ACTIVE_POWER(MachineUnit::getActivePowerVarName),
         REACTIVE_POWER(MachineUnit::getReactivePowerVarName),
+        STATOR_REACTIVE_POWER(MachineUnit::getStatorReactivePowerVarName),
+        ROTOR_ANGLE(MachineUnit::getRotorAngleVarName),
+        DIRECT_AXIS_CURRENT(MachineUnit::getDirectAxisCurrentVarName),
         RUNNING(MachineUnit::getRunningVarName),
         VOLTAGE_MAGNITUDE(MachineUnit::getVoltageMagnitudeVarName),
         INIT_STATOR_VOLTAGE(MachineUnit::getInitStatorVoltageVarName),
@@ -49,6 +52,9 @@ public class MachineControlUnit implements ControlUnit {
         INIT_MECHANICAL_POWER(MachineUnit::getInitMechanicalPowerVarName),
         INIT_ACTIVE_POWER(MachineUnit::getInitActivePowerVarName),
         INIT_REACTIVE_POWER(MachineUnit::getInitReactivePowerVarName),
+        INIT_STATOR_REACTIVE_POWER(MachineUnit::getInitStatorReactivePowerVarName),
+        INIT_ROTOR_ANGLE(MachineUnit::getInitRotorAngleVarName),
+        INIT_DIRECT_AXIS_CURRENT(MachineUnit::getInitDirectAxisCurrentVarName),
         INIT_VOLTAGE_MAGNITUDE(MachineUnit::getInitVoltageMagnitudeVarName);
 
         private final Function<MachineUnit, String> varName;
@@ -80,16 +86,83 @@ public class MachineControlUnit implements ControlUnit {
     private record Wire(String ownVar, MachineQuantity quantity, boolean initialisation) {
     }
 
+    private record RegulatorLink(String var, boolean initialisation) {
+    }
+
     private final String id;
     private final String name;
     private final String initName;
+    private String catalogName;
+    private MachineControlUnit exciter;
     private final List<Wire> wires = new ArrayList<>();
+    private final List<RegulatorLink> regulatorLinks = new ArrayList<>();
     private final Map<RegulatorInput, String> inputs = new EnumMap<>(RegulatorInput.class);
 
     public MachineControlUnit(String id, String name, String initName) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.initName = initName;
+    }
+
+    /**
+     * Gives this regulator the exciter it drives, a downstream control it brings with it though the
+     * model is not named for it: {@code VRRance} drives {@code ExHydrH}. The exciter watches the
+     * machine on its own account and states, itself, how it is {@link #linkedToRegulator wired to}
+     * the regulator, so this only has to name it.
+     */
+    public MachineControlUnit driving(MachineControlUnit exciter) {
+        this.exciter = Objects.requireNonNull(exciter);
+        return this;
+    }
+
+    /**
+     * The exciter this regulator drives, or null where it drives none.
+     */
+    public MachineControlUnit getExciter() {
+        return exciter;
+    }
+
+    /**
+     * A variable this exciter shares with the regulator driving it while the simulation runs, its
+     * output {@code VROutPu} or the current {@code IExPu} it sends back, the same on both sides.
+     */
+    public MachineControlUnit linkedToRegulator(String var) {
+        regulatorLinks.add(new RegulatorLink(var, false));
+        return this;
+    }
+
+    /**
+     * A variable this exciter shares with the regulator while the initial state is worked out.
+     */
+    public MachineControlUnit linkedToRegulatorAtInit(String var) {
+        regulatorLinks.add(new RegulatorLink(var, true));
+        return this;
+    }
+
+    /**
+     * The connections between this exciter and the regulator driving it, each variable meeting its
+     * namesake across the two.
+     */
+    List<UnitConnection> regulatorConnections(MachineControlUnit regulator) {
+        return regulatorLinks.stream()
+                .map(link -> new UnitConnection(regulator.getId(), link.var(), id, link.var(), link.initialisation()))
+                .toList();
+    }
+
+    /**
+     * Names this control in the catalog, and in a built model's library, apart from its Modelica
+     * model, where it stands for that model under a name of its own: the fictitious regulator names
+     * itself so though it is the {@code VRP320} model. Left unset, it goes by the last part of its
+     * Modelica model, as a control that is its own model does.
+     */
+    public MachineControlUnit named(String catalogName) {
+        this.catalogName = Objects.requireNonNull(catalogName);
+        return this;
+    }
+
+    @Override
+    public String getCatalogName() {
+        return catalogName != null ? catalogName : ControlUnit.super.getCatalogName();
     }
 
     /**

@@ -78,10 +78,15 @@ public final class ControlUnitCatalog {
     }
 
     /**
-     * The name a model built with this control carries, which is the last part of the Modelica
-     * model it stands for.
+     * The name a model built with this control carries, which is the {@link
+     * ControlUnit#getCatalogName() name the control goes by} where it is one, its Modelica model's
+     * last part otherwise, the two being the same unless the control stands for a model under a name
+     * of its own.
      */
     static String nameOf(UnitModel unit) {
+        if (unit instanceof ControlUnit control) {
+            return control.getCatalogName();
+        }
         String model = unit.getName();
         return model.substring(model.lastIndexOf('.') + 1);
     }

@@ -104,6 +104,37 @@ public class GeneratorSynchronousUnit implements MachineUnit {
     }
 
     @Override
+    public String getStatorReactivePowerVarName() {
+        // exchanged through a connector, as the stator quantities are
+        return naming.exchanged("QStatorPu");
+    }
+
+    @Override
+    public String getInitStatorReactivePowerVarName() {
+        return "QStator0Pu";
+    }
+
+    @Override
+    public String getRotorAngleVarName() {
+        return "theta";
+    }
+
+    @Override
+    public String getInitRotorAngleVarName() {
+        return "Theta0";
+    }
+
+    @Override
+    public String getDirectAxisCurrentVarName() {
+        return "idPu";
+    }
+
+    @Override
+    public String getInitDirectAxisCurrentVarName() {
+        return "Id0Pu";
+    }
+
+    @Override
     public String getRunningVarName() {
         return naming.getRunning();
     }

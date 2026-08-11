@@ -59,6 +59,7 @@ public class GeneratorLibResolver {
     private final Supplier<MissingModelBuilder> builderSupplier;
     private MissingModelBuilder missingModelBuilder;
     private boolean builderResolved;
+    private boolean asksForUva;
 
     /**
      * A resolver going by what is installed, and building what is not where the deployment has
@@ -91,6 +92,35 @@ public class GeneratorLibResolver {
     }
 
     /**
+     * A resolver that, where it has to build a model, names the parts the way a deployment's own
+     * library does rather than the way the targeted Dynawo release does. The generator transformer
+     * init RTE takes from its own library is the reason this exists; everything else about the
+     * resolution is shared with the open source mapping.
+     */
+    public static GeneratorLibResolver forNaming(ModelNaming naming) {
+        Objects.requireNonNull(naming);
+        return new GeneratorLibResolver(ControlTranslations.getInstance(),
+                () -> configuredModelBuilder(naming));
+    }
+
+    /**
+     * Makes this resolver ask for a uva on every simplified model, and returns it so the choice
+     * reads in one line.
+     * <p>
+     * A uva is not a property a machine carries the way its rpcl or qlim is: every machine has a
+     * {@link SynchronousGeneratorProperties#getUva() uva point}, local or distant, so the property
+     * cannot tell the machines that run a uva model from those that do not. What tells them apart is
+     * the mapping. The open source catalog has no uva model at all, so the open mapping never asks
+     * and leaves this off; the RTE catalog has a uva variant of every simplified model and the RTE
+     * mapping runs them throughout, so it asks. Whether that uva regulates the local point or a
+     * distant one is a matter of wiring, not of which model is chosen, and does not change the name.
+     */
+    public GeneratorLibResolver askingForUva() {
+        this.asksForUva = true;
+        return this;
+    }
+
+    /**
      * What builds the missing models, worked out the first time one is wanted.
      * <p>
      * Deliberately not resolved in the constructor. A registered mapping is constructed by the
@@ -118,9 +148,12 @@ public class GeneratorLibResolver {
      * is not.
      */
     private static MissingModelBuilder configuredModelBuilder() {
+        return configuredModelBuilder(ModelNaming.DYNAWO_1_7_0);
+    }
+
+    private static MissingModelBuilder configuredModelBuilder(ModelNaming naming) {
         return configuredHomeDir()
-                .flatMap(homeDir -> MissingModelBuilder.fromConfig(MappingConfig.load(), () -> homeDir,
-                        ModelNaming.DYNAWO_1_7_0))
+                .flatMap(homeDir -> MissingModelBuilder.fromConfig(MappingConfig.load(), () -> homeDir, naming))
                 .orElse(null);
     }
 
@@ -252,7 +285,7 @@ public class GeneratorLibResolver {
         return GeneratorModelDesigner.name(controls, properties.getNumberOfWindings(), false, false);
     }
 
-    private static Set<GeneratorCapability> capabilities(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {
+    private Set<GeneratorCapability> capabilities(SynchronousGeneratorProperties properties, boolean simplified, boolean transformer) {
         Set<GeneratorCapability> capabilities = EnumSet.noneOf(GeneratorCapability.class);
         if (transformer && !properties.isInternalTransformer()) {
             capabilities.add(GeneratorCapability.TRANSFORMER);
@@ -271,10 +304,12 @@ public class GeneratorLibResolver {
             if (properties.isQlim()) {
                 capabilities.add(GeneratorCapability.QLIM);
             }
-            // uva is not asked for here. No open source model carries one, so asking would drop
-            // it again for every machine, and a mapping that means to have them is the one to ask:
-            // the local and distant distinction the extension carries selects between the regular
-            // and the external uva point categories, which is a matter for whoever holds them.
+            // a uva is asked for only where the mapping runs them, see askingForUva(): the machine's
+            // own local or distant point does not tell them apart, and the open source catalog has
+            // no uva model to ask of, so this stays off unless a mapping that has them turns it on
+            if (asksForUva) {
+                capabilities.add(GeneratorCapability.UVA);
+            }
         }
         return capabilities;
     }

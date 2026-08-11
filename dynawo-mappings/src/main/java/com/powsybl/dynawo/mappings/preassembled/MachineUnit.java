@@ -35,6 +35,22 @@ public interface MachineUnit extends UnitModel {
 
     String getReactivePowerVarName();
 
+    /**
+     * The reactive power at its stator, which a regulator with reactive limits reads apart from the
+     * reactive power seen at the terminal.
+     */
+    String getStatorReactivePowerVarName();
+
+    /**
+     * The rotor angle, which a few regulators read to place their quantities on the machine's axes.
+     */
+    String getRotorAngleVarName();
+
+    /**
+     * The direct-axis current, which a regulator resolving its action along the machine's axes reads.
+     */
+    String getDirectAxisCurrentVarName();
+
     String getRunningVarName();
 
     /**
@@ -58,6 +74,12 @@ public interface MachineUnit extends UnitModel {
     String getInitActivePowerVarName();
 
     String getInitReactivePowerVarName();
+
+    String getInitStatorReactivePowerVarName();
+
+    String getInitRotorAngleVarName();
+
+    String getInitDirectAxisCurrentVarName();
 
     String getInitVoltageMagnitudeVarName();
 }

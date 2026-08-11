@@ -20,6 +20,21 @@ import java.util.List;
  */
 public interface ControlUnit extends UnitModel {
 
+    /**
+     * The name the catalog keys this control under, and a built model carries in its library, which
+     * is the last part of its Modelica model unless the control stands for that model under a name
+     * of its own.
+     * <p>
+     * A control is usually named after the model that implements it, so the two are the same. Some
+     * are not: a machine may name a regulator no distinct model implements, the fictitious regulator
+     * built on the {@code VRP320} model for one, and the catalog answers that name with the model
+     * standing in for it. Decoupling the two is what lets one model answer several such names.
+     */
+    default String getCatalogName() {
+        String model = getName();
+        return model.substring(model.lastIndexOf('.') + 1);
+    }
+
     List<UnitConnection> getConnectionsWith(MachineUnit machine);
 
     List<UnitConnection> getInitConnectionsWith(MachineUnit machine);
