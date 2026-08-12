@@ -41,15 +41,16 @@ public final class ControlUnitCatalog {
         declare(GovernorUnits.class, MachineControlUnit.class, governors);
         declare(VoltageRegulatorUnits.class, MachineControlUnit.class, voltageRegulators);
         declare(RegulatorControlUnits.class, RegulatorControlUnit.class, regulatorControls);
-        // the units a deployment brings of its own, the RTE detailed controls among them, added
-        // beside the open ones; a name the open framework already declares keeps its place
+        // the units a deployment brings of its own, the RTE controls among them, added over the open
+        // ones: a deployment's unit stands in for the open default of the same name, so a control the
+        // deployment models its own way, RTE's Astre simplified regulations for one, is the one built
         ServiceLoader.load(ControlUnitProvider.class).forEach(this::declare);
     }
 
     private void declare(ControlUnitProvider provider) {
-        provider.getGovernors().forEach(unit -> governors.putIfAbsent(nameOf(unit), unit));
-        provider.getVoltageRegulators().forEach(unit -> voltageRegulators.putIfAbsent(nameOf(unit), unit));
-        provider.getRegulatorControls().forEach(unit -> regulatorControls.putIfAbsent(nameOf(unit), unit));
+        provider.getGovernors().forEach(unit -> governors.put(nameOf(unit), unit));
+        provider.getVoltageRegulators().forEach(unit -> voltageRegulators.put(nameOf(unit), unit));
+        provider.getRegulatorControls().forEach(unit -> regulatorControls.put(nameOf(unit), unit));
     }
 
     public static ControlUnitCatalog getInstance() {
