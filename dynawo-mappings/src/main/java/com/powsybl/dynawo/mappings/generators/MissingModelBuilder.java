@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.builders.VersionInterval;
+import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -130,11 +131,20 @@ public class MissingModelBuilder {
      */
     public Optional<String> build(GeneratorControls controls, Windings windings, boolean transformer,
                                   boolean auxiliaries) {
+        return build(controls, windings, transformer, auxiliaries, false, RpclType.NONE);
+    }
+
+    /**
+     * The model for those properties, with the reactive limits and reactive power control loop a
+     * voltage stability study asks for, built if it is not there already.
+     */
+    public Optional<String> build(GeneratorControls controls, Windings windings, boolean transformer,
+                                  boolean auxiliaries, boolean qlim, RpclType rpcl) {
         if (installationCannotBuild) {
             return Optional.empty();
         }
         lastFailure = null;
-        Optional<PreassembledModel> designed = designer.design(controls, windings, transformer, auxiliaries);
+        Optional<PreassembledModel> designed = designer.design(controls, windings, transformer, auxiliaries, qlim, rpcl);
         if (designed.isEmpty()) {
             lastFailure = "nothing describes a machine with governor " + controls.governor()
                     + " and voltage regulator " + controls.voltageRegulator();

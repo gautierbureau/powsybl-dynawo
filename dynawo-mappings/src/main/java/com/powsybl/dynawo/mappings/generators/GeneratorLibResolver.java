@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappingConfig;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
@@ -212,8 +213,11 @@ public class GeneratorLibResolver {
         }
         MissingModelBuilder modelBuilder = builder();
         if (modelBuilder != null) {
+            // the reactive limits and control loop, like rpcl and qlim in the name, only exist on the
+            // simplified models, so a detailed machine builds neither, the same rule as capabilities()
             Optional<String> built = modelBuilder.build(controls, properties.getNumberOfWindings(),
-                    transformer && !properties.isInternalTransformer(), properties.isAuxiliaries());
+                    transformer && !properties.isInternalTransformer(), properties.isAuxiliaries(),
+                    simplified && properties.isQlim(), simplified ? properties.getRpcl() : RpclType.NONE);
             if (built.isPresent()) {
                 built.ifPresent(lib -> GeneratorMappingReports.reportModelBuilt(reportNode, generatorId, lib));
                 return built;

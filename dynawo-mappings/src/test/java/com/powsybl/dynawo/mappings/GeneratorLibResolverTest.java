@@ -9,12 +9,22 @@ package com.powsybl.dynawo.mappings;
 
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
+import com.powsybl.dynawo.mappings.controls.ControlTranslations;
 import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
+import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
+import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
+import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
+import com.powsybl.dynawo.mappings.tools.PreassembledModelCompiler;
 import com.powsybl.iidm.network.Generator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,7 +96,59 @@ class GeneratorLibResolverTest {
         assertThat(resolver.resolve(properties, false, false)).isEmpty();
     }
 
+    @Test
+    void shouldBuildASimplifiedMachineWithItsReactiveLimitsAndControlLoop() {
+        CapturingBuilder builder = new CapturingBuilder();
+        GeneratorLibResolver resolverWithBuilder = new GeneratorLibResolver(ControlTranslations.getInstance(), builder);
+        SynchronousGeneratorProperties properties = properties("FOUR_WINDINGS", "GovHydro4", "VRProportional", true, true, RpclType.RPCL2);
+        // no installed model provides the reactive limits and the loop, so one is built with them
+        assertThat(resolverWithBuilder.resolve(properties, true, false))
+                .contains("GeneratorSynchronousFourWindingsProportionalRegulationsQlimRpcl2");
+        assertThat(builder.qlim).isTrue();
+        assertThat(builder.rpcl).isEqualTo(RpclType.RPCL2);
+    }
+
+    @Test
+    void shouldBuildADetailedMachineWithNeitherReactiveLimitsNorControlLoop() {
+        CapturingBuilder builder = new CapturingBuilder();
+        GeneratorLibResolver resolverWithBuilder = new GeneratorLibResolver(ControlTranslations.getInstance(), builder);
+        SynchronousGeneratorProperties properties = properties("FOUR_WINDINGS", "GovHydro4", "VRProportional", true, true, RpclType.RPCL2);
+        // detailed: the reactive limits and the loop only exist on the simplified models, so a
+        // detailed machine asks the builder for neither, whatever its flags say
+        resolverWithBuilder.resolve(properties, false, false);
+        assertThat(builder.qlim).isFalse();
+        assertThat(builder.rpcl).isEqualTo(RpclType.NONE);
+    }
+
+    /**
+     * A builder that records what it was asked to build rather than compiling anything, so that what
+     * the resolver hands it can be read off directly.
+     */
+    private static final class CapturingBuilder extends MissingModelBuilder {
+
+        private Boolean qlim;
+        private RpclType rpcl;
+
+        private CapturingBuilder() {
+            super(new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0),
+                    new PreassembledModelCompiler(Path.of("nowhere")), Path.of("target"));
+        }
+
+        @Override
+        public Optional<String> build(GeneratorControls controls, Windings windings, boolean transformer,
+                                      boolean auxiliaries, boolean qlim, RpclType rpcl) {
+            this.qlim = qlim;
+            this.rpcl = rpcl;
+            return Optional.of("GeneratorSynchronousFourWindingsProportionalRegulationsQlimRpcl2");
+        }
+    }
+
     private static SynchronousGeneratorProperties properties(String windings, String governor, String voltageRegulator, boolean auxiliaries) {
+        return properties(windings, governor, voltageRegulator, auxiliaries, false, RpclType.NONE);
+    }
+
+    private static SynchronousGeneratorProperties properties(String windings, String governor, String voltageRegulator,
+                                                             boolean auxiliaries, boolean qlim, RpclType rpcl) {
         Generator generator = TestNetworks.singleGenerator(400.0);
         generator.newExtension(SynchronousGeneratorPropertiesAdder.class)
                 .withNumberOfWindings(SynchronousGeneratorProperties.Windings.valueOf(windings))
@@ -95,10 +157,10 @@ class GeneratorLibResolverTest {
                 .withPss("")
                 .withAuxiliaries(auxiliaries)
                 .withInternalTransformer(false)
-                .withRpcl(RpclType.NONE)
+                .withRpcl(rpcl)
                 .withUva(SynchronousGeneratorProperties.Uva.LOCAL)
                 .withAggregated(false)
-                .withQlim(false)
+                .withQlim(qlim)
                 .add();
         return generator.getExtension(SynchronousGeneratorProperties.class);
     }
