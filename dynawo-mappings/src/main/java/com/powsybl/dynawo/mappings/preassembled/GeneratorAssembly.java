@@ -78,6 +78,7 @@ public class GeneratorAssembly {
         PreassembledModel model = new PreassembledModel(id, machine);
         controls.forEach(model::add);
         drivenExciters(model);
+        governorLinks(model, id);
         units().forEach(model::addUnit);
         model.addConnections(connections());
         regulatorControls.forEach(control -> {
@@ -116,6 +117,28 @@ public class GeneratorAssembly {
                 .findFirst()
                 .orElseThrow(() -> new PowsyblException(
                         "No voltage regulator on " + id + " for its stabilisers and limiters to act through"));
+    }
+
+    /**
+     * Wires a regulator that reaches into the governor beside it, a combined regulator taking its
+     * turbine's mechanical power, to that governor.
+     */
+    private void governorLinks(PreassembledModel model, String id) {
+        controls.stream()
+                .filter(MachineControlUnit.class::isInstance)
+                .map(MachineControlUnit.class::cast)
+                .filter(MachineControlUnit::hasGovernorLinks)
+                .forEach(regulator -> model.addConnections(regulator.governorConnections(governor(id))));
+    }
+
+    private MachineControlUnit governor(String id) {
+        return controls.stream()
+                .filter(MachineControlUnit.class::isInstance)
+                .map(MachineControlUnit.class::cast)
+                .filter(control -> "governor".equals(control.getId()))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException(
+                        "No governor on " + id + " for its regulator to take mechanical power from"));
     }
 
     private List<UnitModel> units() {

@@ -101,6 +101,7 @@ public class MachineControlUnit implements ControlUnit {
     private MachineControlUnit exciter;
     private final List<Wire> wires = new ArrayList<>();
     private final List<RegulatorLink> regulatorLinks = new ArrayList<>();
+    private final List<RegulatorLink> governorLinks = new ArrayList<>();
     private final Map<RegulatorInput, String> inputs = new EnumMap<>(RegulatorInput.class);
 
     public MachineControlUnit(String id, String name, String initName) {
@@ -151,6 +152,30 @@ public class MachineControlUnit implements ControlUnit {
     List<UnitConnection> regulatorConnections(MachineControlUnit regulator) {
         return regulatorLinks.stream()
                 .map(link -> new UnitConnection(regulator.getId(), link.var(), id, link.var(), link.initialisation()))
+                .toList();
+    }
+
+    /**
+     * A variable this regulator shares with the governor beside it, the mechanical power {@code
+     * PmTurHpPu} a combined regulator takes from its turbine, the same on both sides. Only some
+     * regulators reach into the governor this way; most stand apart from it.
+     */
+    public MachineControlUnit linkedToGovernor(String var) {
+        governorLinks.add(new RegulatorLink(var, false));
+        return this;
+    }
+
+    boolean hasGovernorLinks() {
+        return !governorLinks.isEmpty();
+    }
+
+    /**
+     * The connections between this regulator and the governor beside it, each variable meeting its
+     * namesake across the two.
+     */
+    List<UnitConnection> governorConnections(MachineControlUnit governor) {
+        return governorLinks.stream()
+                .map(link -> new UnitConnection(governor.getId(), link.var(), id, link.var(), link.initialisation()))
                 .toList();
     }
 
