@@ -40,6 +40,7 @@ public class MachineControlUnit implements ControlUnit {
         ACTIVE_POWER(MachineUnit::getActivePowerVarName),
         REACTIVE_POWER(MachineUnit::getReactivePowerVarName),
         STATOR_REACTIVE_POWER(MachineUnit::getStatorReactivePowerVarName),
+        NOMINAL_STATOR_REACTIVE_POWER(MachineUnit::getNominalStatorReactivePowerVarName),
         ROTOR_ANGLE(MachineUnit::getRotorAngleVarName),
         DIRECT_AXIS_CURRENT(MachineUnit::getDirectAxisCurrentVarName),
         RUNNING(MachineUnit::getRunningVarName),
@@ -53,6 +54,7 @@ public class MachineControlUnit implements ControlUnit {
         INIT_ACTIVE_POWER(MachineUnit::getInitActivePowerVarName),
         INIT_REACTIVE_POWER(MachineUnit::getInitReactivePowerVarName),
         INIT_STATOR_REACTIVE_POWER(MachineUnit::getInitStatorReactivePowerVarName),
+        INIT_NOMINAL_STATOR_REACTIVE_POWER(MachineUnit::getInitNominalStatorReactivePowerVarName),
         INIT_ROTOR_ANGLE(MachineUnit::getInitRotorAngleVarName),
         INIT_DIRECT_AXIS_CURRENT(MachineUnit::getInitDirectAxisCurrentVarName),
         INIT_VOLTAGE_MAGNITUDE(MachineUnit::getInitVoltageMagnitudeVarName);
@@ -80,6 +82,9 @@ public class MachineControlUnit implements ControlUnit {
         STATOR_CURRENT_OVER_EXCITATION,
         STATOR_CURRENT_UNDER_EXCITATION,
         FEEDBACK,
+        VOLTAGE_REFERENCE,
+        LIMITATION_UP,
+        LIMITATION_DOWN,
         INIT_VOLTAGE_REFERENCE
     }
 

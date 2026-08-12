@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.preassembled;
 
+import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 
 import java.util.Map;
@@ -32,6 +33,10 @@ public class GeneratorModelDesigner {
     private static final String LIB_PREFIX = "GeneratorSynchronous";
     private static final String THREE_WINDINGS = "ThreeWindings";
     private static final String FOUR_WINDINGS = "FourWindings";
+    private static final String REACTIVE_LIMITS = "ReactiveLimits";
+    private static final String QLIM = "Qlim";
+    private static final String RPCL = "Rpcl";
+    private static final String RPCL2 = "Rpcl2";
 
     /**
      * The control pairs whose model is not named after the two of them run together.
@@ -62,8 +67,24 @@ public class GeneratorModelDesigner {
      */
     public Optional<PreassembledModel> design(GeneratorControls controls, Windings windings,
                                               boolean transformer, boolean auxiliaries) {
+        return design(controls, windings, transformer, auxiliaries, false, RpclType.NONE);
+    }
+
+    /**
+     * The model made of those controls on a machine of that shape, with reactive limits and a
+     * reactive power control loop where a voltage stability study asks for them.
+     *
+     * @param qlim whether the regulator holds its reactive output within limits, which it does by
+     *             standing on its reactive-limits variant
+     * @param rpcl the reactive power control loop wrapped around the regulator, or {@link
+     *             RpclType#NONE none}
+     */
+    public Optional<PreassembledModel> design(GeneratorControls controls, Windings windings,
+                                              boolean transformer, boolean auxiliaries, boolean qlim, RpclType rpcl) {
         Optional<MachineControlUnit> governor = catalog.getGovernor(controls.governor());
-        Optional<MachineControlUnit> voltageRegulator = catalog.getVoltageRegulator(controls.voltageRegulator());
+        // reactive limits stand the regulator on its reactive-limits variant, named for the model it is
+        String regulatorName = qlim ? controls.voltageRegulator() + REACTIVE_LIMITS : controls.voltageRegulator();
+        Optional<MachineControlUnit> voltageRegulator = catalog.getVoltageRegulator(regulatorName);
         if (governor.isEmpty() || voltageRegulator.isEmpty()) {
             return Optional.empty();
         }
@@ -74,12 +95,20 @@ public class GeneratorModelDesigner {
                 return Optional.empty();
             }
         }
+        Optional<RegulatorControlUnit> reactivePowerControlLoop = Optional.empty();
+        if (rpcl != RpclType.NONE) {
+            reactivePowerControlLoop = catalog.getRegulatorControl(reactivePowerControlLoopName(rpcl));
+            if (reactivePowerControlLoop.isEmpty()) {
+                return Optional.empty();
+            }
+        }
 
         GeneratorAssembly assembly = new GeneratorAssembly(windings, transformer, auxiliaries, naming);
         assembly.add(governor.get());
         assembly.add(voltageRegulator.get());
         pss.ifPresent(assembly::add);
-        return Optional.of(assembly.build(name(controls, windings, transformer, auxiliaries)));
+        reactivePowerControlLoop.ifPresent(assembly::add);
+        return Optional.of(assembly.build(name(controls, windings, transformer, auxiliaries, qlim, rpcl)));
     }
 
     /**
@@ -88,11 +117,28 @@ public class GeneratorModelDesigner {
      */
     public static String name(GeneratorControls controls, Windings windings,
                               boolean transformer, boolean auxiliaries) {
+        return name(controls, windings, transformer, auxiliaries, false, RpclType.NONE);
+    }
+
+    /**
+     * The name such a model carries, its reactive limits and reactive power control loop named after
+     * its controls, before what stands between it and the grid.
+     */
+    public static String name(GeneratorControls controls, Windings windings,
+                              boolean transformer, boolean auxiliaries, boolean qlim, RpclType rpcl) {
         StringBuilder name = new StringBuilder(LIB_PREFIX)
                 .append(windings == Windings.THREE_WINDINGS ? THREE_WINDINGS : FOUR_WINDINGS)
                 .append(controlsFragment(controls.governor(), controls.voltageRegulator()));
         if (controls.hasPss()) {
             name.append(controls.pss());
+        }
+        if (qlim) {
+            name.append(QLIM);
+        }
+        if (rpcl == RpclType.RPCL1) {
+            name.append(RPCL);
+        } else if (rpcl == RpclType.RPCL2) {
+            name.append(RPCL2);
         }
         if (transformer) {
             name.append("Tfo");
@@ -101,6 +147,10 @@ public class GeneratorModelDesigner {
             name.append("Aux");
         }
         return name.toString();
+    }
+
+    private static String reactivePowerControlLoopName(RpclType rpcl) {
+        return rpcl == RpclType.RPCL2 ? "ReactivePowerControlLoop2" : "ReactivePowerControlLoop";
     }
 
     /**

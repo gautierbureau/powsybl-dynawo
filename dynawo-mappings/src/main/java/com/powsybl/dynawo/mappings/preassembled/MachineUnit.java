@@ -42,6 +42,12 @@ public interface MachineUnit extends UnitModel {
     String getStatorReactivePowerVarName();
 
     /**
+     * The stator reactive power over its nominal apparent power, which a reactive power control loop
+     * reads to hold the machine's reactive output to a share of what it can give.
+     */
+    String getNominalStatorReactivePowerVarName();
+
+    /**
      * The rotor angle, which a few regulators read to place their quantities on the machine's axes.
      */
     String getRotorAngleVarName();
@@ -76,6 +82,8 @@ public interface MachineUnit extends UnitModel {
     String getInitReactivePowerVarName();
 
     String getInitStatorReactivePowerVarName();
+
+    String getInitNominalStatorReactivePowerVarName();
 
     String getInitRotorAngleVarName();
 
