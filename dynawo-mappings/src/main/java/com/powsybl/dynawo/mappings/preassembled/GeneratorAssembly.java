@@ -178,11 +178,18 @@ public class GeneratorAssembly {
      * The machine reads its operating point from the machine side of the first link.
      */
     private List<UnitConnection> initialiseMachineThrough(SeriesUnit machineSide) {
-        return List.of(
-                UnitConnection.ofInitialisation(machine, "P0Pu", machineSide, machineSide.getInitMachineSideActivePowerVarName()),
-                UnitConnection.ofInitialisation(machine, "Q0Pu", machineSide, machineSide.getInitMachineSideReactivePowerVarName()),
-                UnitConnection.ofInitialisation(machine, "U0Pu", machineSide, machineSide.getInitMachineSideVoltageVarName()),
-                UnitConnection.ofInitialisation(machine, "UPhase0", machineSide, machineSide.getInitMachineSideAngleVarName()));
+        List<UnitConnection> connections = new ArrayList<>();
+        connections.add(UnitConnection.ofInitialisation(machine, "U0Pu", machineSide, machineSide.getInitMachineSideVoltageVarName()));
+        connections.add(UnitConnection.ofInitialisation(machine, "UPhase0", machineSide, machineSide.getInitMachineSideAngleVarName()));
+        if (machineSide.initialisesMachineWithCurrent()) {
+            // the RTE external init reads the machine's complex terminal current in one connect, where
+            // the open init reads its active and reactive power apart
+            connections.add(UnitConnection.ofInitialisation(machine, "i0Pu", machineSide, machineSide.getInitMachineSideCurrentVarName()));
+        } else {
+            connections.add(UnitConnection.ofInitialisation(machine, "P0Pu", machineSide, machineSide.getInitMachineSideActivePowerVarName()));
+            connections.add(UnitConnection.ofInitialisation(machine, "Q0Pu", machineSide, machineSide.getInitMachineSideReactivePowerVarName()));
+        }
+        return connections;
     }
 
     private void addIfPresent(List<UnitConnection> connections, AuxiliaryUnit auxiliaries, SeriesUnit machineSide) {

@@ -42,9 +42,15 @@ public class GeneratorTransformerUnit implements SeriesUnit {
     @Override
     public String getInitName() {
         // the transformer itself is the open model, but its init may come from a deployment's own
-        // library under its own name, the RTE GeneratorTransformerAuxExt_INIT among them
+        // library under its own name, the RTE GeneratorTransformer(Aux)Ext_INIT among them
         return naming.getTransformerInitPackage()
-                + (auxiliaries ? naming.getGeneratorTransformerAuxInitName() : "GeneratorTransformer_INIT");
+                + (auxiliaries ? naming.getGeneratorTransformerAuxInitName() : naming.getGeneratorTransformerInitName());
+    }
+
+    @Override
+    public boolean initialisesMachineWithCurrent() {
+        // the RTE external init reads the machine's complex terminal current, the open one its power
+        return naming.transformerInitReadsCurrent();
     }
 
     @Override

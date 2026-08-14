@@ -23,13 +23,15 @@ package com.powsybl.dynawo.mappings.preassembled;
 public final class ModelNaming {
 
     private static final String GENERATOR_TRANSFORMER_AUX_INIT = "GeneratorTransformerAux_INIT";
+    private static final String GENERATOR_TRANSFORMER_INIT = "GeneratorTransformer_INIT";
 
     /**
      * What Dynawo calls things today.
      */
     public static final ModelNaming CURRENT = new ModelNaming(
             "Dynawo.Electrical.Transformers.TransformersFixedTap.", "", "i0Pu", "U0PuVar", "running.value",
-            "Dynawo.Electrical.Transformers.TransformersFixedTap.", GENERATOR_TRANSFORMER_AUX_INIT);
+            "Dynawo.Electrical.Transformers.TransformersFixedTap.", GENERATOR_TRANSFORMER_AUX_INIT,
+            GENERATOR_TRANSFORMER_INIT, false);
 
     /**
      * What Dynawo 1.7.0 called them.
@@ -43,7 +45,8 @@ public final class ModelNaming {
      */
     public static final ModelNaming DYNAWO_1_7_0 = new ModelNaming(
             "Dynawo.Electrical.Transformers.", ".value", "iStator0Pu", "U0Pu", null,
-            "Dynawo.Electrical.Transformers.", GENERATOR_TRANSFORMER_AUX_INIT);
+            "Dynawo.Electrical.Transformers.", GENERATOR_TRANSFORMER_AUX_INIT,
+            GENERATOR_TRANSFORMER_INIT, false);
 
     private final String transformerPackage;
     private final String connectorSuffix;
@@ -52,6 +55,8 @@ public final class ModelNaming {
     private final String running;
     private final String transformerInitPackage;
     private final String generatorTransformerAuxInitName;
+    private final String generatorTransformerInitName;
+    private final boolean transformerInitReadsCurrent;
 
     /**
      * @param transformerPackage             the package the generator transformer model is in
@@ -64,10 +69,18 @@ public final class ModelNaming {
      *                                       the transformer itself stays the open one
      * @param generatorTransformerAuxInitName the init model of a transformer with auxiliaries, which
      *                                       RTE names {@code GeneratorTransformerAuxExt_INIT}
+     * @param generatorTransformerInitName   the init model of a transformer without auxiliaries,
+     *                                       {@code GeneratorTransformer_INIT} in the open library and
+     *                                       {@code GeneratorTransformerExt_INIT} in the RTE one
+     * @param transformerInitReadsCurrent    whether the transformer init reads the machine's complex
+     *                                       terminal current ({@code i0Pu} to {@code i20Pu}), as the
+     *                                       RTE external init does, rather than its active and
+     *                                       reactive power, as the open init does
      */
     public ModelNaming(String transformerPackage, String connectorSuffix, String initCurrent,
                        String initVoltageMagnitude, String running, String transformerInitPackage,
-                       String generatorTransformerAuxInitName) {
+                       String generatorTransformerAuxInitName, String generatorTransformerInitName,
+                       boolean transformerInitReadsCurrent) {
         this.transformerPackage = transformerPackage;
         this.connectorSuffix = connectorSuffix;
         this.initCurrent = initCurrent;
@@ -75,6 +88,8 @@ public final class ModelNaming {
         this.running = running;
         this.transformerInitPackage = transformerInitPackage;
         this.generatorTransformerAuxInitName = generatorTransformerAuxInitName;
+        this.generatorTransformerInitName = generatorTransformerInitName;
+        this.transformerInitReadsCurrent = transformerInitReadsCurrent;
     }
 
     String getTransformerPackage() {
@@ -95,6 +110,22 @@ public final class ModelNaming {
      */
     String getGeneratorTransformerAuxInitName() {
         return generatorTransformerAuxInitName;
+    }
+
+    /**
+     * The init model of a transformer without auxiliaries, {@code GeneratorTransformer_INIT} unless a
+     * deployment takes it from its own library, the RTE {@code GeneratorTransformerExt_INIT} among them.
+     */
+    String getGeneratorTransformerInitName() {
+        return generatorTransformerInitName;
+    }
+
+    /**
+     * Whether the transformer init reads the machine's complex terminal current rather than its
+     * active and reactive power, which is how the RTE external init is wired.
+     */
+    boolean transformerInitReadsCurrent() {
+        return transformerInitReadsCurrent;
     }
 
     /**

@@ -34,6 +34,21 @@ public interface SeriesUnit extends UnitModel {
     String getInitMachineSideReactivePowerVarName();
 
     /**
+     * Whether this element's init reads the machine's complex terminal current rather than its
+     * active and reactive power. The RTE external transformer init does; the open one does not.
+     */
+    default boolean initialisesMachineWithCurrent() {
+        return false;
+    }
+
+    /**
+     * Name of the machine-side complex current the init reads, where it reads the current.
+     */
+    default String getInitMachineSideCurrentVarName() {
+        return "i20Pu";
+    }
+
+    /**
      * Name of the voltage the auxiliaries hanging on the given side read.
      */
     String getInitAuxiliaryVoltageVarName(boolean gridSide);
