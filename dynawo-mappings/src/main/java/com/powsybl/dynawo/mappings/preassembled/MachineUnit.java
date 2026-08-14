@@ -27,6 +27,8 @@ public interface MachineUnit extends UnitModel {
 
     String getStatorCurrentVarName();
 
+    String getStatorCurrentMagnitudeVarName();
+
     String getSpeedVarName();
 
     String getMechanicalPowerVarName();
@@ -74,6 +76,8 @@ public interface MachineUnit extends UnitModel {
     String getInitTerminalVoltageVarName();
 
     String getInitCurrentVarName();
+
+    String getInitStatorCurrentMagnitudeVarName();
 
     String getInitMechanicalPowerVarName();
 

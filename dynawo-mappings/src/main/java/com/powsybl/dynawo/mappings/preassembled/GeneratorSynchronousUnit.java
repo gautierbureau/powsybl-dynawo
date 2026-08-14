@@ -79,6 +79,13 @@ public class GeneratorSynchronousUnit implements MachineUnit {
     }
 
     @Override
+    public String getStatorCurrentMagnitudeVarName() {
+        // the real stator current a regulator's IsPu reads, a signal apart from the complex iStatorPu
+        // its itPu reads, so it goes through a connector like the other running magnitudes
+        return naming.exchanged("IStatorPu");
+    }
+
+    @Override
     public String getSpeedVarName() {
         return naming.exchanged("omegaPu");
     }
@@ -182,6 +189,13 @@ public class GeneratorSynchronousUnit implements MachineUnit {
     @Override
     public String getInitCurrentVarName() {
         return naming.getInitCurrent();
+    }
+
+    @Override
+    public String getInitStatorCurrentMagnitudeVarName() {
+        // the real stator current a regulator's Is0Pu starts from, the initial value of the magnitude
+        // its IsPu reads, apart from the complex iStator0Pu its it0Pu starts from
+        return "IStator0Pu";
     }
 
     @Override
