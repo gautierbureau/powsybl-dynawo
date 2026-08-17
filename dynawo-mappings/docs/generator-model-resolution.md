@@ -26,16 +26,16 @@ do that and shows how they fit together.
 
 ```mermaid
 flowchart TD
-    EXT["synchronousGeneratorProperties<br/>(governor, VR, pss, windings,<br/>aux · internalTransformer · rpcl · qlim · uva)"]
-    EXT -->|"ControlTranslations.simplify<br/>(detailed → simplified, per study)"| CTRL["GeneratorControls<br/>(governor, VR, pss)<br/>+ capabilities (Tfo, Aux, Qlim, Rpcl, Uva)"]
+    EXT["synchronousGeneratorProperties<br/>(governor, VR, pss, windings,<br/>aux, internalTransformer, rpcl, qlim, uva)"]
+    EXT -->|"ControlTranslations.simplify (detailed to simplified, per study)"| CTRL["GeneratorControls<br/>(governor, VR, pss)<br/>+ capabilities (Tfo, Aux, Qlim, Rpcl, Uva)"]
     CTRL --> RES{"GeneratorLibResolver.resolve<br/>installed model providing<br/>the wanted capabilities?"}
     RES -->|yes| LIB["library name"]
-    RES -->|"no → MissingModelBuilder.build"| DES["GeneratorModelDesigner.design"]
-    CAT["ControlUnitCatalog<br/>governors · regulators · exciters · RPCLs<br/>(open + RteControlUnitProvider, overriding)"] --> DES
-    DES -->|"GeneratorAssembly wires<br/>controls + machine + Tfo/Aux/loop"| PM["PreassembledModel"]
+    RES -->|"no: MissingModelBuilder.build"| DES["GeneratorModelDesigner.design"]
+    CAT["ControlUnitCatalog<br/>governors, regulators, exciters, RPCLs<br/>(open + RteControlUnitProvider, overriding)"] --> DES
+    DES -->|"GeneratorAssembly wires controls + machine + Tfo/Aux/loop"| PM["PreassembledModel"]
     PM -->|"compiled to a .so"| LIB
     LIB --> MM["MappedModel(lib, staticId, parameterSetId)<br/>(mapping.createModelConfigs)"]
-    MM -->|"MappedModelsSupplier.get<br/>builds the real Dynawo model"| BBM["BlackBoxModel → get_models() dataframe"]
+    MM -->|"MappedModelsSupplier.get builds the real Dynawo model"| BBM["BlackBoxModel to get_models() dataframe"]
 ```
 
 The dividing line is **installed vs generated**. The resolver always prefers an installed model; the
