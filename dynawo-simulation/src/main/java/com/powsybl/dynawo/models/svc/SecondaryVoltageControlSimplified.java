@@ -7,9 +7,11 @@
  */
 package com.powsybl.dynawo.models.svc;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.models.AbstractPureDynamicBlackBoxModel;
 import com.powsybl.dynawo.models.VarConnection;
+import com.powsybl.dynawo.models.buses.ActionConnectionPoint;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectAttribute;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.iidm.network.Identifiable;
@@ -24,23 +26,25 @@ import java.util.Objects;
  * <p>
  * It reads each machine's stator reactive power ({@code QStator_@INDEX@_value}) and reactive-limit
  * blocker ({@code blocker_@INDEX@_value}), writes back one shared control level ({@code level_value}),
- * and reads the pilot bus's per-unit voltage ({@code UpPu_value}) from the {@code NETWORK} model. Only a
- * machine on an {@code Rpcl} model carries these variables, so a machine that carries none is skipped.
- * This is the simplified cousin of the RTE detailed control: three variables per machine, not seven.
+ * and reads the pilot bus's per-unit voltage. The pilot is reached through an {@link ActionConnectionPoint}
+ * — a dynamic bus model where the bus has one, the {@code NETWORK} model otherwise — as the detailed
+ * control reaches it; DynaFlow's buses are static, so it resolves to {@code NETWORK}. Only a machine on an
+ * {@code Rpcl} model carries the reactive variables, so a machine that carries none is skipped. This is
+ * the simplified cousin of the RTE detailed control: three variables per machine, not seven.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public class SecondaryVoltageControlSimplified extends AbstractPureDynamicBlackBoxModel {
 
     private final List<Identifiable<?>> generators;
-    private final String pilotBusId;
+    private final Identifiable<?> pilotPoint;
 
     public SecondaryVoltageControlSimplified(String dynamicModelId, String parameterSetId,
-                                             List<Identifiable<?>> generators, String pilotBusId,
+                                             List<Identifiable<?>> generators, Identifiable<?> pilotPoint,
                                              ModelConfig modelConfig) {
         super(dynamicModelId, parameterSetId, modelConfig);
         this.generators = Objects.requireNonNull(generators);
-        this.pilotBusId = Objects.requireNonNull(pilotBusId);
+        this.pilotPoint = Objects.requireNonNull(pilotPoint);
     }
 
     @Override
@@ -53,8 +57,7 @@ public class SecondaryVoltageControlSimplified extends AbstractPureDynamicBlackB
                 index++;
             }
         }
-        SvcPilotPoint pilot = new SvcPilotPoint(pilotBusId);
-        adder.createMacroConnections(this, pilot, getVarConnectionsWithBus(pilot));
+        adder.createMacroConnections(this, pilotPoint, ActionConnectionPoint.class, this::getVarConnectionsWith);
     }
 
     private List<VarConnection> getVarConnectionsWith(RpclGeneratorModel generator) {
@@ -64,7 +67,10 @@ public class SecondaryVoltageControlSimplified extends AbstractPureDynamicBlackB
                 new VarConnection("level_value", generator.getLevelVarName()));
     }
 
-    private List<VarConnection> getVarConnectionsWithBus(SvcPilotPoint pilot) {
-        return List.of(new VarConnection("UpPu_value", pilot.getUpuVarName()));
+    private List<VarConnection> getVarConnectionsWith(ActionConnectionPoint pilot) {
+        return pilot.getUpuImpinVarName()
+                .map(upuVarName -> List.of(new VarConnection("UpPu_value", upuVarName)))
+                .orElseThrow(() -> new PowsyblException("Cannot connect the secondary voltage control to pilot point '"
+                        + pilot.getName() + "', it has no per-unit voltage variable"));
     }
 }

@@ -10,6 +10,7 @@ package com.powsybl.dynawo.models.svc;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynawo.builders.BuilderEquipmentsList;
 import com.powsybl.dynawo.builders.BuilderReports;
+import com.powsybl.dynawo.builders.BuildersUtil;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.builders.ModelConfigs;
 import com.powsybl.dynawo.builders.ModelConfigsHandler;
@@ -34,7 +35,7 @@ public class SecondaryVoltageControlSimplifiedBuilder extends AbstractAutomation
     private static final ModelConfigs MODEL_CONFIGS = ModelConfigsHandler.getInstance().getModelConfigs(CATEGORY);
 
     private final BuilderEquipmentsList<Identifiable<?>> generators;
-    private String pilotBusId;
+    private Identifiable<?> pilotPoint;
 
     public static SecondaryVoltageControlSimplifiedBuilder of(Network network) {
         return of(network, ReportNode.NO_OP);
@@ -75,8 +76,8 @@ public class SecondaryVoltageControlSimplifiedBuilder extends AbstractAutomation
         return self();
     }
 
-    public SecondaryVoltageControlSimplifiedBuilder pilotPoint(String pilotBusStaticId) {
-        this.pilotBusId = pilotBusStaticId;
+    public SecondaryVoltageControlSimplifiedBuilder pilotPoint(String pilotPointStaticId) {
+        this.pilotPoint = BuildersUtil.getActionConnectionPoint(network, pilotPointStaticId);
         return self();
     }
 
@@ -84,7 +85,7 @@ public class SecondaryVoltageControlSimplifiedBuilder extends AbstractAutomation
     protected void checkData() {
         super.checkData();
         isInstantiable &= generators.checkEquipmentData();
-        if (pilotBusId == null) {
+        if (pilotPoint == null) {
             BuilderReports.reportFieldNotSet(reportNode, "pilotPoint");
             isInstantiable = false;
         }
@@ -93,7 +94,7 @@ public class SecondaryVoltageControlSimplifiedBuilder extends AbstractAutomation
     @Override
     public SecondaryVoltageControlSimplified build() {
         return isInstantiable() ? new SecondaryVoltageControlSimplified(dynamicModelId, parameterSetId,
-                generators.getEquipments(), pilotBusId, modelConfig) : null;
+                generators.getEquipments(), pilotPoint, modelConfig) : null;
     }
 
     @Override

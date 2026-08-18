@@ -47,7 +47,8 @@ class SecondaryVoltageControlSimplifiedTest {
         List<BlackBoxModel> dynamicModels = List.of(gen1, gen2);
 
         SecondaryVoltageControlSimplified svc = new SecondaryVoltageControlSimplified("SVC", "SVC",
-                List.of(network.getGenerator("GEN"), network.getGenerator("GEN2")), "NHV1",
+                List.of(network.getGenerator("GEN"), network.getGenerator("GEN2")),
+                network.getBusBreakerView().getBus("NHV1"),
                 new ModelConfig("DYNModelSecondaryVoltageControlSimplified"));
 
         List<MacroConnect> macroConnects = new ArrayList<>();
@@ -71,10 +72,12 @@ class SecondaryVoltageControlSimplifiedTest {
                         new VarConnection("blocker_@INDEX@_value", "generator_blocker"),
                         new VarConnection("level_value", "reactivePowerControlLoop_level"))));
 
-        MacroConnector toPilot = macroConnectors.get("MC_DYNModelSecondaryVoltageControlSimplified-SvcPilotPoint");
+        // the pilot bus has no dynamic model, so it resolves to the default action connection point on
+        // NETWORK; @NAME@_Upu is the same network variable as the launcher's @NAME@_Upu_value
+        MacroConnector toPilot = macroConnectors.get("MC_DYNModelSecondaryVoltageControlSimplified-DefaultActionConnectionPoint");
         assertThat(toPilot).usingRecursiveComparison().isEqualTo(
-                new MacroConnector("MC_DYNModelSecondaryVoltageControlSimplified-SvcPilotPoint", List.of(
-                        new VarConnection("UpPu_value", "@NAME@_Upu_value"))));
+                new MacroConnector("MC_DYNModelSecondaryVoltageControlSimplified-DefaultActionConnectionPoint", List.of(
+                        new VarConnection("UpPu_value", "@NAME@_Upu"))));
     }
 
     private static List<String> indexValues(List<MacroConnect> macroConnects) {
