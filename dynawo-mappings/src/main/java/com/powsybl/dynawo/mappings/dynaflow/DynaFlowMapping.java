@@ -14,6 +14,7 @@ import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,10 +39,12 @@ public class DynaFlowMapping implements DynamicModelsMapping {
 
     private final String name;
     private final DynaFlowGeneratorMapping generators;
+    private final DynaFlowSvcMapping secondaryVoltageControls;
 
     public DynaFlowMapping(String name) {
         this.name = Objects.requireNonNull(name);
         this.generators = new DynaFlowGeneratorMapping();
+        this.secondaryVoltageControls = new DynaFlowSvcMapping();
     }
 
     @Override
@@ -62,7 +65,9 @@ public class DynaFlowMapping implements DynamicModelsMapping {
 
     @Override
     public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
-        return generators.createModelConfigs(network);
+        List<MappedModelsSupplier.MappedModel> models = new ArrayList<>(generators.createModelConfigs(network));
+        models.addAll(secondaryVoltageControls.createModelConfigs(network));
+        return models;
     }
 
     @Override

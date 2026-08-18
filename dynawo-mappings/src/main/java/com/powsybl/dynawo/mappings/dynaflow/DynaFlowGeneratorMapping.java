@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.dynaflow;
 
+import com.powsybl.dynawo.extensions.api.generator.SynchronizedGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappedModelsSupplier.MappedModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
@@ -16,11 +17,16 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.extensions.ControlUnit;
+import com.powsybl.iidm.network.extensions.ControlZone;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Gives every generator its DynaFlow model, the way the DynaFlow Launcher's
@@ -34,12 +40,12 @@ import java.util.Map;
  * (infinite / rectangular / a genuine PQ curve). The result is one of the {@code GeneratorPV*SignalN} /
  * {@code GeneratorPQProp*SignalN} libraries, all sharing the single {@code SignalN} frequency signal.
  * <p>
- * <strong>Scope.</strong> The RPCL / RPCL2 and secondary-voltage-control (SVC) branches of the launcher's
- * tree are left out on purpose: they are driven by the assembling SVC automatons this mapping does not
- * read (see {@code DYNAFLOW_MAPPING_PLAN.md} §3.7 / §9), and their libraries are not in the catalogue.
- * With no SVC, {@code isInSVC} and {@code isRPCL2} are always false, so the reachable models are exactly
- * the eight non-RPCL libraries. Parameter sets (IIDM references) and the {@code VRRemote} wiring the
- * remote models need are the next step of the phase.
+ * A generator in a secondary voltage control zone — a control unit of the {@code secondaryVoltageControl}
+ * extension — instead runs a reactive-power-control-loop model ({@code GeneratorPV*Rpcl*SignalN}), and a
+ * second loop where a study marks it {@code Rpcl2} through the {@code synchronizedGeneratorProperties}
+ * extension. So, unlike the rest of the tree, these two branches read the network's extensions rather
+ * than deduce from it. Parameter sets (IIDM references) and the {@code VRRemote} wiring the remote models
+ * need are the next step of the phase.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -60,6 +66,17 @@ public final class DynaFlowGeneratorMapping {
     static final String PQ_PROP_SIGNALN = "GeneratorPQPropSignalN";
     static final String PQ_PROP_DIAGRAM_PQ_SIGNALN = "GeneratorPQPropDiagramPQSignalN";
 
+    // A generator in a secondary voltage control zone, on a reactive power control loop (Rpcl) or a
+    // second one (Rpcl2). Same four transformer/diagram flavours as the plain local generators.
+    static final String PV_RPCL_SIGNALN = "GeneratorPVRpclSignalN";
+    static final String PV_RPCL2_SIGNALN = "GeneratorPVRpcl2SignalN";
+    static final String PV_DIAGRAM_PQ_RPCL_SIGNALN = "GeneratorPVDiagramPQRpclSignalN";
+    static final String PV_DIAGRAM_PQ_RPCL2_SIGNALN = "GeneratorPVDiagramPQRpcl2SignalN";
+    static final String PV_TFO_RPCL_SIGNALN = "GeneratorPVTfoRpclSignalN";
+    static final String PV_TFO_RPCL2_SIGNALN = "GeneratorPVTfoRpcl2SignalN";
+    static final String PV_TFO_DIAGRAM_PQ_RPCL_SIGNALN = "GeneratorPVTfoDiagramPQRpclSignalN";
+    static final String PV_TFO_DIAGRAM_PQ_RPCL2_SIGNALN = "GeneratorPVTfoDiagramPQRpcl2SignalN";
+
     /**
      * The nominal voltage (kV) at or above which a generator's transformer is assumed <em>absent</em> from
      * the static model, so DynaFlow models it (the Tfo variants). Below it, the transformer is taken to be
@@ -74,9 +91,10 @@ public final class DynaFlowGeneratorMapping {
 
     public List<MappedModel> createModelConfigs(Network network) {
         Map<String, Integer> regulationCount = countRegulationsPerBus(network);
+        Set<String> svcMembers = secondaryVoltageControlMembers(network);
         List<MappedModel> models = new ArrayList<>();
         for (Generator generator : network.getGenerators()) {
-            String lib = selectLib(generator, regulationCount);
+            String lib = selectLib(generator, regulationCount, svcMembers);
             if (lib != null) {
                 models.add(new MappedModel(lib, generator.getId(), generator.getId()));
             }
@@ -86,10 +104,11 @@ public final class DynaFlowGeneratorMapping {
 
     /**
      * The DynaFlow model a generator runs, or {@code null} to keep the static {@code NETWORK} model —
-     * the launcher's {@code GeneratorDefinitionAlgorithm::operator()} decision tree, without its SVC /
-     * RPCL branches.
+     * the launcher's {@code GeneratorDefinitionAlgorithm::operator()} decision tree. A generator in a
+     * secondary voltage control zone ({@code isInSVC}) takes a reactive-power-control-loop model, a second
+     * loop ({@code isRPCL2}) where a study marks it so through the synchronized generator properties.
      */
-    private static String selectLib(Generator generator, Map<String, Integer> regulationCount) {
+    private static String selectLib(Generator generator, Map<String, Integer> regulationCount, Set<String> svcMembers) {
         if (!generator.isVoltageRegulatorOn() || !isTargetPValid(generator) || !isDiagramValid(generator)) {
             return null;
         }
@@ -99,42 +118,60 @@ public final class DynaFlowGeneratorMapping {
             return null;
         }
         boolean local = regulatedBus.getId().equals(connectedBus.getId());
+        boolean inSvc = svcMembers.contains(generator.getId());
+        boolean rpcl2 = isRpcl2(generator);
         double nominalV = generator.getTerminal().getVoltageLevel().getNominalV();
 
-        // Branch A — the transformer is assumed absent from the static model: local regulation at or above
-        // the threshold voltage runs a Tfo model.
-        if (local && (nominalV > TFO_VOLTAGE_LEVEL || doubleEquals(nominalV, TFO_VOLTAGE_LEVEL))) {
-            return selectDiagramGenerator(generator, true);
+        // Branch A — the transformer is assumed absent from the static model: local (or SVC) regulation at
+        // or above the threshold voltage runs a Tfo model.
+        if ((inSvc || local) && (nominalV > TFO_VOLTAGE_LEVEL || doubleEquals(nominalV, TFO_VOLTAGE_LEVEL))) {
+            return selectDiagramGenerator(generator, true, inSvc, rpcl2);
         }
 
         // Branch B — the transformer is in the static model, or the regulation is remote.
         boolean multipleRegulators = regulationCount.getOrDefault(regulatedBus.getId(), 1) >= 2;
         if (!multipleRegulators) {
-            if (local) {
-                return selectDiagramGenerator(generator, false);
+            if (inSvc || local) {
+                return selectDiagramGenerator(generator, false, inSvc, rpcl2);
             }
             if (USE_INFINITE_REACTIVE_LIMITS) {
                 return PV_REMOTE_SIGNALN;
             }
             return isDiagramRectangular(generator) ? PV_REMOTE_SIGNALN : PV_REMOTE_DIAGRAM_PQ_SIGNALN;
         }
-        // Several generators regulate this bus (SVC absent): proportional reactive sharing.
+        // Several generators regulate this bus. An SVC machine keeps its control loop; on infinite limits,
+        // or where a single machine regulates its own bus, it runs the diagram model, else it shares the
+        // reactive power proportionally.
         if (USE_INFINITE_REACTIVE_LIMITS) {
-            return PQ_PROP_SIGNALN;
+            return inSvc ? selectDiagramGenerator(generator, false, true, rpcl2) : PQ_PROP_SIGNALN;
+        }
+        boolean oneRegulatorOnConnectedBus = regulationCount.getOrDefault(connectedBus.getId(), 1) < 2;
+        if (inSvc && oneRegulatorOnConnectedBus) {
+            return selectDiagramGenerator(generator, false, true, rpcl2);
         }
         return isDiagramRectangular(generator) ? PQ_PROP_SIGNALN : PQ_PROP_DIAGRAM_PQ_SIGNALN;
     }
 
     /**
-     * The launcher's {@code selectDiagramGenerators} leaf, with SVC / RPCL off: a plain PV model whose
-     * flavour is the transformer presence and the diagram shape (infinite and rectangular share a
-     * library; a genuine PQ curve gets its own).
+     * The launcher's {@code selectDiagramGenerators} leaf: a PV model whose flavour is the transformer
+     * presence, the reactive power control loop (none / Rpcl / Rpcl2) and the diagram shape (infinite and
+     * rectangular share a library; a genuine PQ curve gets its own).
      */
-    private static String selectDiagramGenerator(Generator generator, boolean withTransformer) {
+    private static String selectDiagramGenerator(Generator generator, boolean withTransformer, boolean inSvc, boolean rpcl2) {
         if (USE_INFINITE_REACTIVE_LIMITS) {
-            return withTransformer ? PV_TFO_SIGNALN : PV_SIGNALN;
+            if (withTransformer) {
+                return inSvc ? (rpcl2 ? PV_TFO_RPCL2_SIGNALN : PV_TFO_RPCL_SIGNALN) : PV_TFO_SIGNALN;
+            }
+            return inSvc ? (rpcl2 ? PV_RPCL2_SIGNALN : PV_RPCL_SIGNALN) : PV_SIGNALN;
         }
         boolean rectangular = isDiagramRectangular(generator);
+        if (inSvc) {
+            return withTransformer
+                    ? rpcl2 ? (rectangular ? PV_TFO_RPCL2_SIGNALN : PV_TFO_DIAGRAM_PQ_RPCL2_SIGNALN)
+                            : (rectangular ? PV_TFO_RPCL_SIGNALN : PV_TFO_DIAGRAM_PQ_RPCL_SIGNALN)
+                    : rpcl2 ? (rectangular ? PV_RPCL2_SIGNALN : PV_DIAGRAM_PQ_RPCL2_SIGNALN)
+                            : (rectangular ? PV_RPCL_SIGNALN : PV_DIAGRAM_PQ_RPCL_SIGNALN);
+        }
         if (withTransformer) {
             return rectangular ? PV_TFO_SIGNALN : PV_TFO_DIAGRAM_PQ_SIGNALN;
         }
@@ -168,6 +205,27 @@ public final class DynaFlowGeneratorMapping {
 
     private static Bus busViewBus(Terminal terminal) {
         return terminal == null ? null : terminal.getBusView().getBus();
+    }
+
+    /** Whether a study marks this generator's second reactive power control loop on the synchronized properties. */
+    private static boolean isRpcl2(Generator generator) {
+        SynchronizedGeneratorProperties properties = generator.getExtension(SynchronizedGeneratorProperties.class);
+        return properties != null && properties.isRpcl2();
+    }
+
+    /** The generators that are control units of a secondary voltage control zone — the machines in an SVC. */
+    private static Set<String> secondaryVoltageControlMembers(Network network) {
+        SecondaryVoltageControl svc = network.getExtension(SecondaryVoltageControl.class);
+        if (svc == null) {
+            return Set.of();
+        }
+        Set<String> members = new HashSet<>();
+        for (ControlZone zone : svc.getControlZones()) {
+            for (ControlUnit unit : zone.getControlUnits()) {
+                members.add(unit.getId());
+            }
+        }
+        return members;
     }
 
     /** The operating point {@code -targetP} lies within the active power limits (bounds included). */
