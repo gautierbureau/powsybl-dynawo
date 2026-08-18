@@ -116,19 +116,20 @@ class VRRemoteTest {
         assertEquals(3, macroConnects.size());
         assertThat(indexValues(macroConnects)).containsExactly("0", "1");
 
-        // the two machines share one templated connector; the bus has its own
+        // the two machines share one templated connector; the regulated bus, with no dynamic model,
+        // resolves to the default action connection point on NETWORK
         assertThat(macroConnectors.keySet())
-                .containsExactly("MC_VRRemote-GeneratorPVRemote", "MC_VRRemote-DefaultBusOfVRRemote");
+                .containsExactly("MC_VRRemote-GeneratorPVRemote", "MC_VRRemote-DefaultActionConnectionPoint");
         assertThat(macroConnectors.get("MC_VRRemote-GeneratorPVRemote"))
                 .usingRecursiveComparison()
                 .isEqualTo(new MacroConnector("MC_VRRemote-GeneratorPVRemote", List.of(
                         new VarConnection("vrremote_NQ", "generator_NQ"),
                         new VarConnection("vrremote_limUQUp_@INDEX@_", "generator_limUQUp"),
                         new VarConnection("vrremote_limUQDown_@INDEX@_", "generator_limUQDown"))));
-        assertThat(macroConnectors.get("MC_VRRemote-DefaultBusOfVRRemote"))
+        assertThat(macroConnectors.get("MC_VRRemote-DefaultActionConnectionPoint"))
                 .usingRecursiveComparison()
-                .isEqualTo(new MacroConnector("MC_VRRemote-DefaultBusOfVRRemote", List.of(
-                        new VarConnection("vrremote_URegulatedPu", "@@NAME@@@NODE@_Upu_value"))));
+                .isEqualTo(new MacroConnector("MC_VRRemote-DefaultActionConnectionPoint", List.of(
+                        new VarConnection("vrremote_URegulatedPu", "@NAME@_Upu"))));
     }
 
     @Test

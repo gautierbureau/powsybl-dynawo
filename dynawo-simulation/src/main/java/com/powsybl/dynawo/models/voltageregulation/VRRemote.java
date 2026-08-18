@@ -7,9 +7,11 @@
  */
 package com.powsybl.dynawo.models.voltageregulation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.models.AbstractPureDynamicBlackBoxModel;
 import com.powsybl.dynawo.models.VarConnection;
+import com.powsybl.dynawo.models.buses.ActionConnectionPoint;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectAttribute;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.dynawo.parameters.ParametersSet;
@@ -60,8 +62,8 @@ public class VRRemote extends AbstractPureDynamicBlackBoxModel {
             adder.createMacroConnections(this, model, getVarConnectionsWith(model), MacroConnectAttribute.ofIndex1(index));
             index++;
         }
-        BusOfVRRemoteModel busOf = DefaultBusOfVRRemote.of(regulatingModels.getFirst());
-        adder.createMacroConnections(this, busOf, getVarConnectionsWithBus(busOf));
+        adder.createMacroConnections(this, regulatingModels.getFirst().getRegulatedBus(),
+                ActionConnectionPoint.class, this::getVarConnectionsWithBus);
     }
 
     private List<VarConnection> getVarConnectionsWith(VRRemoteModel model) {
@@ -71,8 +73,11 @@ public class VRRemote extends AbstractPureDynamicBlackBoxModel {
                 new VarConnection("vrremote_limUQDown_@INDEX@_", model.getLimUQDownVarName()));
     }
 
-    private List<VarConnection> getVarConnectionsWithBus(BusOfVRRemoteModel busOf) {
-        return List.of(new VarConnection("vrremote_URegulatedPu", busOf.getUpuVarName()));
+    private List<VarConnection> getVarConnectionsWithBus(ActionConnectionPoint regulatedBus) {
+        return regulatedBus.getUpuImpinVarName()
+                .map(upuVarName -> List.of(new VarConnection("vrremote_URegulatedPu", upuVarName)))
+                .orElseThrow(() -> new PowsyblException("Cannot connect the remote voltage regulation to bus '"
+                        + regulatedBus.getName() + "', it has no per-unit voltage variable"));
     }
 
     @Override
