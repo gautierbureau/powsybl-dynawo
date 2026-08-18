@@ -18,6 +18,8 @@ import com.powsybl.dynawo.models.BlackBoxModel;
 import com.powsybl.dynawo.models.Model;
 import com.powsybl.dynawo.models.buses.AbstractBus;
 import com.powsybl.dynawo.models.frequencysynchronizers.*;
+import com.powsybl.dynawo.models.voltageregulation.VRRemote;
+import com.powsybl.dynawo.models.voltageregulation.VRRemoteModel;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.simplifiers.ModelSimplifiers;
 import com.powsybl.dynawo.simplifiers.ModelsRemovalSimplifier;
@@ -131,6 +133,7 @@ public abstract class AbstractContextBuilder<T extends AbstractContextBuilder<T>
             dynamicModels = uniqueIdsDynamicModels.collect(Collectors.toCollection(ArrayList::new));
         }
         setupFrequencySynchronizer();
+        setupRemoteVoltageRegulations();
         blackBoxModelSupplier = BlackBoxModelSupplier.createFrom(dynamicModels);
         checkForbiddenDefaultModels();
     }
@@ -185,6 +188,25 @@ public abstract class AbstractContextBuilder<T extends AbstractContextBuilder<T>
                     ? new SetPoint(frequencySynchronizedModels, defaultParFile)
                     : new OmegaRef(frequencySynchronizedModels, defaultParFile, dynawoParameters));
         }
+    }
+
+    /**
+     * A machine that regulates a remote bus's voltage needs a {@link VRRemote} coordinating it with the
+     * other machines regulating the same bus. No user maps a {@code VRRemote}; the framework gathers every
+     * {@link VRRemoteModel} by regulated bus and adds one {@code VRRemote} per bus, the way the DynaFlow
+     * Launcher does.
+     */
+    private void setupRemoteVoltageRegulations() {
+        List<VRRemoteModel> vrRemoteModels = filterDynamicModels(VRRemoteModel.class);
+        if (vrRemoteModels.isEmpty()) {
+            return;
+        }
+        String defaultParFile = DynawoSimulationConstants.getSimulationParFile(network);
+        Map<String, List<VRRemoteModel>> modelsByRegulatedBus = new LinkedHashMap<>();
+        for (VRRemoteModel model : vrRemoteModels) {
+            modelsByRegulatedBus.computeIfAbsent(model.getRegulatedBus().getId(), k -> new ArrayList<>()).add(model);
+        }
+        modelsByRegulatedBus.forEach((busId, models) -> dynamicModels.add(new VRRemote(busId, models, defaultParFile)));
     }
 
     private <R extends Model> List<R> filterDynamicModels(Class<R> modelClass) {
