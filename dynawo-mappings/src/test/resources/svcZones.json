@@ -1,0 +1,11 @@
+{
+  "ZONE": {
+    "pilotPoint": {
+      "buses": [
+        { "voltageLevelId": "VL1", "busId": "B1" }
+      ],
+      "busbarSectionIds": []
+    },
+    "generators": ["GEN1", "GEN2"]
+  }
+}
