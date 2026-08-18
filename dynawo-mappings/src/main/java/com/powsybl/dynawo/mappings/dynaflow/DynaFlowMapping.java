@@ -1,0 +1,73 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.dynawo.mappings.dynaflow;
+
+import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.mappings.DynamicModelsMapping;
+import com.powsybl.dynawo.mappings.MappedModelsSupplier;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.parameters.ParametersSet;
+import com.powsybl.iidm.network.Network;
+
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A whole network described for a DynaFlow steady-state study, each kind of equipment by its own part.
+ * <p>
+ * This is the Java replacement for the DynaFlow Launcher's model creation (see {@code
+ * DYNAFLOW_MAPPING_PLAN.md}): given a network, it decides the DynaFlow model each equipment runs, so a
+ * study reads them from {@code get_models} and, later, feeds them to DynaFlow instead of shelling out
+ * to the C++ launcher. Unlike a transient study, DynaFlow deduces a machine's model from the network
+ * itself rather than from an extension a study describes beforehand, so it reads no extensions.
+ * <p>
+ * <strong>Scaffold.</strong> Only the generators are wired, and only their plain PV model; the loads,
+ * static var compensators, HVDC links and the global scaffolding (slack, the SignalN frequency signal,
+ * {@code Network.par} / {@code solver.par}) are the phases the plan lays out.
+ *
+ * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
+ */
+public class DynaFlowMapping implements DynamicModelsMapping {
+
+    public static final String NAME = "DynaFlow";
+
+    private final String name;
+    private final DynaFlowGeneratorMapping generators;
+
+    public DynaFlowMapping(String name) {
+        this.name = Objects.requireNonNull(name);
+        this.generators = new DynaFlowGeneratorMapping();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public DynawoSimulationParameters.SolverType getSolverType() {
+        // DynaFlow runs the simplified (SIM) solver
+        return DynawoSimulationParameters.SolverType.SIM;
+    }
+
+    @Override
+    public void createExtensions(Network network) {
+        // DynaFlow reads a machine's model from the network, not from an extension a study sets up
+    }
+
+    @Override
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
+        return generators.createModelConfigs(network);
+    }
+
+    @Override
+    public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
+        // the generators' parameter sets (fixed values + IIDM references) are Phase 1
+        return List.of();
+    }
+}
