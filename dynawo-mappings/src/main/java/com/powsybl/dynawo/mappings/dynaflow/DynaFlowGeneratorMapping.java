@@ -9,6 +9,7 @@ package com.powsybl.dynawo.mappings.dynaflow;
 
 import com.powsybl.dynawo.extensions.api.generator.SynchronizedGeneratorProperties;
 import com.powsybl.dynawo.mappings.MappedModelsSupplier.MappedModel;
+import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
@@ -100,6 +101,19 @@ public final class DynaFlowGeneratorMapping {
             }
         }
         return models;
+    }
+
+    public List<ParametersSet> createParameters(Network network) {
+        Map<String, Integer> regulationCount = countRegulationsPerBus(network);
+        Set<String> svcMembers = secondaryVoltageControlMembers(network);
+        List<ParametersSet> sets = new ArrayList<>();
+        for (Generator generator : network.getGenerators()) {
+            String lib = selectLib(generator, regulationCount, svcMembers);
+            if (lib != null) {
+                sets.add(DynaFlowGeneratorParameters.build(generator, lib));
+            }
+        }
+        return sets;
     }
 
     /**

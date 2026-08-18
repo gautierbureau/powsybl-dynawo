@@ -72,7 +72,7 @@ public class DynaFlowMapping implements DynamicModelsMapping {
 
     @Override
     public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
-        // the generators' parameter sets (fixed values + IIDM references) are Phase 1
-        return List.of();
+        // each generator's set of fixed values + IIDM references, the way the launcher's ParGenerator builds it
+        return generators.createParameters(network);
     }
 }
