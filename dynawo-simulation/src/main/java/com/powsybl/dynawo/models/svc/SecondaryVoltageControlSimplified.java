@@ -34,15 +34,13 @@ public class SecondaryVoltageControlSimplified extends AbstractPureDynamicBlackB
 
     private final List<Identifiable<?>> generators;
     private final String pilotBusId;
-    private final String defaultParFile;
 
     public SecondaryVoltageControlSimplified(String dynamicModelId, String parameterSetId,
                                              List<Identifiable<?>> generators, String pilotBusId,
-                                             String defaultParFile, ModelConfig modelConfig) {
+                                             ModelConfig modelConfig) {
         super(dynamicModelId, parameterSetId, modelConfig);
         this.generators = Objects.requireNonNull(generators);
         this.pilotBusId = Objects.requireNonNull(pilotBusId);
-        this.defaultParFile = defaultParFile;
     }
 
     @Override
@@ -68,10 +66,5 @@ public class SecondaryVoltageControlSimplified extends AbstractPureDynamicBlackB
 
     private List<VarConnection> getVarConnectionsWithBus(SvcPilotPoint pilot) {
         return List.of(new VarConnection("UpPu_value", pilot.getUpuVarName()));
-    }
-
-    @Override
-    public String getDefaultParFile() {
-        return defaultParFile;
     }
 }

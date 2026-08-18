@@ -14,6 +14,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.models.automationsystems.TapChangerAutomationSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.TapChangerBlockingAutomationSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.UnderVoltageAutomationSystemBuilder;
+import com.powsybl.dynawo.models.svc.SecondaryVoltageControlSimplifiedBuilder;
 import com.powsybl.dynawo.models.automationsystems.overloadmanagments.DynamicOverloadManagementSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.overloadmanagments.DynamicTwoLevelOverloadManagementSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.phaseshifters.PhaseShifterBlockingIAutomationSystemBuilder;
@@ -69,6 +70,9 @@ public final class ModelConfigLoaderImpl implements ModelConfigLoader {
             new BuilderConfig(PhaseShifterBlockingIAutomationSystemBuilder.CATEGORY,
                     PhaseShifterBlockingIAutomationSystemBuilder::of,
                     PhaseShifterBlockingIAutomationSystemBuilder::getSupportedModelInfos),
+            new BuilderConfig(SecondaryVoltageControlSimplifiedBuilder.CATEGORY,
+                    SecondaryVoltageControlSimplifiedBuilder::of,
+                    SecondaryVoltageControlSimplifiedBuilder::getSupportedModelInfos),
             new BuilderConfig(StandardBusBuilder.CATEGORY, StandardBusBuilder::of, StandardBusBuilder::getSupportedModelInfos),
             new BuilderConfig(InfiniteBusBuilder.CATEGORY, InfiniteBusBuilder::of, InfiniteBusBuilder::getSupportedModelInfos),
             new BuilderConfig(TransformerFixedRatioBuilder.CATEGORY, TransformerFixedRatioBuilder::of, TransformerFixedRatioBuilder::getSupportedModelInfos),

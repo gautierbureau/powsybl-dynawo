@@ -47,7 +47,7 @@ class SecondaryVoltageControlSimplifiedTest {
         List<BlackBoxModel> dynamicModels = List.of(gen1, gen2);
 
         SecondaryVoltageControlSimplified svc = new SecondaryVoltageControlSimplified("SVC", "SVC",
-                List.of(network.getGenerator("GEN"), network.getGenerator("GEN2")), "NHV1", "test.par",
+                List.of(network.getGenerator("GEN"), network.getGenerator("GEN2")), "NHV1",
                 new ModelConfig("DYNModelSecondaryVoltageControlSimplified"));
 
         List<MacroConnect> macroConnects = new ArrayList<>();
