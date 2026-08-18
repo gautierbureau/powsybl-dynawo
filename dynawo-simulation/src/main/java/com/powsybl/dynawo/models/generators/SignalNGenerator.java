@@ -9,6 +9,7 @@ package com.powsybl.dynawo.models.generators;
 
 import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.models.frequencysynchronizers.SignalNModel;
+import com.powsybl.dynawo.models.svc.RpclGeneratorModel;
 import com.powsybl.dynawo.models.utils.BusUtils;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
@@ -16,7 +17,7 @@ import com.powsybl.iidm.network.Generator;
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class SignalNGenerator extends BaseGenerator implements SignalNModel {
+public class SignalNGenerator extends BaseGenerator implements SignalNModel, RpclGeneratorModel {
 
     protected SignalNGenerator(Generator generator, String parameterSetId, ModelConfig modelConfig) {
         super(generator, parameterSetId, modelConfig);
@@ -30,5 +31,23 @@ public class SignalNGenerator extends BaseGenerator implements SignalNModel {
     @Override
     public Bus getConnectableBus() {
         return BusUtils.getConnectableBus(equipment);
+    }
+
+    // A machine is only ever connected to the secondary voltage control on an Rpcl library, where these
+    // variables exist; the control leaves any other machine out (see SecondaryVoltageControlSimplified).
+
+    @Override
+    public String getQStatorVarName() {
+        return "generator_QStator";
+    }
+
+    @Override
+    public String getBlockerVarName() {
+        return "generator_blocker";
+    }
+
+    @Override
+    public String getLevelVarName() {
+        return "reactivePowerControlLoop_level";
     }
 }
