@@ -10,9 +10,17 @@ package com.powsybl.dynawo.models.svc;
 import com.powsybl.dynawo.models.defaultmodels.AbstractDefaultModel;
 
 /**
- * The bus whose voltage a {@link SecondaryVoltageControlSimplified} holds, seen on the {@code NETWORK}
- * model: the control reads the bus's per-unit voltage straight from the static network, keyed on the
- * bus id, no dynamic model of the bus required.
+ * The bus whose voltage a {@link SecondaryVoltageControlSimplified} holds, read straight from the static
+ * {@code NETWORK} model by the bus id.
+ * <p>
+ * The simplified control always reads the pilot voltage from the network — the DynaFlow Launcher wires it
+ * that way whether or not the bus carries a dynamic model (its {@code launch_svc} and {@code
+ * launch_svc_network} references connect the same {@code UpPu_value <-> @NAME@_Upu_value} to
+ * {@code NETWORK}). This is unlike the detailed control, which reaches the pilot through the generic
+ * {@code ActionConnectionPoint}: that too falls back to the network for a static bus, but on a different
+ * variable ({@code @NAME@_Upu}), and it can instead bind a dynamic bus's own variable. Because the
+ * network variable the simplified control needs — {@code @NAME@_Upu_value} — is not the one the generic
+ * connection point gives, it has this pilot point of its own.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */

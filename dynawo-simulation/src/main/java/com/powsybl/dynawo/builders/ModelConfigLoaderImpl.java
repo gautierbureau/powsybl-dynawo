@@ -14,7 +14,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.models.automationsystems.TapChangerAutomationSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.TapChangerBlockingAutomationSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.UnderVoltageAutomationSystemBuilder;
-import com.powsybl.dynawo.models.svc.SecondaryVoltageControlSimplifiedBuilder;
 import com.powsybl.dynawo.models.automationsystems.overloadmanagments.DynamicOverloadManagementSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.overloadmanagments.DynamicTwoLevelOverloadManagementSystemBuilder;
 import com.powsybl.dynawo.models.automationsystems.phaseshifters.PhaseShifterBlockingIAutomationSystemBuilder;
@@ -30,6 +29,7 @@ import com.powsybl.dynawo.models.lines.LineBuilder;
 import com.powsybl.dynawo.models.loads.*;
 import com.powsybl.dynawo.models.shunts.BaseShuntBuilder;
 import com.powsybl.dynawo.models.svarcs.BaseStaticVarCompensatorBuilder;
+import com.powsybl.dynawo.models.svc.SecondaryVoltageControlSimplifiedBuilder;
 import com.powsybl.dynawo.models.transformers.TransformerFixedRatioBuilder;
 
 import java.io.IOException;
