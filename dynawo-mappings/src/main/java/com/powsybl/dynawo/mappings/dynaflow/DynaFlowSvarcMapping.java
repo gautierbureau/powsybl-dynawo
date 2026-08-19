@@ -72,7 +72,8 @@ final class DynaFlowSvarcMapping {
 
     /** The model a compensator runs, or {@code null} to keep the static network one. */
     private String selectLib(StaticVarCompensator svarc) {
-        if (!isRegulatingVoltage(svarc)) {
+        // the launcher skips every compensator when SVarC regulation is turned off (SVCRegulationOn)
+        if (!config.svcRegulationOn() || !isRegulatingVoltage(svarc)) {
             return null;
         }
         StringBuilder lib = new StringBuilder("StaticVarCompensatorPV");

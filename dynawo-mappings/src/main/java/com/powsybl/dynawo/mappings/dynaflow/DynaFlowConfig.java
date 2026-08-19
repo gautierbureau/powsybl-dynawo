@@ -25,7 +25,8 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
                       double dsoVoltageLevel,
                       boolean restorativeFictitiousLoads,
                       double timeStep,
-                      double minTimeStep) {
+                      double minTimeStep,
+                      boolean svcRegulationOn) {
 
     /** How a machine's initial voltage and power are taken — from the load flow (warm) or the set points (flat). */
     enum StartingPointMode {
@@ -48,6 +49,7 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
     static final String RESTORATIVE_FICTITIOUS_LOADS = "dynaflow_restorative_fictitious_loads";
     static final String TIME_STEP = "dynaflow_time_step";
     static final String MIN_TIME_STEP = "dynaflow_min_time_step";
+    static final String SVC_REGULATION_ON = "dynaflow_svc_regulation_on";
 
     /** The launcher's defaults: honour each diagram, a 100 kV transformer threshold, warm start, PMax compensation. */
     static DynaFlowConfig defaults() {
@@ -63,6 +65,7 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
                 parameters.getDouble(DSO_VOLTAGE_LEVEL, 45.0),
                 parameters.getBoolean(RESTORATIVE_FICTITIOUS_LOADS, false),
                 parameters.getDouble(TIME_STEP, 10.0),
-                parameters.getDouble(MIN_TIME_STEP, 1.0));
+                parameters.getDouble(MIN_TIME_STEP, 1.0),
+                parameters.getBoolean(SVC_REGULATION_ON, true));
     }
 }

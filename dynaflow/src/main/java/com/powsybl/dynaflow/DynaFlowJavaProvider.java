@@ -76,6 +76,7 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
     private static final String DSO_VOLTAGE_LEVEL_KEY = "dynaflow_dso_voltage_level";
     private static final String TFO_VOLTAGE_LEVEL_KEY = "dynaflow_tfo_voltage_level";
     private static final String TIME_STEP_KEY = "dynaflow_time_step";
+    private static final String SVC_REGULATION_ON_KEY = "dynaflow_svc_regulation_on";
 
     private final Supplier<DynawoSimulationConfig> configSupplier;
 
@@ -166,6 +167,7 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
         values.put(DSO_VOLTAGE_LEVEL_KEY, Double.toString(dynaFlowParameters.getDsoVoltageLevel()));
         values.put(TFO_VOLTAGE_LEVEL_KEY, Double.toString(dynaFlowParameters.getTfoVoltageLevel()));
         values.put(TIME_STEP_KEY, Double.toString(dynaFlowParameters.getTimeStep()));
+        values.put(SVC_REGULATION_ON_KEY, Boolean.toString(dynaFlowParameters.getSvcRegulationOn()));
         return MappingParameters.of(values);
     }
 

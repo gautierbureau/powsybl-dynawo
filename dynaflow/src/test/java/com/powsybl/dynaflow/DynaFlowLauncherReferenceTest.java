@@ -51,8 +51,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * database, which this mapping does not read. Skipped unless the launcher sources are present at {@link
  * #TESTS_DIR}.
  * <p>
- * {@code launch_slack} is left out: its input carries a {@code slackTerminal} extension in an IIDM version
- * the current serializer cannot read, so the network cannot be loaded at all (not a mapping difference).
+ * {@code launch_slack} and {@code launch_kGover} are left out: their inputs carry a {@code slackTerminal} /
+ * {@code activePowerControl} extension in an IIDM version the current serializer cannot read, so the network
+ * cannot be loaded at all (not a mapping difference).
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -64,9 +65,12 @@ class DynaFlowLauncherReferenceTest {
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {
         "launch", "launch_infinite", "launch_diagram", "launch_diagram_tfo", "launch_P",
-        "node_breaker", "special_characters", "distant_regulation",
+        "node_breaker", "special_characters", "distant_regulation", "no_SVarC_regulation",
         "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams", "hvdc_diagrams_flat_start",
-        "hvdc_HvdcPQProp", "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPV_HvdcPTanPhi"})
+        "hvdc_HvdcPQProp", "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPQPropDangling_diagrams",
+        "hvdc_HvdcPQProp_multiple_bus", "hvdc_HvdcPQPropSwitch", "hvdc_HvdcPV_HvdcPTanPhi",
+        "hvdc_HvdcPV_HvdcPTanPhi_diagrams", "hvdc_HvdcPVDangling_HvdcPTanPhiDangling",
+        "hvdc_HvdcPVDangling_HvdcPTanPhiDangling_diagrams"})
     void javaMappingReproducesLauncherReference(String caseName) throws Exception {
         Comparison comparison = compare(caseName);
         assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
@@ -122,6 +126,7 @@ class DynaFlowLauncherReferenceTest {
         put(config, "TfoVoltageLevel", "dynaflow_tfo_voltage_level", values);
         put(config, "ActivePowerCompensation", "dynaflow_active_power_compensation", values);
         put(config, "StartingPointMode", "dynaflow_starting_point_mode", values);
+        put(config, "SVCRegulationOn", "dynaflow_svc_regulation_on", values);
         return MappingParameters.of(values);
     }
 
