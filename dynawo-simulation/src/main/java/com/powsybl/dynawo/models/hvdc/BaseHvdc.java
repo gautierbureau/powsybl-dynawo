@@ -14,9 +14,11 @@ import com.powsybl.dynawo.models.VarMapping;
 import com.powsybl.dynawo.models.buses.EquipmentConnectionPoint;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.dynawo.models.utils.SideUtils;
+import com.powsybl.dynawo.models.voltageregulation.VRRemoteModel;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.VscConverterStation;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -97,6 +99,28 @@ public class BaseHvdc extends AbstractEquipmentBlackBoxModel<HvdcLine> implement
 
     public List<HvdcConverterStation<?>> getConnectedStations() {
         return List.of(equipment.getConverterStation1(), equipment.getConverterStation2());
+    }
+
+    /**
+     * The sides a {@link com.powsybl.dynawo.models.voltageregulation.VRRemote} coordinates when this line
+     * shares reactive power proportionally (a {@code HvdcPQProp} model): both converters, side 1 on
+     * converter 1 and side 2 on converter 2, the way the launcher wires {@code HVDC_VRREMOTE_CONNECTOR}. A
+     * dangling model narrows this to its single connected side.
+     */
+    public List<VRRemoteModel> getVoltageRegulationSides() {
+        if (!getLib().contains("PQProp")) {
+            return List.of();
+        }
+        List<VRRemoteModel> sides = new ArrayList<>(2);
+        addSide(sides, equipment.getConverterStation1(), "1");
+        addSide(sides, equipment.getConverterStation2(), "2");
+        return sides;
+    }
+
+    protected void addSide(List<VRRemoteModel> sides, HvdcConverterStation<?> converter, String side) {
+        if (converter instanceof VscConverterStation vsc) {
+            sides.add(new HvdcVRRemoteSide(getDynamicModelId(), vsc, side));
+        }
     }
 
     @Override

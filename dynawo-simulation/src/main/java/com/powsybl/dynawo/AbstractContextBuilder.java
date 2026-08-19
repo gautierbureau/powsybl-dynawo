@@ -18,6 +18,7 @@ import com.powsybl.dynawo.models.BlackBoxModel;
 import com.powsybl.dynawo.models.Model;
 import com.powsybl.dynawo.models.buses.AbstractBus;
 import com.powsybl.dynawo.models.frequencysynchronizers.*;
+import com.powsybl.dynawo.models.hvdc.BaseHvdc;
 import com.powsybl.dynawo.models.voltageregulation.VRRemote;
 import com.powsybl.dynawo.models.voltageregulation.VRRemoteModel;
 import com.powsybl.dynawo.parameters.ParametersSet;
@@ -213,7 +214,12 @@ public abstract class AbstractContextBuilder<T extends AbstractContextBuilder<T>
      * Launcher does.
      */
     private void setupRemoteVoltageRegulations() {
-        List<VRRemoteModel> vrRemoteModels = filterDynamicModels(VRRemoteModel.class);
+        // the generators regulating remotely, then the HVDC lines' sides (each an HVDC line presents one per
+        // in-component converter) — the launcher wires the generators first, so they take the lower indices
+        List<VRRemoteModel> vrRemoteModels = new ArrayList<>(filterDynamicModels(VRRemoteModel.class));
+        for (BaseHvdc hvdc : filterDynamicModels(BaseHvdc.class)) {
+            vrRemoteModels.addAll(hvdc.getVoltageRegulationSides());
+        }
         if (vrRemoteModels.isEmpty()) {
             return;
         }

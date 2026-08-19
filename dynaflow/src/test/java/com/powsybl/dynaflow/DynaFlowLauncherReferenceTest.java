@@ -66,34 +66,16 @@ class DynaFlowLauncherReferenceTest {
     @ValueSource(strings = {
         "launch", "launch_infinite", "launch_diagram", "launch_diagram_tfo", "launch_P",
         "node_breaker", "special_characters", "distant_regulation", "no_SVarC_regulation",
-        "hvdc_line_normal", "hvdc_dangling", "hvdc_HvdcPV_HvdcPTanPhi", "hvdc_HvdcPV_HvdcPTanPhi_diagrams",
-        "hvdc_HvdcPVDangling_HvdcPTanPhiDangling", "hvdc_HvdcPVDangling_HvdcPTanPhiDangling_diagrams"})
+        "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams", "hvdc_diagrams_flat_start",
+        "hvdc_HvdcPQProp", "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPQPropDangling_diagrams",
+        "hvdc_HvdcPQProp_multiple_bus", "hvdc_HvdcPQPropSwitch", "hvdc_HvdcPV_HvdcPTanPhi",
+        "hvdc_HvdcPV_HvdcPTanPhi_diagrams", "hvdc_HvdcPVDangling_HvdcPTanPhiDangling",
+        "hvdc_HvdcPVDangling_HvdcPTanPhiDangling_diagrams"})
     void javaMappingReproducesLauncherReference(String caseName) throws Exception {
         Comparison comparison = compare(caseName);
         assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
         assertEquals(comparison.refAutomatons, comparison.javaAutomatons, caseName + ": the automaton models must match the launcher");
         assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"hvdc", "hvdc_diagrams", "hvdc_diagrams_flat_start", "hvdc_HvdcPQProp",
-        "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPQPropDangling_diagrams",
-        "hvdc_HvdcPQProp_multiple_bus", "hvdc_HvdcPQPropSwitch"})
-    void hvdcPQPropReproducesExceptItsVRRemoteCoordinator(String caseName) throws Exception {
-        // an HVDC PQProp converter is coordinated by a VRRemote through a distinct two-sided connector
-        // (hvdc_NQ1 / hvdc_NQ2), a mechanism the mapping does not raise yet; everything else must match,
-        // including the generator-side VRRemote
-        Comparison comparison = compare(caseName);
-        assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
-        assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
-        assertEquals(withoutHvdcVRRemote(comparison.refAutomatons), withoutHvdcVRRemote(comparison.javaAutomatons),
-                caseName + ": the automatons other than the HVDC VRRemote must match the launcher");
-    }
-
-    private static Map<String, Long> withoutHvdcVRRemote(Map<String, Long> automatons) {
-        Map<String, Long> copy = new TreeMap<>(automatons);
-        copy.remove("VRRemote");
-        return copy;
     }
 
     @ParameterizedTest(name = "{0}")
