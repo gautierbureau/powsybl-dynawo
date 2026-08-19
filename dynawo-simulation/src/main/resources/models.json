@@ -752,6 +752,10 @@
       {
         "lib": "LoadZIP",
         "doc": "ZIP coefficients load model."
+      },
+      {
+        "lib": "DYNModelLoadRestorativeWithLimits",
+        "doc": "Restorative load with voltage limits, the model DynaFlow runs a load on."
       }
     ]
   },
