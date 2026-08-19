@@ -40,6 +40,7 @@ public class DynaFlowMapping implements DynamicModelsMapping {
     private final String name;
     private final DynaFlowGeneratorMapping generators;
     private final DynaFlowLoadMapping loads;
+    private final DynaFlowSvarcMapping staticVarCompensators;
     private final DynaFlowSvcMapping secondaryVoltageControls;
 
     public DynaFlowMapping(String name) {
@@ -50,6 +51,7 @@ public class DynaFlowMapping implements DynamicModelsMapping {
         this.name = Objects.requireNonNull(name);
         this.generators = new DynaFlowGeneratorMapping(config);
         this.loads = new DynaFlowLoadMapping(config);
+        this.staticVarCompensators = new DynaFlowSvarcMapping(config);
         this.secondaryVoltageControls = new DynaFlowSvcMapping();
     }
 
@@ -73,6 +75,7 @@ public class DynaFlowMapping implements DynamicModelsMapping {
     public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
         List<MappedModelsSupplier.MappedModel> models = new ArrayList<>(generators.createModelConfigs(network));
         models.addAll(loads.createModelConfigs(network));
+        models.addAll(staticVarCompensators.createModelConfigs(network));
         models.addAll(secondaryVoltageControls.createModelConfigs(network));
         return models;
     }
@@ -82,6 +85,7 @@ public class DynaFlowMapping implements DynamicModelsMapping {
         // each generator's set of fixed values + IIDM references (ParGenerator), plus the loads' shared set
         List<ParametersSet> sets = new ArrayList<>(generators.createParameters(network));
         sets.addAll(loads.createParameters(network));
+        sets.addAll(staticVarCompensators.createParameters(network));
         return sets;
     }
 }
