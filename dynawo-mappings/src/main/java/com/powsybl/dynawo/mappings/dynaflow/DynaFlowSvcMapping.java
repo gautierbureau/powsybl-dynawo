@@ -12,6 +12,7 @@ import com.powsybl.dynawo.builders.ModelBuilder;
 import com.powsybl.dynawo.mappings.MappedModelsSupplier.MappedModel;
 import com.powsybl.dynawo.models.svc.SecondaryVoltageControlSimplifiedBuilder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.PilotPoint;
@@ -45,8 +46,10 @@ final class DynaFlowSvcMapping {
         }
         List<MappedModel> models = new ArrayList<>();
         for (ControlZone zone : secondaryVoltageControl.getControlZones()) {
-            String pilotBusId = pilotBusId(zone.getPilotPoint());
+            String pilotBusId = pilotBusId(network, zone.getPilotPoint());
             List<String> generators = zone.getControlUnits().stream().map(ControlUnit::getId).toList();
+            // a zone whose pilot the network does not hold is dropped, its machines left plain — the
+            // launcher's removeRpclFromModel; the generator mapping drops it the same way
             if (pilotBusId != null && !generators.isEmpty()) {
                 models.add(new MappedModel(LIB, zone.getName(), zone.getName(),
                         configurer(zone.getName(), generators, pilotBusId)));
@@ -65,13 +68,21 @@ final class DynaFlowSvcMapping {
         };
     }
 
-    /** The bus whose voltage the zone holds: its first busbar section, or failing that its first bus. */
-    private static String pilotBusId(PilotPoint pilotPoint) {
-        if (!pilotPoint.getBusbarSectionIds().isEmpty()) {
-            return pilotPoint.getBusbarSectionIds().get(0);
+    /**
+     * The bus whose voltage the zone holds: the first busbar section the network has, or failing that the
+     * first bus it has. Null where the network holds neither, so the zone is dropped.
+     */
+    private static String pilotBusId(Network network, PilotPoint pilotPoint) {
+        for (String busbarSectionId : pilotPoint.getBusbarSectionIds()) {
+            if (network.getBusbarSection(busbarSectionId) != null) {
+                return busbarSectionId;
+            }
         }
-        if (!pilotPoint.getBuses().isEmpty()) {
-            return pilotPoint.getBuses().get(0).busId();
+        for (PilotPoint.BusRef busRef : pilotPoint.getBuses()) {
+            VoltageLevel voltageLevel = network.getVoltageLevel(busRef.voltageLevelId());
+            if (voltageLevel != null && voltageLevel.getBusBreakerView().getBus(busRef.busId()) != null) {
+                return busRef.busId();
+            }
         }
         return null;
     }

@@ -62,6 +62,33 @@ class DynaFlowSvcMappingTest {
         assertEquals(false, libsById.containsValue(DynaFlowSvcMapping.LIB));
     }
 
+    @Test
+    void aZoneWhosePilotTheNetworkDoesNotHoldLeavesItsMachinesOnThePlainModel() {
+        Network network = Network.create("svc", "test");
+        machine(network, "VL1", "B1", "GEN1");
+        machine(network, "VL2", "B2", "GEN2");
+        network.newExtension(SecondaryVoltageControlAdder.class)
+                .newControlZone()
+                    .withName("ZONE")
+                    // the pilot busbar section is not in the network, so the control cannot reach it
+                    .newPilotPoint()
+                        .withBusbarSectionIds(List.of("GHOST_BBS"))
+                        .withBuses(List.of())
+                        .withTargetV(20)
+                        .add()
+                    .newControlUnit().withId("GEN1").withParticipate(true).add()
+                    .newControlUnit().withId("GEN2").withParticipate(true).add()
+                    .add()
+                .add();
+
+        Map<String, String> libs = new DynaFlowMapping(DynaFlowMapping.NAME).createModelConfigs(network).stream()
+                .collect(Collectors.toMap(MappedModel::staticId, MappedModel::lib));
+        // the zone is dropped: no SVC model, and the machines stay plain (removeRpclFromModel)
+        assertEquals(DynaFlowGeneratorMapping.PV_SIGNALN, libs.get("GEN1"));
+        assertEquals(DynaFlowGeneratorMapping.PV_SIGNALN, libs.get("GEN2"));
+        assertEquals(false, libs.containsValue(DynaFlowSvcMapping.LIB));
+    }
+
     /** Two 20 kV machines, each alone on its bus, both in one control zone; GEN2 carries a second loop. */
     private static Network twoMachineZone() {
         Network network = Network.create("svc", "test");

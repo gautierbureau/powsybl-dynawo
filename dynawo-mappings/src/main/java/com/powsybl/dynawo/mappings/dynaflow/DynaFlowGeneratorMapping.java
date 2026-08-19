@@ -19,8 +19,10 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimits;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.extensions.ControlZone;
+import com.powsybl.iidm.network.extensions.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 
 import java.util.ArrayList;
@@ -267,7 +269,12 @@ public final class DynaFlowGeneratorMapping {
         return properties != null && properties.isRpcl2();
     }
 
-    /** The generators that are control units of a secondary voltage control zone — the machines in an SVC. */
+    /**
+     * The generators the secondary voltage control puts on a reactive-power-control-loop model — the
+     * control units of a zone whose pilot point the control can reach. A zone whose pilot resolves to no
+     * bus is dropped, so its generators stay on the plain model: the launcher's {@code removeRpclFromModel}
+     * post-filter, an SVC with no connection to a bus removed and its machines losing their control loop.
+     */
     private static Set<String> secondaryVoltageControlMembers(Network network) {
         SecondaryVoltageControl svc = network.getExtension(SecondaryVoltageControl.class);
         if (svc == null) {
@@ -275,11 +282,25 @@ public final class DynaFlowGeneratorMapping {
         }
         Set<String> members = new HashSet<>();
         for (ControlZone zone : svc.getControlZones()) {
-            for (ControlUnit unit : zone.getControlUnits()) {
-                members.add(unit.getId());
+            if (pilotPointResolves(network, zone)) {
+                for (ControlUnit unit : zone.getControlUnits()) {
+                    members.add(unit.getId());
+                }
             }
         }
         return members;
+    }
+
+    /** Whether a zone's pilot point — a busbar section or a bus — is one the network holds. */
+    private static boolean pilotPointResolves(Network network, ControlZone zone) {
+        PilotPoint pilotPoint = zone.getPilotPoint();
+        boolean busbarResolves = pilotPoint.getBusbarSectionIds().stream()
+                .anyMatch(id -> network.getBusbarSection(id) != null);
+        boolean busResolves = pilotPoint.getBuses().stream().anyMatch(busRef -> {
+            VoltageLevel voltageLevel = network.getVoltageLevel(busRef.voltageLevelId());
+            return voltageLevel != null && voltageLevel.getBusBreakerView().getBus(busRef.busId()) != null;
+        });
+        return busbarResolves || busResolves;
     }
 
     /** The operating point {@code -targetP} lies within the active power limits (bounds included). */
