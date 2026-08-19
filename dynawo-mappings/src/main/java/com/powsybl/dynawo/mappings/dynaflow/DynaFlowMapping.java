@@ -42,8 +42,12 @@ public class DynaFlowMapping implements DynamicModelsMapping {
     private final DynaFlowSvcMapping secondaryVoltageControls;
 
     public DynaFlowMapping(String name) {
+        this(name, DynaFlowConfig.defaults());
+    }
+
+    public DynaFlowMapping(String name, DynaFlowConfig config) {
         this.name = Objects.requireNonNull(name);
-        this.generators = new DynaFlowGeneratorMapping();
+        this.generators = new DynaFlowGeneratorMapping(config);
         this.secondaryVoltageControls = new DynaFlowSvcMapping();
     }
 

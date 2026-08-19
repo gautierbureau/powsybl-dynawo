@@ -11,6 +11,7 @@ import com.powsybl.dynawo.extensions.api.generator.SynchronizedGeneratorProperti
 import com.powsybl.dynawo.mappings.MappedModelsSupplier.MappedModel;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.Network;
@@ -78,17 +79,25 @@ public final class DynaFlowGeneratorMapping {
     static final String PV_TFO_DIAGRAM_PQ_RPCL_SIGNALN = "GeneratorPVTfoDiagramPQRpclSignalN";
     static final String PV_TFO_DIAGRAM_PQ_RPCL2_SIGNALN = "GeneratorPVTfoDiagramPQRpcl2SignalN";
 
-    /**
-     * The nominal voltage (kV) at or above which a generator's transformer is assumed <em>absent</em> from
-     * the static model, so DynaFlow models it (the Tfo variants). Below it, the transformer is taken to be
-     * in the static description. The DynaFlow Launcher's {@code TfoVoltageLevel} default.
-     */
-    private static final double TFO_VOLTAGE_LEVEL = 100.0;
-
-    /** The DynaFlow Launcher's {@code InfiniteReactiveLimits} default: honour each generator's diagram. */
-    private static final boolean USE_INFINITE_REACTIVE_LIMITS = false;
+    // the shared, value-keyed parameter set ids the launcher gives its infinite generators (ParCommon.h /
+    // OutputsConstants.h): several machines of a kind share one set, a nuclear one its own; a diagram
+    // machine takes a set of its own, named after it.
+    private static final String SIGNALN_SET = "signalNGenerator";
+    private static final String SIGNALN_FIXED_P_SET = "signalNGeneratorFixedP";
+    private static final String SIGNALN_TFO_SET = "signalNTfoGenerator";
+    private static final String PROP_SET = "propSignalNGenerator";
+    private static final String PROP_FIXED_P_SET = "propSignalNGeneratorFixedP";
+    private static final String REMOTE_SET = "remoteVControl";
+    private static final String REMOTE_FIXED_P_SET = "remoteSignalNFixedP";
+    private static final String NUCLEAR_SUFFIX = "_Nuc";
 
     private static final double EPSILON = 1e-6;
+
+    private final DynaFlowConfig config;
+
+    DynaFlowGeneratorMapping(DynaFlowConfig config) {
+        this.config = config;
+    }
 
     public List<MappedModel> createModelConfigs(Network network) {
         Map<String, Integer> regulationCount = countRegulationsPerBus(network);
@@ -97,7 +106,7 @@ public final class DynaFlowGeneratorMapping {
         for (Generator generator : network.getGenerators()) {
             String lib = selectLib(generator, regulationCount, svcMembers);
             if (lib != null) {
-                models.add(new MappedModel(lib, generator.getId(), generator.getId()));
+                models.add(new MappedModel(lib, generator.getId(), parameterSetId(generator, lib)));
             }
         }
         return models;
@@ -107,13 +116,44 @@ public final class DynaFlowGeneratorMapping {
         Map<String, Integer> regulationCount = countRegulationsPerBus(network);
         Set<String> svcMembers = secondaryVoltageControlMembers(network);
         List<ParametersSet> sets = new ArrayList<>();
+        Set<String> built = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String lib = selectLib(generator, regulationCount, svcMembers);
             if (lib != null) {
-                sets.add(DynaFlowGeneratorParameters.build(generator, lib));
+                String parId = parameterSetId(generator, lib);
+                // a shared set is built once, from the first machine that reaches it, as the launcher does
+                if (built.add(parId)) {
+                    sets.add(DynaFlowGeneratorParameters.build(generator, lib, parId, config));
+                }
             }
         }
         return sets;
+    }
+
+    /**
+     * The parameter set a generator reads: on infinite reactive limits, several machines of a kind share
+     * one value-keyed set (nuclear apart) as the launcher's {@code getGeneratorParameterSetId} gives; every
+     * other machine — a diagram machine, or an Rpcl one — takes a set of its own, named after it.
+     */
+    private String parameterSetId(Generator generator, String lib) {
+        if (config.infiniteReactiveLimits() && sharesParameterSet(lib)) {
+            boolean fixedP = generator.getTargetP() == 0;
+            String base = switch (lib) {
+                case PV_SIGNALN -> fixedP ? SIGNALN_FIXED_P_SET : SIGNALN_SET;
+                case PV_TFO_SIGNALN -> SIGNALN_TFO_SET;
+                case PQ_PROP_SIGNALN -> fixedP ? PROP_FIXED_P_SET : PROP_SET;
+                case PV_REMOTE_SIGNALN -> fixedP ? REMOTE_FIXED_P_SET : REMOTE_SET;
+                default -> generator.getId();
+            };
+            return generator.getEnergySource() == EnergySource.NUCLEAR ? base + NUCLEAR_SUFFIX : base;
+        }
+        return generator.getId();
+    }
+
+    /** Whether an infinite machine on this library shares its value-keyed parameter set (the non-Rpcl ones). */
+    private static boolean sharesParameterSet(String lib) {
+        return lib.equals(PV_SIGNALN) || lib.equals(PV_TFO_SIGNALN)
+                || lib.equals(PQ_PROP_SIGNALN) || lib.equals(PV_REMOTE_SIGNALN);
     }
 
     /**
@@ -122,7 +162,7 @@ public final class DynaFlowGeneratorMapping {
      * secondary voltage control zone ({@code isInSVC}) takes a reactive-power-control-loop model, a second
      * loop ({@code isRPCL2}) where a study marks it so through the synchronized generator properties.
      */
-    private static String selectLib(Generator generator, Map<String, Integer> regulationCount, Set<String> svcMembers) {
+    private String selectLib(Generator generator, Map<String, Integer> regulationCount, Set<String> svcMembers) {
         if (!generator.isVoltageRegulatorOn() || !isTargetPValid(generator) || !isDiagramValid(generator)) {
             return null;
         }
@@ -138,7 +178,7 @@ public final class DynaFlowGeneratorMapping {
 
         // Branch A — the transformer is assumed absent from the static model: local (or SVC) regulation at
         // or above the threshold voltage runs a Tfo model.
-        if ((inSvc || local) && (nominalV > TFO_VOLTAGE_LEVEL || doubleEquals(nominalV, TFO_VOLTAGE_LEVEL))) {
+        if ((inSvc || local) && (nominalV > config.tfoVoltageLevel() || doubleEquals(nominalV, config.tfoVoltageLevel()))) {
             return selectDiagramGenerator(generator, true, inSvc, rpcl2);
         }
 
@@ -148,7 +188,7 @@ public final class DynaFlowGeneratorMapping {
             if (inSvc || local) {
                 return selectDiagramGenerator(generator, false, inSvc, rpcl2);
             }
-            if (USE_INFINITE_REACTIVE_LIMITS) {
+            if (config.infiniteReactiveLimits()) {
                 return PV_REMOTE_SIGNALN;
             }
             return isDiagramRectangular(generator) ? PV_REMOTE_SIGNALN : PV_REMOTE_DIAGRAM_PQ_SIGNALN;
@@ -156,7 +196,7 @@ public final class DynaFlowGeneratorMapping {
         // Several generators regulate this bus. An SVC machine keeps its control loop; on infinite limits,
         // or where a single machine regulates its own bus, it runs the diagram model, else it shares the
         // reactive power proportionally.
-        if (USE_INFINITE_REACTIVE_LIMITS) {
+        if (config.infiniteReactiveLimits()) {
             return inSvc ? selectDiagramGenerator(generator, false, true, rpcl2) : PQ_PROP_SIGNALN;
         }
         boolean oneRegulatorOnConnectedBus = regulationCount.getOrDefault(connectedBus.getId(), 1) < 2;
@@ -171,8 +211,8 @@ public final class DynaFlowGeneratorMapping {
      * presence, the reactive power control loop (none / Rpcl / Rpcl2) and the diagram shape (infinite and
      * rectangular share a library; a genuine PQ curve gets its own).
      */
-    private static String selectDiagramGenerator(Generator generator, boolean withTransformer, boolean inSvc, boolean rpcl2) {
-        if (USE_INFINITE_REACTIVE_LIMITS) {
+    private String selectDiagramGenerator(Generator generator, boolean withTransformer, boolean inSvc, boolean rpcl2) {
+        if (config.infiniteReactiveLimits()) {
             if (withTransformer) {
                 return inSvc ? (rpcl2 ? PV_TFO_RPCL2_SIGNALN : PV_TFO_RPCL_SIGNALN) : PV_TFO_SIGNALN;
             }
@@ -254,8 +294,8 @@ public final class DynaFlowGeneratorMapping {
      * min/max diagram is rejected when its active or reactive band is degenerate; a curve is rejected when
      * it has a single point, all points share one active power, or all points have {@code qMin == qMax}.
      */
-    private static boolean isDiagramValid(Generator generator) {
-        if (USE_INFINITE_REACTIVE_LIMITS) {
+    private boolean isDiagramValid(Generator generator) {
+        if (config.infiniteReactiveLimits()) {
             return true;
         }
         ReactiveLimits limits = generator.getReactiveLimits();

@@ -34,6 +34,6 @@ public class DynaFlowProvider implements DynamicMappingProvider {
 
     @Override
     public DynamicModelsMapping create(MappingParameters parameters) {
-        return new DynaFlowMapping(DynaFlowMapping.NAME);
+        return new DynaFlowMapping(DynaFlowMapping.NAME, DynaFlowConfig.from(parameters));
     }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.dynaflow;
 
+import com.powsybl.dynawo.mappings.dynaflow.DynaFlowConfig.StartingPointMode;
 import com.powsybl.dynawo.parameters.ParameterType;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.EnergySource;
@@ -17,17 +18,16 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
  * Builds a generator's parameter set, the way the DynaFlow Launcher's {@code ParGenerator} does — the
  * IIDM references and fixed values a {@code GeneratorPV*SignalN} model reads.
  * <p>
- * The launcher shares value-keyed sets for the infinite models and per-generator {@code uuid} sets, with
- * macro-parameter-sets factored out; here (see {@code DYNAFLOW_MAPPING_PLAN.md} §9) every generator gets
- * its own plain set with the values inlined, named after the generator. DynaFlow honours each machine's
- * diagram (never infinite reactive limits), so every modelled machine is a diagram variant — rectangular
- * or a PQ curve — and the set is the launcher's {@code buildGeneratorMacroParameterSet} diagram branch
- * inlined, plus the transformer, remote-regulation and reactive-power-control-loop additions.
+ * Two shapes, as the launcher has two ({@code writeConstantGeneratorsSets} vs the diagram branch of
+ * {@code buildGeneratorMacroParameterSet}, which §9 inlines instead of factoring into a
+ * macro-parameter-set): on infinite reactive limits a machine reads the constant set — infinite Q and P
+ * limits, warm/flat start, {@code PNom}, {@code URef0}/{@code URef0Pu} by its shared set id; otherwise it
+ * reads its diagram set — {@code pMin}/{@code pMax}, the initial point, the Q limits and voltage set
+ * point. Either way a transformer adds {@code QNomAlt}/{@code SNom} + {@code XTfoPu} (0.1426 nuclear), and
+ * a remote machine its regulated bus's voltage {@code URegulated0}.
  * <p>
- * The starting point is warm and the active power compensation PMax, the launcher's defaults. The
- * per-machine reactive-power-control-loop tunings (the {@code reactivePowerControlLoop_*} values the
- * launcher reads from its setting database) are not network data and are left to a reference parameter
- * file; and a PQ-curve machine's {@code QMax/QMinTableFile} — the Diagram files — is the next step.
+ * The reactive-power-control-loop tunings the launcher reads from its setting database, and a PQ-curve
+ * machine's {@code QMax/QMinTableFile} (the Diagram files), are not network data and are left for later.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -35,18 +35,24 @@ final class DynaFlowGeneratorParameters {
 
     private static final ParameterType DOUBLE = ParameterType.DOUBLE;
 
-    // the launcher's fixed values (OutputsConstants.h): the reactive/voltage dead bands, the governor gain
-    // off / default / referenced, and the fictitious transformer reactance, higher on a nuclear unit.
     private static final String DEAD_BAND = "0.0001";
     private static final String K_GOVER_OFF = "0";
     private static final String K_GOVER_DEFAULT = "1";
     private static final String X_TFO = "0.1228";
     private static final String X_TFO_NUCLEAR = "0.1426";
+    // the launcher's powerValueMax = the largest double, meaning an infinite limit
+    private static final String PLUS_INFINITE = Double.toString(Double.MAX_VALUE);
+    private static final String MINUS_INFINITE = Double.toString(-Double.MAX_VALUE);
+
+    // the two shared set ids whose voltage reference the launcher wires differently (updateSignalNGenerator)
+    private static final String REMOTE_SET = "remoteVControl";
+    private static final String REMOTE_NUCLEAR_SET = "remoteVControl_Nuc";
+    private static final String PROP_SET = "propSignalNGenerator";
 
     private DynaFlowGeneratorParameters() {
     }
 
-    static ParametersSet build(Generator generator, String lib) {
+    static ParametersSet build(Generator generator, String lib, String parameterSetId, DynaFlowConfig config) {
         boolean rectangular = !lib.contains("DiagramPQ");
         boolean transformer = lib.contains("Tfo");
         boolean rpcl = lib.contains("Rpcl");
@@ -56,26 +62,47 @@ final class DynaFlowGeneratorParameters {
         boolean fixedP = generator.getTargetP() == 0;
         boolean activePowerControl = generator.getExtension(ActivePowerControl.class) != null;
 
-        ParametersSet set = new ParametersSet(generator.getId());
+        ParametersSet set = new ParametersSet(parameterSetId);
+        if (config.infiniteReactiveLimits()) {
+            buildInfinite(set, parameterSetId, prop, config, activePowerControl, fixedP);
+        } else {
+            buildDiagram(set, rectangular, prop, remote, config, activePowerControl, fixedP);
+        }
 
-        // the diagram branch of buildGeneratorMacroParameterSet, inlined (warm start, PMax compensation)
+        // the launcher's per-generator additions: a transformer's reactance and off-set references, and a
+        // remote machine's regulated bus voltage
+        if (transformer || rpcl) {
+            addIfAbsent(set, "generator_QNomAlt", "qNom");
+            addIfAbsent(set, "generator_SNom", "sNom");
+        }
+        if (transformer) {
+            set.addParameter("generator_XTfoPu", DOUBLE, nuclear ? X_TFO_NUCLEAR : X_TFO);
+        }
+        if (remote) {
+            set.addReference("generator_URegulated0", DOUBLE, "U", regulatedBusId(generator));
+        }
+        return set;
+    }
+
+    /** The launcher's {@code buildGeneratorMacroParameterSet} diagram branch, inlined. */
+    private static void buildDiagram(ParametersSet set, boolean rectangular, boolean prop, boolean remote,
+                                     DynaFlowConfig config, boolean activePowerControl, boolean fixedP) {
         set.addReference("generator_PMin", DOUBLE, "pMin");
         set.addReference("generator_PMax", DOUBLE, "pMax");
-        set.addReference("generator_P0Pu", DOUBLE, "p_pu");
-        set.addReference("generator_Q0Pu", DOUBLE, "q_pu");
-        set.addReference("generator_U0Pu", DOUBLE, "v_pu");
-        set.addReference("generator_UPhase0", DOUBLE, "angle_pu");
+        addStartingPoint(set, config.startingPointMode());
         set.addReference("generator_PRef0Pu", DOUBLE, "targetP_pu");
         setKGover(set, activePowerControl, fixedP);
-        set.addReference("generator_PNom", DOUBLE, "pMax_pu");
+        switch (config.activePowerCompensation()) {
+            case P -> set.addReference("generator_PNom", DOUBLE, "p_pu");
+            case TARGET_P -> set.addReference("generator_PNom", DOUBLE, "targetP_pu");
+            case PMAX -> set.addReference("generator_PNom", DOUBLE, "pMax_pu");
+        }
         if (!rectangular) {
             set.addReference("generator_QMin0", DOUBLE, "qMin");
             set.addReference("generator_QMax0", DOUBLE, "qMax");
         }
         set.addParameter("generator_QDeadBandPu", DOUBLE, DEAD_BAND);
         set.addParameter("generator_UDeadBandPu", DOUBLE, DEAD_BAND);
-
-        // the model-specific block: proportional sharing, remote regulation, or the plain voltage set point
         if (prop) {
             set.addReference("generator_QRef0Pu", DOUBLE, "targetQ_pu");
             set.addReference("generator_QPercent", DOUBLE, "qMax_pu");
@@ -89,18 +116,47 @@ final class DynaFlowGeneratorParameters {
         } else if (!prop && !remote) {
             set.addReference("generator_URef0Pu", DOUBLE, "targetV_pu");
         }
+    }
 
-        if (transformer || rpcl) {
-            addIfAbsent(set, "generator_QNomAlt", "qNom");
-            addIfAbsent(set, "generator_SNom", "sNom");
+    /** The launcher's {@code updateSignalNGenerator} — the constant set an infinite machine reads. */
+    private static void buildInfinite(ParametersSet set, String parameterSetId, boolean prop,
+                                      DynaFlowConfig config, boolean activePowerControl, boolean fixedP) {
+        setKGover(set, activePowerControl, fixedP);
+        set.addParameter("generator_QMin", DOUBLE, MINUS_INFINITE);
+        set.addParameter("generator_QMax", DOUBLE, PLUS_INFINITE);
+        set.addParameter("generator_PMin", DOUBLE, MINUS_INFINITE);
+        set.addParameter("generator_PMax", DOUBLE, PLUS_INFINITE);
+        set.addParameter("generator_QDeadBandPu", DOUBLE, DEAD_BAND);
+        set.addParameter("generator_UDeadBandPu", DOUBLE, DEAD_BAND);
+        switch (config.activePowerCompensation()) {
+            case P, PMAX -> set.addReference("generator_PNom", DOUBLE, "p_pu");
+            case TARGET_P -> set.addReference("generator_PNom", DOUBLE, "targetP_pu");
         }
-        if (transformer) {
-            set.addParameter("generator_XTfoPu", DOUBLE, nuclear ? X_TFO_NUCLEAR : X_TFO);
+        addStartingPoint(set, config.startingPointMode());
+        set.addReference("generator_PRef0Pu", DOUBLE, "targetP_pu");
+        if (parameterSetId.equals(REMOTE_SET) || parameterSetId.equals(REMOTE_NUCLEAR_SET)) {
+            set.addReference("generator_URef0", DOUBLE, "targetV");
+        } else if (!parameterSetId.equals(PROP_SET)) {
+            set.addReference("generator_URef0Pu", DOUBLE, "targetV_pu");
         }
-        if (remote) {
-            set.addReference("generator_URegulated0", DOUBLE, "U", regulatedBusId(generator));
+        if (prop) {
+            set.addReference("generator_QRef0Pu", DOUBLE, "targetQ_pu");
+            set.addReference("generator_QPercent", DOUBLE, "qMax_pu");
         }
-        return set;
+    }
+
+    private static void addStartingPoint(ParametersSet set, StartingPointMode startingPointMode) {
+        if (startingPointMode == StartingPointMode.WARM) {
+            set.addReference("generator_P0Pu", DOUBLE, "p_pu");
+            set.addReference("generator_Q0Pu", DOUBLE, "q_pu");
+            set.addReference("generator_U0Pu", DOUBLE, "v_pu");
+            set.addReference("generator_UPhase0", DOUBLE, "angle_pu");
+        } else {
+            set.addReference("generator_P0Pu", DOUBLE, "targetP_pu");
+            set.addReference("generator_Q0Pu", DOUBLE, "targetQ_pu");
+            set.addParameter("generator_U0Pu", DOUBLE, "1.0");
+            set.addParameter("generator_UPhase0", DOUBLE, "0");
+        }
     }
 
     /** The governor gain: off when the machine holds no active power, referenced under active power control, else on. */

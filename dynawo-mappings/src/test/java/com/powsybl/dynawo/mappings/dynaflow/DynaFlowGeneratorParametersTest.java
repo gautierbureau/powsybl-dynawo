@@ -7,6 +7,8 @@
  */
 package com.powsybl.dynawo.mappings.dynaflow;
 
+import com.powsybl.dynawo.mappings.MappedModelsSupplier.MappedModel;
+import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -15,7 +17,9 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,6 +70,35 @@ class DynaFlowGeneratorParametersTest {
         assertEquals("qNom", refs.get("generator_QNomAlt"));
         assertEquals("sNom", refs.get("generator_SNom"));
         assertEquals("0.1426", parameters(set).get("generator_XTfoPu"));
+    }
+
+    @Test
+    void onInfiniteReactiveLimitsMachinesShareOneConstantSet() {
+        Network network = network();
+        machine(network, "VL1", 20, "GEN1", EnergySource.THERMAL);
+        machine(network, "VL2", 20, "GEN2", EnergySource.THERMAL);
+        machine(network, "VL3", 20, "GEN3", EnergySource.NUCLEAR);
+        DynaFlowMapping mapping = new DynaFlowMapping(DynaFlowMapping.NAME,
+                DynaFlowConfig.from(MappingParameters.of(Map.of("dynaflow_infinite_reactive_limits", "true"))));
+
+        // the two thermal machines share the value-keyed set; the nuclear one takes its own
+        Map<String, String> parIds = mapping.createModelConfigs(network).stream()
+                .collect(Collectors.toMap(MappedModel::staticId, MappedModel::parameterSetId));
+        assertEquals("signalNGenerator", parIds.get("GEN1"));
+        assertEquals("signalNGenerator", parIds.get("GEN2"));
+        assertEquals("signalNGenerator_Nuc", parIds.get("GEN3"));
+
+        // the shared set is emitted once, and carries infinite Q and P limits
+        List<ParametersSet> sets = mapping.createParameters(network, null);
+        assertEquals(Set.of("signalNGenerator", "signalNGenerator_Nuc"),
+                sets.stream().map(ParametersSet::getId).collect(Collectors.toSet()));
+        ParametersSet shared = sets.stream().filter(s -> s.getId().equals("signalNGenerator")).findFirst().orElseThrow();
+        Map<String, String> params = parameters(shared);
+        assertEquals(Double.toString(Double.MAX_VALUE), params.get("generator_QMax"));
+        assertEquals(Double.toString(-Double.MAX_VALUE), params.get("generator_PMin"));
+        // infinite compensation references p_pu (not pMax_pu), and there are no diagram Q references
+        assertEquals("p_pu", references(shared).get("generator_PNom"));
+        assertFalse(references(shared).containsKey("generator_QMin0"));
     }
 
     private static ParametersSet parametersFor(Network network, String generatorId) {
