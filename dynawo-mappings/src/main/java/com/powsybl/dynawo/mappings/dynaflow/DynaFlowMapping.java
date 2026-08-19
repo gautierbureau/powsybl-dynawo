@@ -42,7 +42,9 @@ public class DynaFlowMapping implements DynamicModelsMapping {
     private final DynaFlowLoadMapping loads;
     private final DynaFlowSvarcMapping staticVarCompensators;
     private final DynaFlowHvdcMapping hvdcLines;
+    private final DynaFlowPhaseShifterMapping phaseShifters;
     private final DynaFlowSvcMapping secondaryVoltageControls;
+    private final boolean phaseShifterRegulationOn;
 
     public DynaFlowMapping(String name) {
         this(name, DynaFlowConfig.defaults());
@@ -54,6 +56,8 @@ public class DynaFlowMapping implements DynamicModelsMapping {
         this.loads = new DynaFlowLoadMapping(config);
         this.staticVarCompensators = new DynaFlowSvarcMapping(config);
         this.hvdcLines = new DynaFlowHvdcMapping(config);
+        this.phaseShifters = new DynaFlowPhaseShifterMapping();
+        this.phaseShifterRegulationOn = config.phaseShifterRegulationOn();
         this.secondaryVoltageControls = new DynaFlowSvcMapping();
     }
 
@@ -79,6 +83,9 @@ public class DynaFlowMapping implements DynamicModelsMapping {
         models.addAll(loads.createModelConfigs(network));
         models.addAll(staticVarCompensators.createModelConfigs(network));
         models.addAll(hvdcLines.createModelConfigs(network));
+        if (phaseShifterRegulationOn) {
+            models.addAll(phaseShifters.createModelConfigs(network));
+        }
         models.addAll(secondaryVoltageControls.createModelConfigs(network));
         return models;
     }
@@ -90,6 +97,9 @@ public class DynaFlowMapping implements DynamicModelsMapping {
         sets.addAll(loads.createParameters(network));
         sets.addAll(staticVarCompensators.createParameters(network));
         sets.addAll(hvdcLines.createParameters(network));
+        if (phaseShifterRegulationOn) {
+            sets.addAll(phaseShifters.createParameters(network));
+        }
         return sets;
     }
 }
