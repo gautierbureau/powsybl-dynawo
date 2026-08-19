@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo.mappings.dynaflow;
 
+import com.powsybl.dynawo.mappings.MappingParameters;
 import com.powsybl.dynawo.mappings.dynaflow.DynaFlowConfig.StartingPointMode;
 import com.powsybl.dynawo.parameters.ParameterType;
 import com.powsybl.dynawo.parameters.ParametersSet;
@@ -37,11 +38,21 @@ public final class DynaFlowGlobalParameters {
     private DynaFlowGlobalParameters() {
     }
 
+    /** The {@code Network} set for a study configured by the given mapping parameters. */
+    public static ParametersSet networkParameters(MappingParameters parameters) {
+        return networkParameters(DynaFlowConfig.from(parameters));
+    }
+
+    /** The {@code SimplifiedSolver} set for a study configured by the given mapping parameters. */
+    public static ParametersSet solverParameters(MappingParameters parameters) {
+        return solverParameters(DynaFlowConfig.from(parameters));
+    }
+
     /**
      * The {@code Network} set — the launcher's {@code Network::writeNetworkSet}: the static components'
      * fixed time constants and load behaviour, plus the starting point mode read from the configuration.
      */
-    public static ParametersSet networkParameters(DynaFlowConfig config) {
+    static ParametersSet networkParameters(DynaFlowConfig config) {
         ParametersSet set = new ParametersSet(NETWORK_SET_ID);
         set.addParameter("capacitor_no_reclosing_delay", DOUBLE, "300");
         set.addParameter("dangling_line_currentLimit_maxTimeOperation", DOUBLE, "90");
@@ -73,7 +84,7 @@ public final class DynaFlowGlobalParameters {
      * time-step solver's tolerances, Newton limits and step bounds, with the time step read from the
      * configuration.
      */
-    public static ParametersSet solverParameters(DynaFlowConfig config) {
+    static ParametersSet solverParameters(DynaFlowConfig config) {
         ParametersSet set = new ParametersSet(SOLVER_SET_ID);
         set.addParameter("fnormtol", DOUBLE, "1e-4");
         set.addParameter("fnormtolAlg", DOUBLE, "1e-4");
