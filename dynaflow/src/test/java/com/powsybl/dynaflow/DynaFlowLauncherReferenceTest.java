@@ -66,16 +66,34 @@ class DynaFlowLauncherReferenceTest {
     @ValueSource(strings = {
         "launch", "launch_infinite", "launch_diagram", "launch_diagram_tfo", "launch_P",
         "node_breaker", "special_characters", "distant_regulation", "no_SVarC_regulation",
-        "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams", "hvdc_diagrams_flat_start",
-        "hvdc_HvdcPQProp", "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPQPropDangling_diagrams",
-        "hvdc_HvdcPQProp_multiple_bus", "hvdc_HvdcPQPropSwitch", "hvdc_HvdcPV_HvdcPTanPhi",
-        "hvdc_HvdcPV_HvdcPTanPhi_diagrams", "hvdc_HvdcPVDangling_HvdcPTanPhiDangling",
-        "hvdc_HvdcPVDangling_HvdcPTanPhiDangling_diagrams"})
+        "hvdc_line_normal", "hvdc_dangling", "hvdc_HvdcPV_HvdcPTanPhi", "hvdc_HvdcPV_HvdcPTanPhi_diagrams",
+        "hvdc_HvdcPVDangling_HvdcPTanPhiDangling", "hvdc_HvdcPVDangling_HvdcPTanPhiDangling_diagrams"})
     void javaMappingReproducesLauncherReference(String caseName) throws Exception {
         Comparison comparison = compare(caseName);
         assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
         assertEquals(comparison.refAutomatons, comparison.javaAutomatons, caseName + ": the automaton models must match the launcher");
         assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"hvdc", "hvdc_diagrams", "hvdc_diagrams_flat_start", "hvdc_HvdcPQProp",
+        "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPQPropDangling_diagrams",
+        "hvdc_HvdcPQProp_multiple_bus", "hvdc_HvdcPQPropSwitch"})
+    void hvdcPQPropReproducesExceptItsVRRemoteCoordinator(String caseName) throws Exception {
+        // an HVDC PQProp converter is coordinated by a VRRemote through a distinct two-sided connector
+        // (hvdc_NQ1 / hvdc_NQ2), a mechanism the mapping does not raise yet; everything else must match,
+        // including the generator-side VRRemote
+        Comparison comparison = compare(caseName);
+        assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
+        assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
+        assertEquals(withoutHvdcVRRemote(comparison.refAutomatons), withoutHvdcVRRemote(comparison.javaAutomatons),
+                caseName + ": the automatons other than the HVDC VRRemote must match the launcher");
+    }
+
+    private static Map<String, Long> withoutHvdcVRRemote(Map<String, Long> automatons) {
+        Map<String, Long> copy = new TreeMap<>(automatons);
+        copy.remove("VRRemote");
+        return copy;
     }
 
     @ParameterizedTest(name = "{0}")
@@ -239,20 +257,16 @@ class DynaFlowLauncherReferenceTest {
     }
 
     /**
-     * The pure-dynamic models keyed by their library, counted — the automatons and the frequency signal,
-     * which carry no static id. Compared as a multiset because their ids differ between the two tools (the
-     * launcher names them from its database, the mapping deduces them).
-     * <p>
-     * {@code VRRemote} is excluded: the mapping already gives a generator regulating a remote bus its remote
-     * model, but the framework only raises the {@code VRRemote} coordinator for models implementing {@code
-     * VRRemoteModel}, which the SignalN generator does not yet — a tracked gap, not exercised here.
+     * The pure-dynamic models keyed by their library, counted — the automatons, the remote-voltage-control
+     * coordinators and the frequency signal, which carry no static id. Compared as a multiset because their
+     * ids differ between the two tools (the launcher names them from its database, the mapping deduces them).
      */
     private static Map<String, Long> automatonLibs(Path dyd) throws Exception {
         Map<String, Long> libs = new TreeMap<>();
         Matcher tag = Pattern.compile("<dyn:blackBoxModel\\b([^>]*)>").matcher(Files.readString(dyd));
         while (tag.find()) {
             String lib = attribute(tag.group(1), "lib");
-            if (attribute(tag.group(1), "staticId") == null && lib != null && !"VRRemote".equals(lib)) {
+            if (attribute(tag.group(1), "staticId") == null && lib != null) {
                 libs.merge(lib, 1L, Long::sum);
             }
         }

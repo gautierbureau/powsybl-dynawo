@@ -220,7 +220,11 @@ public abstract class AbstractContextBuilder<T extends AbstractContextBuilder<T>
         String defaultParFile = DynawoSimulationConstants.getSimulationParFile(network);
         Map<String, List<VRRemoteModel>> modelsByRegulatedBus = new LinkedHashMap<>();
         for (VRRemoteModel model : vrRemoteModels) {
-            modelsByRegulatedBus.computeIfAbsent(model.getRegulatedBus().getId(), k -> new ArrayList<>()).add(model);
+            // a model that turns out not to regulate remotely (its regulated bus is its own) needs no coordinator
+            Bus regulatedBus = model.getRegulatedBus();
+            if (regulatedBus != null) {
+                modelsByRegulatedBus.computeIfAbsent(regulatedBus.getId(), k -> new ArrayList<>()).add(model);
+            }
         }
         modelsByRegulatedBus.forEach((busId, models) -> dynamicModels.add(new VRRemote(busId, models, defaultParFile)));
     }
