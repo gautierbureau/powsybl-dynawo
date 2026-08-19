@@ -303,11 +303,16 @@ public final class DynaFlowGeneratorMapping {
         return busbarResolves || busResolves;
     }
 
-    /** The operating point {@code -targetP} lies within the active power limits (bounds included). */
+    /**
+     * The target active power lies within the active power limits (bounds included). The launcher writes
+     * this as {@code -targetP ∈ [pmin, pmax]}, but on the sign convention of its data interface, where
+     * {@code getTargetP} is negated while {@code getPMin}/{@code getPMax} are not; in IIDM terms that is
+     * simply {@code targetP ∈ [minP, maxP]}.
+     */
     private static boolean isTargetPValid(Generator generator) {
-        double operatingPoint = -generator.getTargetP();
-        return (operatingPoint > generator.getMinP() || doubleEquals(operatingPoint, generator.getMinP()))
-                && (operatingPoint < generator.getMaxP() || doubleEquals(operatingPoint, generator.getMaxP()));
+        double targetP = generator.getTargetP();
+        return (targetP > generator.getMinP() || doubleEquals(targetP, generator.getMinP()))
+                && (targetP < generator.getMaxP() || doubleEquals(targetP, generator.getMaxP()));
     }
 
     /**
