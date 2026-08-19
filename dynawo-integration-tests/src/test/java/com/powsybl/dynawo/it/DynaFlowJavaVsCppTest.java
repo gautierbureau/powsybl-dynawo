@@ -73,6 +73,154 @@ class DynaFlowJavaVsCppTest {
         }
     }
 
+    @Test
+    void theGeneratedDydAndParMatchTheLauncher() throws Exception {
+        assumeTrue(Files.exists(INSTALL.resolve("dynaflow-launcher.sh")) && Files.exists(INSTALL.resolve("dynawo.sh")),
+                "local DynaFlow Launcher install required at " + INSTALL);
+        Path cppDir = Files.createTempDirectory("cpp_capture");
+        Path javaDir = Files.createTempDirectory("java_capture");
+        try (LocalComputationManager cm = new LocalComputationManager()) {
+            Network cppNet = IeeeCdfNetworkFactory.create14Solved();
+            LoadFlowParameters cppParams = new LoadFlowParameters()
+                    .setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES).setReadSlackBus(false);
+            cppParams.addExtension(DynaFlowParameters.class, new DynaFlowParameters());
+            cppParams.setDebugDir(cppDir.toString());
+            new DynaFlowProvider(() -> new DynaFlowConfig(INSTALL, false)).run(cppNet, VariantManagerConstants.INITIAL_VARIANT_ID,
+                    runParameters(cm, cppParams)).join();
+
+            Network javaNet = IeeeCdfNetworkFactory.create14Solved();
+            LoadFlowParameters javaParams = new LoadFlowParameters()
+                    .setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES).setReadSlackBus(false);
+            javaParams.setDebugDir(javaDir.toString());
+            new DynaFlowJavaProvider(() -> new DynawoSimulationConfig(INSTALL, false)).run(javaNet, VariantManagerConstants.INITIAL_VARIANT_ID,
+                    runParameters(cm, javaParams)).join();
+        }
+
+        Path cppDyd = findFile(cppDir, "powsybl_dynawo.dyd");
+        Path javaDyd = findFile(javaDir, "powsybl_dynawo.dyd");
+        // the dyd: the Java mapping gives every equipment the same model as the launcher
+        assertEquals(modelMap(cppDyd), modelMap(javaDyd), "the model selected per equipment must match the launcher");
+
+        // the par: each model's numeric parameter values match (sets aligned by the model's parId, since the
+        // launcher keys sets by a uuid and names diagram tables differently)
+        compareParValues(cppDyd, findFile(cppDir, "powsybl_dynawo.par"), javaDyd, findFile(javaDir, "models.par"));
+    }
+
+    private static Path findFile(Path dir, String name) throws Exception {
+        try (var s = Files.walk(dir)) {
+            return s.filter(p -> p.getFileName().toString().equals(name)).findFirst().orElseThrow();
+        }
+    }
+
+    /** Compares the numeric parameter each model reads on both paths, aligning parameter sets by parId. */
+    private static void compareParValues(Path cppDyd, Path cppPar, Path javaDyd, Path javaPar) throws Exception {
+        java.util.Map<String, String> cppParId = parIdByStaticId(cppDyd);
+        java.util.Map<String, String> javaParId = parIdByStaticId(javaDyd);
+        java.util.Map<String, java.util.Map<String, Double>> cppSets = numericParSets(cppPar);
+        java.util.Map<String, java.util.Map<String, Double>> javaSets = numericParSets(javaPar);
+
+        double maxDiff = 0;
+        String worst = "";
+        int compared = 0;
+        for (String staticId : modelMap(cppDyd).keySet()) {
+            java.util.Map<String, Double> cppValues = cppSets.getOrDefault(cppParId.get(staticId), java.util.Map.of());
+            java.util.Map<String, Double> javaValues = javaSets.getOrDefault(javaParId.get(staticId), java.util.Map.of());
+            for (String name : cppValues.keySet()) {
+                if (javaValues.containsKey(name)) {
+                    double diff = Math.abs(cppValues.get(name) - javaValues.get(name));
+                    compared++;
+                    if (diff > maxDiff) {
+                        maxDiff = diff;
+                        worst = staticId + "." + name;
+                    }
+                }
+            }
+        }
+        System.out.printf("DynaFlow C++ vs Java par: %d numeric parameters compared, max |Δ| = %.6g (%s)%n", compared, maxDiff, worst);
+        assertTrue(compared > 0, "no numeric parameters were aligned between the two par files");
+        assertTrue(maxDiff < 1e-6, "parameter " + worst + " differs by " + maxDiff);
+    }
+
+    private static java.util.Map<String, String> parIdByStaticId(Path dyd) throws Exception {
+        java.util.Map<String, String> parIds = new java.util.TreeMap<>();
+        java.util.regex.Matcher tag = java.util.regex.Pattern
+                .compile("<dyn:blackBoxModel\\b([^>]*)>").matcher(Files.readString(dyd));
+        while (tag.find()) {
+            String staticId = attribute(tag.group(1), "staticId");
+            String parId = attribute(tag.group(1), "parId");
+            if (staticId != null && parId != null) {
+                parIds.put(staticId, parId);
+            }
+        }
+        return parIds;
+    }
+
+    /**
+     * setId -> {parameter name -> numeric value}, references (IIDM-sourced) and strings skipped. The
+     * launcher factors shared values into {@code <macroParameterSet>}s a per-model {@code <set>} pulls in
+     * through {@code <macroParSet>}; those are resolved so the set carries the values the model reads.
+     */
+    private static java.util.Map<String, java.util.Map<String, Double>> numericParSets(Path par) throws Exception {
+        String content = Files.readString(par);
+        java.util.Map<String, java.util.Map<String, Double>> macros = new java.util.HashMap<>();
+        java.util.regex.Matcher macroMatcher = java.util.regex.Pattern
+                .compile("<macroParameterSet\\s+id=\"([^\"]*)\">(.*?)</macroParameterSet>", java.util.regex.Pattern.DOTALL)
+                .matcher(content);
+        while (macroMatcher.find()) {
+            macros.put(macroMatcher.group(1), numericPars(macroMatcher.group(2)));
+        }
+        java.util.Map<String, java.util.Map<String, Double>> sets = new java.util.TreeMap<>();
+        java.util.regex.Matcher setMatcher = java.util.regex.Pattern
+                .compile("<set\\s+id=\"([^\"]*)\">(.*?)</set>", java.util.regex.Pattern.DOTALL).matcher(content);
+        while (setMatcher.find()) {
+            java.util.Map<String, Double> values = new java.util.TreeMap<>(numericPars(setMatcher.group(2)));
+            java.util.regex.Matcher macroRef = java.util.regex.Pattern
+                    .compile("<macroParSet\\s+id=\"([^\"]*)\"").matcher(setMatcher.group(2));
+            while (macroRef.find()) {
+                values.putAll(macros.getOrDefault(macroRef.group(1), java.util.Map.of()));
+            }
+            sets.put(setMatcher.group(1), values);
+        }
+        return sets;
+    }
+
+    private static java.util.Map<String, Double> numericPars(String body) {
+        java.util.Map<String, Double> values = new java.util.TreeMap<>();
+        java.util.regex.Matcher parMatcher = java.util.regex.Pattern.compile("<par\\b([^>]*)/>").matcher(body);
+        while (parMatcher.find()) {
+            String name = attribute(parMatcher.group(1), "name");
+            String value = attribute(parMatcher.group(1), "value");
+            if (name != null && value != null) {
+                try {
+                    values.put(name, Double.parseDouble(value));
+                } catch (NumberFormatException e) {
+                    // a non-numeric (string) parameter, e.g. a diagram table name — skip
+                }
+            }
+        }
+        return values;
+    }
+
+    private static java.util.Map<String, String> modelMap(Path dyd) throws Exception {
+        java.util.Map<String, String> models = new java.util.TreeMap<>();
+        java.util.regex.Matcher tag = java.util.regex.Pattern
+                .compile("<dyn:blackBoxModel\\b([^>]*)>").matcher(Files.readString(dyd));
+        while (tag.find()) {
+            String attrs = tag.group(1);
+            String staticId = attribute(attrs, "staticId");
+            String lib = attribute(attrs, "lib");
+            if (staticId != null && lib != null) {   // skip the pure-dynamic SignalN (no staticId)
+                models.put(staticId, lib);
+            }
+        }
+        return models;
+    }
+
+    private static String attribute(String attrs, String name) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\b" + name + "=\"([^\"]*)\"").matcher(attrs);
+        return m.find() ? m.group(1) : null;
+    }
+
     private static LoadFlowResult runCpp(Network network, LocalComputationManager computationManager) {
         DynaFlowConfig config = new DynaFlowConfig(INSTALL, false);
         DynaFlowProvider provider = new DynaFlowProvider(() -> config);

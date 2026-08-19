@@ -49,19 +49,21 @@ class DynaFlowJavaProviderTest {
     }
 
     @Test
-    void theProviderCarriesNoLoadFlowSpecificParameters() {
+    void theProviderReusesTheCppDynaFlowParameters() {
         DynaFlowJavaProvider provider = new DynaFlowJavaProvider();
-        assertTrue(provider.getSpecificParametersClass().isEmpty());
+        assertEquals(DynaFlowParameters.class, provider.getSpecificParametersClass().orElseThrow());
+        assertEquals(DynaFlowParameters.SPECIFIC_PARAMETERS, provider.getRawSpecificParameters());
+        assertTrue(provider.loadSpecificParameters(java.util.Map.of()).orElseThrow() instanceof DynaFlowParameters);
+        // the DynaFlowParameters serializer is registered globally, so this provider must not re-declare it
         assertTrue(provider.getSpecificParametersSerializer().isEmpty());
-        assertTrue(provider.getRawSpecificParameters().isEmpty());
-        assertTrue(provider.createMapFromSpecificParameters(null).isEmpty());
     }
 
     @Test
     void theContextHardcodesTheDynaFlowMappingWithItsGlobalParametersAndSolver() {
         Network network = twoBusNetworkWithGenerator();
         DynawoSimulationContext context = DynaFlowJavaProvider.buildContext(
-                network, VariantManagerConstants.INITIAL_VARIANT_ID, DynawoConstants.VERSION_MIN, ReportNode.NO_OP);
+                network, VariantManagerConstants.INITIAL_VARIANT_ID, DynawoConstants.VERSION_MIN, ReportNode.NO_OP,
+                new DynaFlowParameters());
 
         // the DynaFlow global sets and the simplified solver
         assertEquals(SolverType.SIM, context.getDynawoSimulationParameters().getSolverType());

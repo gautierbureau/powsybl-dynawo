@@ -46,6 +46,7 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,9 +72,10 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
     public static final String NAME = "DynaFlowJava";
 
     private static final String WORKING_DIR_PREFIX = "dynaflow_java_";
-    // the launcher's steady-state simulation window (Configuration defaults)
-    private static final double START_TIME = 0.0;
-    private static final double STOP_TIME = 100.0;
+    // the DynaFlow mapping's configuration keys (com.powsybl.dynawo.mappings.dynaflow.DynaFlowConfig)
+    private static final String DSO_VOLTAGE_LEVEL_KEY = "dynaflow_dso_voltage_level";
+    private static final String TFO_VOLTAGE_LEVEL_KEY = "dynaflow_tfo_voltage_level";
+    private static final String TIME_STEP_KEY = "dynaflow_time_step";
 
     private final Supplier<DynawoSimulationConfig> configSupplier;
 
@@ -111,7 +113,8 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
                 DynawoSimulationProvider.getVersionCommand(config), DynawoSimulationConfig.DYNAWO_LAUNCHER_PROGRAM_NAME, false);
 
         network.getVariantManager().setWorkingVariant(workingStateId);
-        DynawoSimulationContext context = buildContext(network, workingStateId, version, reportNode);
+        DynaFlowParameters dynaFlowParameters = getParametersExt(loadFlowParameters);
+        DynawoSimulationContext context = buildContext(network, workingStateId, version, reportNode, dynaFlowParameters);
 
         ExecutionEnvironment simulationEnv = ExecutionEnvironmentUtils.createSimulationEnv(config, WORKING_DIR_PREFIX, dumpDir);
         return computationManager
@@ -119,10 +122,14 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
                 .thenApply(DynaFlowJavaProvider::toLoadFlowResult);
     }
 
-    /** Assembles the Dynawo context from the {@code DynaFlow} mapping, exactly as the dynamic-simulation API would. */
-    static DynawoSimulationContext buildContext(Network network, String workingStateId, DynawoVersion version, ReportNode reportNode) {
-        // the DynaFlow flavour reads no configuration knobs here; a study configures it through MappingParameters
-        MappingParameters mappingParameters = MappingParameters.empty();
+    /**
+     * Assembles the Dynawo context from the {@code DynaFlow} mapping, exactly as the dynamic-simulation API
+     * would, honouring the load flow's {@link DynaFlowParameters}: the voltage thresholds and time step
+     * configure the mapping, and the simulation window, precision and load merging drive Dynawo.
+     */
+    static DynawoSimulationContext buildContext(Network network, String workingStateId, DynawoVersion version,
+                                                ReportNode reportNode, DynaFlowParameters dynaFlowParameters) {
+        MappingParameters mappingParameters = toMappingParameters(dynaFlowParameters);
         DynamicModelsMapping mapping = DynamicModelsMappings.getInstance().create(DynaFlowMapping.NAME, mappingParameters);
 
         mapping.createExtensions(network);
@@ -135,10 +142,14 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
                 .setNetworkParameters(DynaFlowGlobalParameters.networkParameters(mappingParameters))
                 .setSolverParameters(DynaFlowGlobalParameters.solverParameters(mappingParameters))
                 .setSolverType(mapping.getSolverType())
-                .setModelsParameters(modelsParameters);
+                .setModelsParameters(modelsParameters)
+                .setMergeLoads(dynaFlowParameters.isMergeLoads());
+        if (dynaFlowParameters.getPrecision() != null) {
+            dynawoParameters.setPrecision(dynaFlowParameters.getPrecision());
+        }
         DynamicSimulationParameters simulationParameters = new DynamicSimulationParameters()
-                .setStartTime(START_TIME)
-                .setStopTime(STOP_TIME);
+                .setStartTime(dynaFlowParameters.getStartTime())
+                .setStopTime(dynaFlowParameters.getStopTime());
 
         return new DynawoSimulationContext.Builder(network, blackBoxModels)
                 .workingVariantId(workingStateId)
@@ -147,6 +158,20 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
                 .currentVersion(version)
                 .reportNode(reportNode)
                 .build();
+    }
+
+    /** Maps the load flow's DynaFlow knobs the mapping shares onto its {@link MappingParameters} keys. */
+    private static MappingParameters toMappingParameters(DynaFlowParameters dynaFlowParameters) {
+        Map<String, String> values = new HashMap<>();
+        values.put(DSO_VOLTAGE_LEVEL_KEY, Double.toString(dynaFlowParameters.getDsoVoltageLevel()));
+        values.put(TFO_VOLTAGE_LEVEL_KEY, Double.toString(dynaFlowParameters.getTfoVoltageLevel()));
+        values.put(TIME_STEP_KEY, Double.toString(dynaFlowParameters.getTimeStep()));
+        return MappingParameters.of(values);
+    }
+
+    static DynaFlowParameters getParametersExt(LoadFlowParameters parameters) {
+        DynaFlowParameters extension = parameters.getExtension(DynaFlowParameters.class);
+        return extension != null ? extension : new DynaFlowParameters();
     }
 
     /**
@@ -162,50 +187,56 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
         return new LoadFlowResultImpl(ok, Collections.emptyMap(), null, componentResults);
     }
 
-    // No load-flow-specific parameters: the DynaFlow study is configured through the mapping, not a LoadFlowParameters extension.
+    // Reuse the same load-flow-specific parameters as the C++ DynaFlowProvider, so a study configures both
+    // the same way (the DynaFlowParameters extension and the "dynaflow-default-parameters" module).
 
     @Override
     public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {
-        return Optional.empty();
+        return Optional.of(DynaFlowParameters.class);
     }
 
     @Override
     public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig platformConfig) {
-        return Optional.empty();
+        return Optional.of(DynaFlowParameters.load(platformConfig));
     }
 
     @Override
     public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> properties) {
-        return Optional.empty();
+        return Optional.of(DynaFlowParameters.load(properties));
     }
 
     @Override
     public void updateSpecificParameters(Extension<LoadFlowParameters> extension, PlatformConfig platformConfig) {
-        // no specific parameters to update
+        ((DynaFlowParameters) extension).update(platformConfig);
     }
 
     @Override
     public void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties) {
-        // no specific parameters to update
+        getParametersExt(extension.getExtendable()).update(properties);
     }
 
     @Override
     public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
+        if (extension instanceof DynaFlowParameters dynaFlowParameters) {
+            return dynaFlowParameters.createMapFromParameters();
+        }
         return Collections.emptyMap();
     }
 
     @Override
     public List<Parameter> getRawSpecificParameters() {
-        return Collections.emptyList();
+        return DynaFlowParameters.SPECIFIC_PARAMETERS;
     }
 
     @Override
     public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
-        return Optional.empty();
+        return platformConfig.getOptionalModuleConfig(DynaFlowParameters.MODULE_SPECIFIC_PARAMETERS);
     }
 
     @Override
     public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        // the DynaFlowParameters serializer is registered globally (@AutoService) and by the C++
+        // DynaFlowProvider; returning it here too would clash on the shared extension name
         return Optional.empty();
     }
 }
