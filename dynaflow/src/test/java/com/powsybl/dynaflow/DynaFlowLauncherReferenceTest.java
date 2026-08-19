@@ -77,6 +77,73 @@ class DynaFlowLauncherReferenceTest {
         assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
     }
 
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"launch_svc", "launch_svc_infinite", "launch_svc_regulation", "launch_svc_tfo",
+        "launch_svc_tfo_infinite", "launch_svc_network"})
+    void svcCaseReproducesViaExtensions(String caseName) throws Exception {
+        Path res = TESTS_DIR.resolve("res");
+        assumeTrue(Files.exists(res.resolve("TestIIDM_" + caseName + ".iidm")), "launcher sources required at " + TESTS_DIR);
+        Network network = NetworkSerDe.read(res.resolve("TestIIDM_" + caseName + ".iidm"));
+        // drive the SVC through the extensions instead of the RTE assembling/setting database
+        applyAssembling(network, res.resolve("assembling_svc.xml"));
+
+        MappingParameters mappingParameters = configToMappingParameters(res.resolve("config_" + caseName + ".json"));
+        Path outDir = Files.createTempDirectory("java_svc_" + caseName);
+        generateDydPar(network, mappingParameters, outDir);
+
+        // the extensions must reproduce the launcher's SVC model selection: the reactive-power-control-loop
+        // generator models, the Rpcl2 machine and the secondary voltage control model itself
+        Map<String, String> refModels = modelMap(TESTS_DIR.resolve("reference").resolve(caseName).resolve("TestIIDM_" + caseName + ".dyd"));
+        Map<String, String> javaModels = modelMap(outDir.resolve("powsybl_dynawo.dyd"));
+        assertEquals(refModels, javaModels, caseName + ": the SVC model selection must match the launcher");
+    }
+
+    /** Translates the launcher's SVC assembling database into the {@code SecondaryVoltageControl} and
+     *  {@code SynchronizedGeneratorProperties} extensions the mapping reads. */
+    private static void applyAssembling(Network network, Path assemblingFile) throws Exception {
+        String xml = Files.readString(assemblingFile);
+        Map<String, String> pilotVl = new java.util.HashMap<>();
+        Map<String, String> generatorOfAssociation = new java.util.HashMap<>();
+        Matcher association = Pattern.compile("<singleAssociation id=\"([^\"]*)\">(.*?)</singleAssociation>", Pattern.DOTALL).matcher(xml);
+        while (association.find()) {
+            String vl = attribute(association.group(2), "voltageLevel");
+            String generator = attribute(association.group(2), "name");
+            if (vl != null) {
+                pilotVl.put(association.group(1), vl);
+            }
+            if (generator != null) {
+                generatorOfAssociation.put(association.group(1), generator);
+            }
+        }
+        String pilotBus = network.getVoltageLevel(pilotVl.values().iterator().next()).getBusBreakerView()
+                .getBusStream().findFirst().orElseThrow().getId();
+
+        com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder svc =
+                network.newExtension(com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder.class);
+        var zone = svc.newControlZone().withName("SVC");
+        zone.newPilotPoint().withBusbarSectionIds(List.of()).withTargetV(1.0)
+                .withBuses(List.of(new com.powsybl.iidm.network.extensions.PilotPoint.BusRef(pilotVl.values().iterator().next(), pilotBus))).add();
+        for (String generatorId : generatorOfAssociation.values()) {
+            zone.newControlUnit().withId(generatorId).withParticipate(true).add();
+        }
+        zone.add();
+        svc.add();
+
+        // the ReactivePowerControlLoop2 property marks the Rpcl2 machines
+        Matcher rpcl2 = Pattern.compile("<property id=\"ReactivePowerControlLoop2\">(.*?)</property>", Pattern.DOTALL).matcher(xml);
+        if (rpcl2.find()) {
+            Matcher device = Pattern.compile("<device id=\"([^\"]*)\"").matcher(rpcl2.group(1));
+            while (device.find()) {
+                String generatorId = generatorOfAssociation.get(device.group(1));
+                if (generatorId != null) {
+                    network.getGenerator(generatorId)
+                            .newExtension(com.powsybl.dynawo.extensions.api.generator.SynchronizedGeneratorPropertiesAdder.class)
+                            .withType("PV").withRpcl2(true).add();
+                }
+            }
+        }
+    }
+
     private record Comparison(Map<String, String> refModels, Map<String, String> javaModels, double parMaxDiff, String parWorst) {
     }
 
