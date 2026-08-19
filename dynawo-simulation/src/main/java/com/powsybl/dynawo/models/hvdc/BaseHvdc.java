@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.TwoSides;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,5 +102,19 @@ public class BaseHvdc extends AbstractEquipmentBlackBoxModel<HvdcLine> implement
     @Override
     public String getSwitchOffSignalEventVarName(TwoSides side) {
         return varNameHandler.getEventVarName(side);
+    }
+
+    /**
+     * A {@code DiagramPQ} model reads one reactive-capability table file per connected converter; the
+     * dangling model narrows {@link #getConnectedStations()} to its connected side, so only that side is
+     * written. Every other model tabulates nothing.
+     */
+    @Override
+    public void writeAuxiliaryFiles(Path workingDir) throws IOException {
+        if (getLib().contains("DiagramPQ")) {
+            for (HvdcConverterStation<?> station : getConnectedStations()) {
+                HvdcDiagram.write(station, equipment, workingDir);
+            }
+        }
     }
 }
