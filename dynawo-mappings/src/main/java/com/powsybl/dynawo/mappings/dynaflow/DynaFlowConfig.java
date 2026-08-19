@@ -13,7 +13,8 @@ import com.powsybl.dynawo.mappings.MappingParameters;
  * The knobs a DynaFlow study sets, the DynaFlow Launcher's {@code Configuration} defaults among them: the
  * reactive limits (a machine's diagram, or infinite), where its transformer is assumed to be, how the
  * simulation starts, which power the active-power compensation follows, the distribution (DSO) voltage
- * below which a load stays static, and whether a fictitious load is modelled.
+ * below which a load stays static, whether a fictitious load is modelled, and the simplified solver's
+ * maximum and minimum time steps.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -22,7 +23,9 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
                       ActivePowerCompensation activePowerCompensation,
                       double tfoVoltageLevel,
                       double dsoVoltageLevel,
-                      boolean restorativeFictitiousLoads) {
+                      boolean restorativeFictitiousLoads,
+                      double timeStep,
+                      double minTimeStep) {
 
     /** How a machine's initial voltage and power are taken — from the load flow (warm) or the set points (flat). */
     enum StartingPointMode {
@@ -43,6 +46,8 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
     static final String TFO_VOLTAGE_LEVEL = "dynaflow_tfo_voltage_level";
     static final String DSO_VOLTAGE_LEVEL = "dynaflow_dso_voltage_level";
     static final String RESTORATIVE_FICTITIOUS_LOADS = "dynaflow_restorative_fictitious_loads";
+    static final String TIME_STEP = "dynaflow_time_step";
+    static final String MIN_TIME_STEP = "dynaflow_min_time_step";
 
     /** The launcher's defaults: honour each diagram, a 100 kV transformer threshold, warm start, PMax compensation. */
     static DynaFlowConfig defaults() {
@@ -56,6 +61,8 @@ record DynaFlowConfig(boolean infiniteReactiveLimits,
                 ActivePowerCompensation.valueOf(parameters.getString(ACTIVE_POWER_COMPENSATION).orElse("PMAX").toUpperCase()),
                 parameters.getDouble(TFO_VOLTAGE_LEVEL, 100.0),
                 parameters.getDouble(DSO_VOLTAGE_LEVEL, 45.0),
-                parameters.getBoolean(RESTORATIVE_FICTITIOUS_LOADS, false));
+                parameters.getBoolean(RESTORATIVE_FICTITIOUS_LOADS, false),
+                parameters.getDouble(TIME_STEP, 10.0),
+                parameters.getDouble(MIN_TIME_STEP, 1.0));
     }
 }
