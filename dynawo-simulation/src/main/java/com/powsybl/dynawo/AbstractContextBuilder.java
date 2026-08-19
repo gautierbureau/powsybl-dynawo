@@ -24,6 +24,7 @@ import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.simplifiers.ModelSimplifiers;
 import com.powsybl.dynawo.simplifiers.ModelsRemovalSimplifier;
 import com.powsybl.dynawo.simplifiers.ModelsSubstitutionSimplifier;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
@@ -182,12 +183,27 @@ public abstract class AbstractContextBuilder<T extends AbstractContextBuilder<T>
             throw new PowsyblException("Signal N and frequency synchronized generators cannot be used with one another");
         }
         if (hasSignalNModels) {
-            dynamicModels.add(new SignalN(signalNModels, defaultParFile));
+            dynamicModels.add(new SignalN(signalNModels, defaultParFile, slackBusId()));
         } else if (hasFrequencySynchronizedModels) {
             dynamicModels.add(hasSpecificBuses
                     ? new SetPoint(frequencySynchronizedModels, defaultParFile)
                     : new OmegaRef(frequencySynchronizedModels, defaultParFile, dynawoParameters));
         }
+    }
+
+    /**
+     * The slack bus a {@link SignalN} anchors its phase reference to — the DynaFlow Launcher's {@code
+     * SlackNodeAlgorithm}: the main-connected-component bus with the highest nominal voltage, ties broken
+     * by how many terminals connect to it. Returns {@code null} for an empty network, leaving the reference
+     * to fall back to the first equipment's bus.
+     */
+    private String slackBusId() {
+        return network.getBusBreakerView().getBusStream()
+                .filter(Bus::isInMainConnectedComponent)
+                .max(Comparator.comparingDouble((Bus bus) -> bus.getVoltageLevel().getNominalV())
+                        .thenComparingInt(Bus::getConnectedTerminalCount))
+                .map(Bus::getId)
+                .orElse(null);
     }
 
     /**

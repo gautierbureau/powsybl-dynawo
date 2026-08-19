@@ -14,8 +14,8 @@
     <dyn:macroConnector id="MC_SignalN-GeneratorPVRemoteDiagramPQSignalN">
         <dyn:connect var1="signalN_N" var2="generator_N"/>
     </dyn:macroConnector>
-    <dyn:macroConnector id="MC_SignalN-DefaultBusOfSignalN">
-        <dyn:connect var1="signalN_thetaRef" var2="@@NAME@@@NODE@_phi_value"/>
+    <dyn:macroConnector id="MC_SignalN-SlackBusOfSignalN">
+        <dyn:connect var1="signalN_thetaRef" var2="@NAME@_phi_value"/>
     </dyn:macroConnector>
     <dyn:macroStaticReference id="MSR_GeneratorPVRemoteDiagramPQSignalN">
         <dyn:staticRef var="generator_PGenPu" staticVar="p"/>
@@ -26,5 +26,5 @@
     <dyn:macroConnect connector="MC_GeneratorPVRemoteDiagramPQSignalN-DefaultEquipmentConnectionPoint" id1="GEN2" id2="NETWORK"/>
     <dyn:macroConnect connector="MC_SignalN-GeneratorPVRemoteDiagramPQSignalN" id1="Signal_N" id2="GEN"/>
     <dyn:macroConnect connector="MC_SignalN-GeneratorPVRemoteDiagramPQSignalN" id1="Signal_N" id2="GEN2"/>
-    <dyn:macroConnect connector="MC_SignalN-DefaultBusOfSignalN" id1="Signal_N" id2="NETWORK" name2="GEN"/>
+    <dyn:macroConnect connector="MC_SignalN-SlackBusOfSignalN" id1="Signal_N" id2="NETWORK" name2="NHV1"/>
 </dyn:dynamicModelsArchitecture>
