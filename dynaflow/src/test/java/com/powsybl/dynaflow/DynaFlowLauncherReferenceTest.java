@@ -53,10 +53,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * <p>
  * Cases not yet reproduced, tracked by {@link #knownDivergenceFromLauncher} rather than asserted:
  * <ul>
- *   <li>{@code distant_regulation} — 7 generators run {@code GeneratorPVRemoteSignalN} where the launcher
- *       runs {@code GeneratorPQPropSignalN}: the launcher counts voltage regulators over every bus of a
- *       voltage level (busbar sections), while the mapping counts over the merged bus-view bus, so it sees
- *       one regulator on a remote bus where the launcher sees several.</li>
  *   <li>{@code hvdc_diagrams}, {@code hvdc_HvdcPQProp_diagrams} — a VSC's {@code hvdc_Q1Nom} differs: the
  *       mapping takes the reactive bound over the whole capability curve, the launcher a single value from
  *       its data interface.</li>
@@ -74,7 +70,7 @@ class DynaFlowLauncherReferenceTest {
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {
         "launch", "launch_infinite", "launch_diagram", "launch_diagram_tfo", "launch_P",
-        "node_breaker", "special_characters",
+        "node_breaker", "special_characters", "distant_regulation",
         "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams_flat_start",
         "hvdc_HvdcPQProp", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPV_HvdcPTanPhi"})
     void javaMappingReproducesLauncherReference(String caseName) throws Exception {
@@ -84,7 +80,7 @@ class DynaFlowLauncherReferenceTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"distant_regulation", "hvdc_diagrams", "hvdc_HvdcPQProp_diagrams"})
+    @ValueSource(strings = {"hvdc_diagrams", "hvdc_HvdcPQProp_diagrams"})
     void knownDivergenceFromLauncher(String caseName) throws Exception {
         Comparison comparison = compare(caseName);
         System.out.printf("[known divergence] %-26s dyd %s | par max |Δ| = %.4g (%s)%n", caseName,

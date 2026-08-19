@@ -246,13 +246,17 @@ public final class DynaFlowGeneratorMapping {
             if (!generator.isVoltageRegulatorOn()) {
                 continue;
             }
+            // a disconnected generator regulates nothing — the launcher ignores it (getInitialConnected)
+            Bus connectedBus = busViewBus(generator.getTerminal());
+            if (connectedBus == null) {
+                continue;
+            }
             Bus regulatedBus = busViewBus(generator.getRegulatingTerminal());
             if (regulatedBus == null) {
                 continue;
             }
             counts.merge(regulatedBus.getId(), 1, Integer::sum);
-            Bus connectedBus = busViewBus(generator.getTerminal());
-            if (connectedBus != null && !connectedBus.getId().equals(regulatedBus.getId())) {
+            if (!connectedBus.getId().equals(regulatedBus.getId())) {
                 counts.merge(connectedBus.getId(), 1, Integer::sum);
             }
         }
