@@ -101,6 +101,21 @@ class DynaFlowGeneratorParametersTest {
         assertFalse(references(shared).containsKey("generator_QMin0"));
     }
 
+    @Test
+    void aPqCurveMachinePointsAtItsDiagramTableFile() {
+        Network network = network();
+        Generator gen = machine(network, "VL", 20, "GEN", EnergySource.THERMAL).getGenerator("GEN");
+        gen.newReactiveCapabilityCurve()
+                .beginPoint().setP(0).setMinQ(-100).setMaxQ(100).endPoint()
+                .beginPoint().setP(100).setMinQ(-40).setMaxQ(60).endPoint()
+                .add();
+        Map<String, String> params = parameters(parametersFor(network, "GEN"));
+        assertEquals("GEN_Diagram.txt", params.get("generator_QMaxTableFile"));
+        assertEquals("GEN_tableqmax", params.get("generator_QMaxTableName"));
+        assertEquals("GEN_Diagram.txt", params.get("generator_QMinTableFile"));
+        assertEquals("GEN_tableqmin", params.get("generator_QMinTableName"));
+    }
+
     private static ParametersSet parametersFor(Network network, String generatorId) {
         return new DynaFlowMapping(DynaFlowMapping.NAME).createParameters(network, null).stream()
                 .filter(s -> s.getId().equals(generatorId))

@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings.dynaflow;
 
 import com.powsybl.dynawo.mappings.dynaflow.DynaFlowConfig.StartingPointMode;
+import com.powsybl.dynawo.models.generators.GeneratorDiagram;
 import com.powsybl.dynawo.parameters.ParameterType;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.EnergySource;
@@ -67,6 +68,9 @@ final class DynaFlowGeneratorParameters {
             buildInfinite(set, parameterSetId, prop, config, activePowerControl, fixedP);
         } else {
             buildDiagram(set, rectangular, prop, remote, config, activePowerControl, fixedP);
+            if (!rectangular) {
+                addDiagramTable(set, generator.getId());
+            }
         }
 
         // the launcher's per-generator additions: a transformer's reactance and off-set references, and a
@@ -143,6 +147,14 @@ final class DynaFlowGeneratorParameters {
             set.addReference("generator_QRef0Pu", DOUBLE, "targetQ_pu");
             set.addReference("generator_QPercent", DOUBLE, "qMax_pu");
         }
+    }
+
+    /** A PQ-curve machine's Q(P) table file — written by the model (GeneratorDiagram) at run time. */
+    private static void addDiagramTable(ParametersSet set, String generatorId) {
+        set.addParameter("generator_QMaxTableFile", ParameterType.STRING, GeneratorDiagram.fileName(generatorId));
+        set.addParameter("generator_QMaxTableName", ParameterType.STRING, GeneratorDiagram.qMaxTableName(generatorId));
+        set.addParameter("generator_QMinTableFile", ParameterType.STRING, GeneratorDiagram.fileName(generatorId));
+        set.addParameter("generator_QMinTableName", ParameterType.STRING, GeneratorDiagram.qMinTableName(generatorId));
     }
 
     private static void addStartingPoint(ParametersSet set, StartingPointMode startingPointMode) {

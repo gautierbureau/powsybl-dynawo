@@ -8,6 +8,7 @@
 package com.powsybl.dynawo;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dynawo.models.BlackBoxModel;
 import com.powsybl.dynawo.xml.CriteriaXml;
 import com.powsybl.dynawo.xml.DydXml;
 import com.powsybl.dynawo.xml.OutputVariablesXml;
@@ -40,6 +41,9 @@ public final class DynawoFilesUtils {
     public static void writeInputFiles(Path workingDir, DynawoSimulationContext context) throws IOException {
         DydXml.write(workingDir, context.getSimulationDydData());
         ParametersXml.write(workingDir, context);
+        for (BlackBoxModel model : context.getBlackBoxDynamicModels()) {
+            model.writeAuxiliaryFiles(workingDir);
+        }
         if (context.withCurveVariables()) {
             OutputVariablesXml.writeCurve(workingDir, context);
         }
