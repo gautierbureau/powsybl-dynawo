@@ -51,14 +51,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * database, which this mapping does not read. Skipped unless the launcher sources are present at {@link
  * #TESTS_DIR}.
  * <p>
- * Cases not yet reproduced, tracked by {@link #knownDivergenceFromLauncher} rather than asserted:
- * <ul>
- *   <li>{@code hvdc_diagrams}, {@code hvdc_HvdcPQProp_diagrams} — a VSC's {@code hvdc_Q1Nom} differs: the
- *       mapping takes the reactive bound over the whole capability curve, the launcher a single value from
- *       its data interface.</li>
- *   <li>{@code launch_slack} — its input carries a {@code slackTerminal} extension in an IIDM version the
- *       current serializer cannot read, so the network cannot be loaded at all (not a mapping difference).</li>
- * </ul>
+ * {@code launch_slack} is left out: its input carries a {@code slackTerminal} extension in an IIDM version
+ * the current serializer cannot read, so the network cannot be loaded at all (not a mapping difference).
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -71,20 +65,12 @@ class DynaFlowLauncherReferenceTest {
     @ValueSource(strings = {
         "launch", "launch_infinite", "launch_diagram", "launch_diagram_tfo", "launch_P",
         "node_breaker", "special_characters", "distant_regulation",
-        "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams_flat_start",
-        "hvdc_HvdcPQProp", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPV_HvdcPTanPhi"})
+        "hvdc_line_normal", "hvdc", "hvdc_dangling", "hvdc_diagrams", "hvdc_diagrams_flat_start",
+        "hvdc_HvdcPQProp", "hvdc_HvdcPQProp_diagrams", "hvdc_HvdcPQPropDangling", "hvdc_HvdcPV_HvdcPTanPhi"})
     void javaMappingReproducesLauncherReference(String caseName) throws Exception {
         Comparison comparison = compare(caseName);
         assertEquals(comparison.refModels, comparison.javaModels, caseName + ": the model per equipment must match the launcher");
         assertEquals(0.0, comparison.parMaxDiff, 1e-6, caseName + ": par differs at " + comparison.parWorst);
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"hvdc_diagrams", "hvdc_HvdcPQProp_diagrams"})
-    void knownDivergenceFromLauncher(String caseName) throws Exception {
-        Comparison comparison = compare(caseName);
-        System.out.printf("[known divergence] %-26s dyd %s | par max |Δ| = %.4g (%s)%n", caseName,
-                comparison.refModels.equals(comparison.javaModels) ? "OK" : "DIFF", comparison.parMaxDiff, comparison.parWorst);
     }
 
     private record Comparison(Map<String, String> refModels, Map<String, String> javaModels, double parMaxDiff, String parWorst) {

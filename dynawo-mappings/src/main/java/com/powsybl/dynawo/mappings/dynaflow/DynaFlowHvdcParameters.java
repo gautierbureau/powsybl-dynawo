@@ -15,10 +15,6 @@ import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 
@@ -198,22 +194,21 @@ final class DynaFlowHvdcParameters {
         return new double[] {p02, p01};
     }
 
-    /** The most negative reactive bound a VSC can hold, over its whole capability. */
+    // The reactive bounds the launcher reads are the converter's capability at its operating point, not the
+    // envelope over the whole curve: its data interface's getQMin/getQMax evaluate the reactive limits at
+    // the converter's active power (a curve is interpolated, min/max limits are constant).
     private static double vscQMin(VscConverterStation vsc) {
-        ReactiveLimits limits = vsc.getReactiveLimits();
-        if (limits.getKind() == ReactiveLimitsKind.CURVE) {
-            return ((ReactiveCapabilityCurve) limits).getPoints().stream().mapToDouble(ReactiveCapabilityCurve.Point::getMinQ).min().orElse(0);
-        }
-        return ((MinMaxReactiveLimits) limits).getMinQ();
+        return vsc.getReactiveLimits().getMinQ(operatingP(vsc));
     }
 
-    /** The most positive reactive bound a VSC can hold, over its whole capability. */
     private static double vscQMax(VscConverterStation vsc) {
-        ReactiveLimits limits = vsc.getReactiveLimits();
-        if (limits.getKind() == ReactiveLimitsKind.CURVE) {
-            return ((ReactiveCapabilityCurve) limits).getPoints().stream().mapToDouble(ReactiveCapabilityCurve.Point::getMaxQ).max().orElse(0);
-        }
-        return ((MinMaxReactiveLimits) limits).getMaxQ();
+        return vsc.getReactiveLimits().getMaxQ(operatingP(vsc));
+    }
+
+    /** The converter's active power, the point its reactive capability is read at; the curve centre if unset. */
+    private static double operatingP(VscConverterStation vsc) {
+        double p = vsc.getTerminal().getP();
+        return Double.isNaN(p) ? 0 : p;
     }
 
     private static double powerFactor(HvdcConverterStation<?> station) {
