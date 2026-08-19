@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * Runs a DynaFlow steady-state study as a load flow, in pure Java, without the C++ DynaFlow Launcher.
@@ -74,6 +75,16 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
     private static final double START_TIME = 0.0;
     private static final double STOP_TIME = 100.0;
 
+    private final Supplier<DynawoSimulationConfig> configSupplier;
+
+    public DynaFlowJavaProvider() {
+        this(DynawoSimulationConfig::load);
+    }
+
+    public DynaFlowJavaProvider(Supplier<DynawoSimulationConfig> configSupplier) {
+        this.configSupplier = Objects.requireNonNull(configSupplier);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -93,7 +104,7 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
         LoadFlowParameters loadFlowParameters = Objects.requireNonNull(runParameters.getLoadFlowParameters());
         ReportNode reportNode = Objects.requireNonNull(runParameters.getReportNode());
 
-        DynawoSimulationConfig config = DynawoSimulationConfig.load();
+        DynawoSimulationConfig config = configSupplier.get();
         String dumpDir = loadFlowParameters.getDebugDir();
         ExecutionEnvironment versionEnv = ExecutionEnvironmentUtils.createVersionEnv(config, WORKING_DIR_PREFIX, dumpDir);
         DynawoVersion version = DynawoUtil.requireDynaMinVersion(versionEnv, computationManager,
