@@ -122,9 +122,12 @@ public class EventDisconnectionBuilder extends AbstractEventModelBuilder<Identif
                     }
                 }
                 case BRANCH -> {
+                    // a whole-branch disconnection is instantiable as long as one end is energized and in
+                    // the main connected component; the other end may be open (an open-ended branch), the
+                    // way the DynaFlow launcher validates a branch contingency against the main component
                     Branch<?> branch = (Branch<?>) builderEquipment.getEquipment();
                     if (disconnectSide != null && !EnergizedUtils.isEnergizedAndInMainConnectedComponent(branch, disconnectSide)
-                            || disconnectSide == null && !EnergizedUtils.isEnergizedAndInMainConnectedComponent(branch)) {
+                            || disconnectSide == null && !EnergizedUtils.isEnergizedAndInMainConnectedComponentOnAnySide(branch)) {
                         BuilderReports.reportNotEnergized(reportNode, STATIC_ID_FIELD_NAME, builderEquipment.getStaticId());
                         isInstantiable = false;
                     }

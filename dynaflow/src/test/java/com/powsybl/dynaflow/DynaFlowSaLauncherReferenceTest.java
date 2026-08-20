@@ -64,11 +64,10 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * <p>
  * The case configuration ({@code config_launch.json}) is applied to the mapping, so a load below the DSO
  * voltage stays on the static network model exactly as in the launcher — its disconnection is an {@code
- * EventConnectedStatus}, not an {@code EventSetPointBoolean}.
- * <p>
- * The launcher's open-ended branch cases are the one follow-up not listed (DYNAFLOW_SA_PLAN.md §6): they
- * disconnect a partially-connected line/transformer, which the shared builder's both-ends energization check
- * skips. Skipped unless the launcher SA sources are present.
+ * EventConnectedStatus}, not an {@code EventSetPointBoolean}. Open-ended branches (a line/transformer
+ * connected on one side only) disconnect as the launcher does too, since the builder accepts a whole-branch
+ * disconnection when either end is energized and in the main connected component. Skipped unless the launcher
+ * SA sources are present.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -84,7 +83,8 @@ class DynaFlowSaLauncherReferenceTest {
         "shunt_compensator_contingency", "static_var_compensator_network_contingency",
         "busbarsection_contingency", "dangling_line_contingency",
         "three_windings_transformer_contingency", "generator_network_contingency",
-        "load_contingency", "load_multiple_elements_one_bad"})
+        "load_contingency", "load_multiple_elements_one_bad",
+        "line_contingency_open_ended", "two_windings_transformer_open_ended"})
     void javaSaReproducesLauncherEvent(String contingencyId) throws Exception {
         Path res = TESTS_DIR.resolve("res");
         assumeTrue(Files.exists(res.resolve("TestIIDM_launch.iidm")), "launcher SA sources required at " + TESTS_DIR);
