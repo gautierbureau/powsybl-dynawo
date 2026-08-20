@@ -10,16 +10,19 @@ package com.powsybl.dynawo.algorithms;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.contingency.SidedContingencyElement;
 import com.powsybl.dynawo.BlackBoxModelSupplier;
 import com.powsybl.dynawo.models.BlackBoxModel;
 import com.powsybl.dynawo.models.events.ContextDependentEvent;
 import com.powsybl.dynawo.models.events.EventDisconnectionBuilder;
+import com.powsybl.dynawo.models.events.EventThreeWindingsTransformerDisconnection;
 import com.powsybl.dynawo.models.macroconnections.MacroConnect;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.dynawo.models.macroconnections.MacroConnector;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
@@ -82,9 +85,29 @@ public final class ContingencyEventModelsFactory {
                                                                        BlackBoxModelSupplier bbmSupplier,
                                                                        ReportNode reportNode) {
         return contingency.getElements().stream()
-                .map(ce -> createContingencyEventModel(ce, contingenciesStartTime, network, bbmSupplier, reportNode))
+                .flatMap(ce -> createContingencyEventModels(ce, contingenciesStartTime, network, bbmSupplier, reportNode).stream())
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /**
+     * The event models disconnecting one contingency element — usually one, but a three-winding transformer
+     * disconnects as one {@code EventQuadripoleDisconnection} per leg.
+     */
+    private static List<BlackBoxModel> createContingencyEventModels(ContingencyElement element,
+                                                                    double contingenciesStartTime,
+                                                                    Network network,
+                                                                    BlackBoxModelSupplier bbmSupplier,
+                                                                    ReportNode reportNode) {
+        if (element.getType() == ContingencyElementType.THREE_WINDINGS_TRANSFORMER) {
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(element.getId());
+            if (twt != null) {
+                return List.copyOf(EventThreeWindingsTransformerDisconnection.createLegEvents(twt, contingenciesStartTime));
+            }
+            createNotSupportedContingencyTypeReportNode(reportNode, element.getType().toString());
+            return List.of();
+        }
+        return Collections.singletonList(createContingencyEventModel(element, contingenciesStartTime, network, bbmSupplier, reportNode));
     }
 
     private static BlackBoxModel createContingencyEventModel(ContingencyElement element,
