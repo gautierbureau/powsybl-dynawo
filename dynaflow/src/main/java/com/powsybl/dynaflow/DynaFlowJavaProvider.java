@@ -130,6 +130,26 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
      */
     static DynawoSimulationContext buildContext(Network network, String workingStateId, DynawoVersion version,
                                                 ReportNode reportNode, DynaFlowParameters dynaFlowParameters) {
+        MappedInputs inputs = buildMappedInputs(network, reportNode, dynaFlowParameters);
+        DynamicSimulationParameters simulationParameters = new DynamicSimulationParameters()
+                .setStartTime(dynaFlowParameters.getStartTime())
+                .setStopTime(dynaFlowParameters.getStopTime());
+
+        return new DynawoSimulationContext.Builder(network, inputs.blackBoxModels())
+                .workingVariantId(workingStateId)
+                .dynamicSimulationParameters(simulationParameters)
+                .dynawoParameters(inputs.dynawoParameters())
+                .currentVersion(version)
+                .reportNode(reportNode)
+                .build();
+    }
+
+    /**
+     * The {@code DynaFlow} mapping's dynamic models and the Dynawo parameters carrying their parameter sets,
+     * built from the shared load-flow {@link DynaFlowParameters}. Both the load-flow context above and the
+     * DynaFlow security analysis start from these, so the base (pre-contingency) models are byte-identical.
+     */
+    static MappedInputs buildMappedInputs(Network network, ReportNode reportNode, DynaFlowParameters dynaFlowParameters) {
         MappingParameters mappingParameters = toMappingParameters(dynaFlowParameters);
         DynamicModelsMapping mapping = DynamicModelsMappings.getInstance().create(DynaFlowMapping.NAME, mappingParameters);
 
@@ -148,17 +168,11 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
         if (dynaFlowParameters.getPrecision() != null) {
             dynawoParameters.setPrecision(dynaFlowParameters.getPrecision());
         }
-        DynamicSimulationParameters simulationParameters = new DynamicSimulationParameters()
-                .setStartTime(dynaFlowParameters.getStartTime())
-                .setStopTime(dynaFlowParameters.getStopTime());
+        return new MappedInputs(blackBoxModels, dynawoParameters);
+    }
 
-        return new DynawoSimulationContext.Builder(network, blackBoxModels)
-                .workingVariantId(workingStateId)
-                .dynamicSimulationParameters(simulationParameters)
-                .dynawoParameters(dynawoParameters)
-                .currentVersion(version)
-                .reportNode(reportNode)
-                .build();
+    /** The {@code DynaFlow} mapping's black-box models and the Dynawo parameters that carry their parameter sets. */
+    record MappedInputs(List<BlackBoxModel> blackBoxModels, DynawoSimulationParameters dynawoParameters) {
     }
 
     /** Maps the load flow's DynaFlow knobs the mapping shares onto its {@link MappingParameters} keys. */
