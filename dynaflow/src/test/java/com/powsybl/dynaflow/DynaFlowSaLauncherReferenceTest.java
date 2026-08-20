@@ -62,12 +62,13 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * {@code MC_EventQuadripoleDisconnection}). That the wiring drives a real Dynawo run correctly is covered by
  * the against-the-launcher integration test, not here.
  * <p>
- * Two launcher cases are intentionally not listed, as follow-ups (DYNAFLOW_SA_PLAN.md §6): its {@code
- * load_contingency} disconnects the load as a network {@code EventConnectedStatus} because the launcher
- * leaves that load out of its base dynamic models, whereas the DynaFlow mapping models it (an
- * {@code EventSetPointBoolean} instead) — a base load-mapping divergence, not an SA one; and its open-ended
- * branch cases disconnect a partially-connected line/transformer, which the shared builder's both-ends
- * energization check skips. Skipped unless the launcher SA sources are present.
+ * The case configuration ({@code config_launch.json}) is applied to the mapping, so a load below the DSO
+ * voltage stays on the static network model exactly as in the launcher — its disconnection is an {@code
+ * EventConnectedStatus}, not an {@code EventSetPointBoolean}.
+ * <p>
+ * The launcher's open-ended branch cases are the one follow-up not listed (DYNAFLOW_SA_PLAN.md §6): they
+ * disconnect a partially-connected line/transformer, which the shared builder's both-ends energization check
+ * skips. Skipped unless the launcher SA sources are present.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -82,16 +83,18 @@ class DynaFlowSaLauncherReferenceTest {
         "generator_contingency", "static_var_compensator_contingency", "hvdcline_contingency",
         "shunt_compensator_contingency", "static_var_compensator_network_contingency",
         "busbarsection_contingency", "dangling_line_contingency",
-        "three_windings_transformer_contingency", "generator_network_contingency"})
+        "three_windings_transformer_contingency", "generator_network_contingency",
+        "load_contingency", "load_multiple_elements_one_bad"})
     void javaSaReproducesLauncherEvent(String contingencyId) throws Exception {
         Path res = TESTS_DIR.resolve("res");
         assumeTrue(Files.exists(res.resolve("TestIIDM_launch.iidm")), "launcher SA sources required at " + TESTS_DIR);
 
         Network network = NetworkSerDe.read(res.resolve("TestIIDM_launch.iidm"));
         Contingency contingency = loadContingency(res.resolve("contingencies_launch.json"), contingencyId);
+        DynaFlowParameters dynaFlowParameters = configParameters(res.resolve("config_launch.json"));
 
         Path outDir = Files.createTempDirectory("java_sa_" + contingencyId);
-        writeContingencyFiles(network, contingency, outDir);
+        writeContingencyFiles(network, contingency, dynaFlowParameters, outDir);
 
         Path refDir = TESTS_DIR.resolve("reference").resolve("launch");
         assertEquals(eventLibs(refDir.resolve("TestIIDM_launch-" + contingencyId + ".dyd")),
@@ -103,8 +106,8 @@ class DynaFlowSaLauncherReferenceTest {
     }
 
     /** Writes the contingency's event dyd/par exactly as {@link DynaFlowSecurityAnalysisJavaProvider} does, minus the Dynawo run. */
-    private static void writeContingencyFiles(Network network, Contingency contingency, Path outDir) throws Exception {
-        DynaFlowJavaProvider.MappedInputs inputs = DynaFlowJavaProvider.buildMappedInputs(network, ReportNode.NO_OP, new DynaFlowParameters());
+    private static void writeContingencyFiles(Network network, Contingency contingency, DynaFlowParameters dynaFlowParameters, Path outDir) throws Exception {
+        DynaFlowJavaProvider.MappedInputs inputs = DynaFlowJavaProvider.buildMappedInputs(network, ReportNode.NO_OP, dynaFlowParameters);
         SecurityAnalysisContext context = new SecurityAnalysisContext.Builder(network, inputs.blackBoxModels(), List.of(contingency))
                 .eventModels(List.of())
                 .dynamicSecurityAnalysisParameters(DynaFlowSecurityAnalysisJavaProvider.withDynaFlowDefaults(new DynamicSecurityAnalysisParameters()))
@@ -134,6 +137,27 @@ class DynaFlowSaLauncherReferenceTest {
             return new Contingency(contingencyId, elements);
         }
         throw new AssertionError("contingency " + contingencyId + " not found in " + contingenciesFile);
+    }
+
+    /**
+     * The DynaFlow parameters the case configures — the same knobs the load-flow reference reads. The DSO
+     * voltage in particular decides which loads the mapping models (a load below it stays on the static
+     * network model, so its disconnection is an {@code EventConnectedStatus} rather than an {@code
+     * EventSetPointBoolean}).
+     */
+    private static DynaFlowParameters configParameters(Path configFile) throws Exception {
+        JsonNode config = new ObjectMapper().readTree(configFile.toFile()).get("dfl-config");
+        DynaFlowParameters parameters = new DynaFlowParameters();
+        if (config.has("DsoVoltageLevel")) {
+            parameters.setDsoVoltageLevel(config.get("DsoVoltageLevel").asDouble());
+        }
+        if (config.has("TfoVoltageLevel")) {
+            parameters.setTfoVoltageLevel(config.get("TfoVoltageLevel").asDouble());
+        }
+        if (config.has("SVCRegulationOn")) {
+            parameters.setSvcRegulationOn(config.get("SVCRegulationOn").asBoolean());
+        }
+        return parameters;
     }
 
     private static ContingencyElement contingencyElement(String type, String id) {
