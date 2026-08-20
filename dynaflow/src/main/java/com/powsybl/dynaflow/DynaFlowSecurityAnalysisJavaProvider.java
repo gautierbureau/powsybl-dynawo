@@ -60,6 +60,11 @@ public class DynaFlowSecurityAnalysisJavaProvider implements DynamicSecurityAnal
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynaFlowSecurityAnalysisJavaProvider.class);
     private static final String WORKING_DIR_PREFIX = "dynaflow_java_sa_";
+    // the DynaFlow launcher's default TimeOfEvent — the instant every contingency's disconnection fires
+    // (event_tEvent). powsybl-core defaults the contingencies start time to 5s; a DynaFlow study defaults
+    // to the launcher's value so it reproduces the launcher out of the box.
+    static final double DYNAFLOW_DEFAULT_TIME_OF_EVENT = 10d;
+    private static final double POWSYBL_DEFAULT_CONTINGENCIES_START_TIME = 5d;
 
     private final DynawoAlgorithmsConfig config;
 
@@ -97,7 +102,7 @@ public class DynaFlowSecurityAnalysisJavaProvider implements DynamicSecurityAnal
 
         ReportNode saReportNode = DynamicSecurityAnalysisReports.createDynamicSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        DynamicSecurityAnalysisParameters parameters = runParameters.getDynamicSecurityAnalysisParameters();
+        DynamicSecurityAnalysisParameters parameters = withDynaFlowDefaults(runParameters.getDynamicSecurityAnalysisParameters());
 
         String dumpDir = parameters.getDebugDir();
         ExecutionEnvironment versionEnv = ExecutionEnvironmentUtils.createVersionEnv(config, WORKING_DIR_PREFIX, dumpDir);
@@ -128,6 +133,20 @@ public class DynaFlowSecurityAnalysisJavaProvider implements DynamicSecurityAnal
                         runParameters.getFilter(),
                         runParameters.getInterceptors(),
                         saReportNode));
+    }
+
+    /**
+     * Applies the DynaFlow launcher's defaults to the security-analysis parameters: when the contingencies
+     * start time is still at powsybl-core's default, it becomes the launcher's {@code TimeOfEvent}, so a
+     * DynaFlow study fires its disconnections at the same instant the launcher does. An explicit value is
+     * left untouched.
+     */
+    static DynamicSecurityAnalysisParameters withDynaFlowDefaults(DynamicSecurityAnalysisParameters parameters) {
+        DynamicSecurityAnalysisParameters.ContingenciesParameters contingencies = parameters.getDynamicContingenciesParameters();
+        if (contingencies.getContingenciesStartTime() == POWSYBL_DEFAULT_CONTINGENCIES_START_TIME) {
+            contingencies.setContingenciesStartTime(DYNAFLOW_DEFAULT_TIME_OF_EVENT);
+        }
+        return parameters;
     }
 
     @Override
