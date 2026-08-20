@@ -17,6 +17,7 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynawo.commons.ExportMode;
+import com.powsybl.dynawo.criteria.CriteriaCollection;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.xml.ParametersXml;
 
@@ -122,6 +123,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private LogLevel logLevelFilter = DEFAULT_LOG_LEVEL_FILTER;
     private EnumSet<SpecificLog> specificLogs = EnumSet.noneOf(SpecificLog.class);
     private Path criteriaFilePath = null;
+    private CriteriaCollection criteria = null;
     private Path additionalModelsPath = null;
 
     public static final List<Parameter> SPECIFIC_PARAMETERS = Stream.concat(Stream.of(
@@ -434,7 +436,27 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         return Optional.ofNullable(criteriaFilePath);
     }
 
+    /**
+     * The criteria collection the simulation checks its equipments against, when it is given as a model
+     * rather than as a raw file (a model, when set, takes precedence over {@link #getCriteriaFilePath()}).
+     */
+    public Optional<CriteriaCollection> getCriteria() {
+        return Optional.ofNullable(criteria);
+    }
+
+    public DynawoSimulationParameters setCriteria(CriteriaCollection criteria) {
+        this.criteria = criteria;
+        return this;
+    }
+
+    /**
+     * The name the criteria file takes in the working dir, whichever way the criteria were given: the fixed
+     * name a criteria model is written under, or the raw file's own name.
+     */
     public Optional<String> getCriteriaFileName() {
+        if (criteria != null) {
+            return Optional.of(DynawoSimulationConstants.CRITERIA_FILENAME);
+        }
         return getCriteriaFilePath().map(c -> c.getFileName().toString());
     }
 

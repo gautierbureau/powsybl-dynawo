@@ -25,6 +25,8 @@ public final class DynawoSimulationConstants {
 
     public static final String CRV_FILENAME = "powsybl_dynawo.crv";
 
+    public static final String CRITERIA_FILENAME = "powsybl_dynawo.crt";
+
     public static final String FSV_FILENAME = "powsybl_dynawo.fsv";
 
     public static final String CURVES_OUTPUT_PATH = "curves";
