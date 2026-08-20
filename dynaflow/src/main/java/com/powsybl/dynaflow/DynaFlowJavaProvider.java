@@ -19,6 +19,7 @@ import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynawo.DumpFileParameters;
 import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.DynawoSimulationContext;
 import com.powsybl.dynawo.DynawoSimulationHandler;
@@ -45,6 +46,7 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +102,15 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters) {
+        return run(network, workingStateId, runParameters, null);
+    }
+
+    /**
+     * Runs the DynaFlow load flow, additionally exporting Dynawo's final state to {@code dumpExportFolder}
+     * when it is non-null, so a security analysis can WARM-start from that converged base. The final state is
+     * merged back into the network either way.
+     */
+    CompletableFuture<LoadFlowResult> run(Network network, String workingStateId, LoadFlowRunParameters runParameters, Path dumpExportFolder) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(runParameters);
@@ -116,6 +127,9 @@ public class DynaFlowJavaProvider implements LoadFlowProvider {
         network.getVariantManager().setWorkingVariant(workingStateId);
         DynaFlowParameters dynaFlowParameters = getParametersExt(loadFlowParameters);
         DynawoSimulationContext context = buildContext(network, workingStateId, version, reportNode, dynaFlowParameters);
+        if (dumpExportFolder != null) {
+            context.getDynawoSimulationParameters().setDumpFileParameters(DumpFileParameters.createExportDumpFileParameters(dumpExportFolder));
+        }
 
         ExecutionEnvironment simulationEnv = ExecutionEnvironmentUtils.createSimulationEnv(config, WORKING_DIR_PREFIX, dumpDir);
         return computationManager
