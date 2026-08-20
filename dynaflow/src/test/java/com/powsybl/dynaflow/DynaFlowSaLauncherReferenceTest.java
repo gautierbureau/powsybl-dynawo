@@ -18,6 +18,7 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.GeneratorContingency;
 import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.contingency.LineContingency;
+import com.powsybl.contingency.LoadContingency;
 import com.powsybl.contingency.ShuntCompensatorContingency;
 import com.powsybl.contingency.StaticVarCompensatorContingency;
 import com.powsybl.contingency.ThreeWindingsTransformerContingency;
@@ -61,9 +62,12 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * {@code MC_EventQuadripoleDisconnection}). That the wiring drives a real Dynawo run correctly is covered by
  * the against-the-launcher integration test, not here.
  * <p>
- * Only the element types the shared disconnection engine already covers are listed here. The launcher's
- * network-level disconnections for a three-winding transformer, a dangling line and a busbar section are a
- * known gap (Phase C in DYNAFLOW_SA_PLAN.md). Skipped unless the launcher SA sources are present.
+ * Two launcher cases are intentionally not listed, as follow-ups (DYNAFLOW_SA_PLAN.md §6): its {@code
+ * load_contingency} disconnects the load as a network {@code EventConnectedStatus} because the launcher
+ * leaves that load out of its base dynamic models, whereas the DynaFlow mapping models it (an
+ * {@code EventSetPointBoolean} instead) — a base load-mapping divergence, not an SA one; and its open-ended
+ * branch cases disconnect a partially-connected line/transformer, which the shared builder's both-ends
+ * energization check skips. Skipped unless the launcher SA sources are present.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -78,7 +82,7 @@ class DynaFlowSaLauncherReferenceTest {
         "generator_contingency", "static_var_compensator_contingency", "hvdcline_contingency",
         "shunt_compensator_contingency", "static_var_compensator_network_contingency",
         "busbarsection_contingency", "dangling_line_contingency",
-        "three_windings_transformer_contingency"})
+        "three_windings_transformer_contingency", "generator_network_contingency"})
     void javaSaReproducesLauncherEvent(String contingencyId) throws Exception {
         Path res = TESTS_DIR.resolve("res");
         assumeTrue(Files.exists(res.resolve("TestIIDM_launch.iidm")), "launcher SA sources required at " + TESTS_DIR);
@@ -139,6 +143,7 @@ class DynaFlowSaLauncherReferenceTest {
             case "TWO_WINDINGS_TRANSFORMER" -> new TwoWindingsTransformerContingency(id);
             case "THREE_WINDINGS_TRANSFORMER" -> new ThreeWindingsTransformerContingency(id);
             case "GENERATOR" -> new GeneratorContingency(id);
+            case "LOAD" -> new LoadContingency(id);
             case "STATIC_VAR_COMPENSATOR" -> new StaticVarCompensatorContingency(id);
             case "SHUNT_COMPENSATOR" -> new ShuntCompensatorContingency(id);
             case "HVDC_LINE" -> new HvdcLineContingency(id);
