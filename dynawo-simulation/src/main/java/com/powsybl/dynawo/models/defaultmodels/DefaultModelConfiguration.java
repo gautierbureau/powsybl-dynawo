@@ -9,6 +9,7 @@ package com.powsybl.dynawo.models.defaultmodels;
 
 import com.powsybl.dynawo.models.InjectionModel;
 import com.powsybl.dynawo.models.Model;
+import com.powsybl.dynawo.models.boundarylines.DefaultBoundaryLine;
 import com.powsybl.dynawo.models.buses.ActionConnectionPoint;
 import com.powsybl.dynawo.models.buses.DefaultActionConnectionPoint;
 import com.powsybl.dynawo.models.buses.DefaultEquipmentConnectionPoint;
@@ -39,6 +40,9 @@ public enum DefaultModelConfiguration {
     ACTION_CONNECTION_POINT(IdentifiableType.BUS,
             ActionConnectionPoint.class,
             new DefaultModelFactory<>(DefaultActionConnectionPoint::new)),
+    BOUNDARY_LINE(IdentifiableType.BOUNDARY_LINE,
+            InjectionModel.class,
+            new DefaultModelFactory<>(DefaultBoundaryLine::new)),
     EQUIPMENT_CONNECTION_POINT(IdentifiableType.BUS,
             EquipmentConnectionPoint.class,
             staticId -> DefaultEquipmentConnectionPoint.getDefaultModel()),

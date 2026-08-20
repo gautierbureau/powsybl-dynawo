@@ -10,6 +10,7 @@ package com.powsybl.dynaflow;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.contingency.BoundaryLineContingency;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.BusbarSectionContingency;
 import com.powsybl.contingency.Contingency;
@@ -76,7 +77,7 @@ class DynaFlowSaLauncherReferenceTest {
         "line_contingency", "two_windings_transformer_contingency", "branch_contingency",
         "generator_contingency", "static_var_compensator_contingency", "hvdcline_contingency",
         "shunt_compensator_contingency", "static_var_compensator_network_contingency",
-        "busbarsection_contingency"})
+        "busbarsection_contingency", "dangling_line_contingency"})
     void javaSaReproducesLauncherEvent(String contingencyId) throws Exception {
         Path res = TESTS_DIR.resolve("res");
         assumeTrue(Files.exists(res.resolve("TestIIDM_launch.iidm")), "launcher SA sources required at " + TESTS_DIR);
@@ -141,6 +142,8 @@ class DynaFlowSaLauncherReferenceTest {
             case "SHUNT_COMPENSATOR" -> new ShuntCompensatorContingency(id);
             case "HVDC_LINE" -> new HvdcLineContingency(id);
             case "BUSBAR_SECTION" -> new BusbarSectionContingency(id);
+            // the tcb powsybl-core models a dangling line as a boundary line
+            case "DANGLING_LINE" -> new BoundaryLineContingency(id);
             default -> throw new AssertionError("unhandled contingency element type " + type);
         };
     }
