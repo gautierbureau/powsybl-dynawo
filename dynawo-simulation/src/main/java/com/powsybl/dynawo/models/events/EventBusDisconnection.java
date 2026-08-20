@@ -13,8 +13,7 @@ import com.powsybl.dynawo.models.VarConnection;
 import com.powsybl.dynawo.models.buses.ActionConnectionPoint;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.dynawo.parameters.ParametersSet;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -26,6 +25,10 @@ import static com.powsybl.dynawo.parameters.ParameterType.BOOL;
 import static com.powsybl.dynawo.parameters.ParameterType.DOUBLE;
 
 /**
+ * Disconnects an equipment reached through an {@link ActionConnectionPoint} — a bus, or a busbar section,
+ * whose default network model exposes a state-value variable. It opens that connection point at the event
+ * time.
+ *
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class EventBusDisconnection extends AbstractEvent implements ContextDependentEvent {
@@ -33,7 +36,7 @@ public class EventBusDisconnection extends AbstractEvent implements ContextDepen
     private final boolean disconnect;
     private boolean hasDefaultModel;
 
-    protected EventBusDisconnection(String eventId, Bus equipment, EventModelInfo eventModelInfo, double startTime, boolean disconnect) {
+    protected EventBusDisconnection(String eventId, Identifiable<?> equipment, EventModelInfo eventModelInfo, double startTime, boolean disconnect) {
         super(eventId, equipment, eventModelInfo, startTime);
         this.disconnect = disconnect;
     }
@@ -49,7 +52,7 @@ public class EventBusDisconnection extends AbstractEvent implements ContextDepen
         if (hasDefaultModel) {
             adder.createMacroConnections(this, getEquipment(), ActionConnectionPoint.class, this::getVarConnectionsWith);
         } else {
-            DynawoSimulationReports.reportFailedDynamicModelHandling(adder.getReportNode(), getName(), getDynamicModelId(), IdentifiableType.BUS.toString());
+            DynawoSimulationReports.reportFailedDynamicModelHandling(adder.getReportNode(), getName(), getDynamicModelId(), getEquipment().getType().toString());
         }
     }
 

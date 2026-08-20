@@ -75,7 +75,8 @@ class DynaFlowSaLauncherReferenceTest {
     @ValueSource(strings = {
         "line_contingency", "two_windings_transformer_contingency", "branch_contingency",
         "generator_contingency", "static_var_compensator_contingency", "hvdcline_contingency",
-        "shunt_compensator_contingency", "static_var_compensator_network_contingency"})
+        "shunt_compensator_contingency", "static_var_compensator_network_contingency",
+        "busbarsection_contingency"})
     void javaSaReproducesLauncherEvent(String contingencyId) throws Exception {
         Path res = TESTS_DIR.resolve("res");
         assumeTrue(Files.exists(res.resolve("TestIIDM_launch.iidm")), "launcher SA sources required at " + TESTS_DIR);

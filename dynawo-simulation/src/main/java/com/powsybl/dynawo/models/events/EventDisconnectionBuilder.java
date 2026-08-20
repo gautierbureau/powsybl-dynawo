@@ -23,6 +23,7 @@ public class EventDisconnectionBuilder extends AbstractEventModelBuilder<Identif
 
     private enum DisconnectionType {
         BUS,
+        BUSBAR_SECTION,
         INJECTION,
         BRANCH,
         HVDC,
@@ -63,6 +64,7 @@ public class EventDisconnectionBuilder extends AbstractEventModelBuilder<Identif
     private void setDisconnectionType(IdentifiableType type) {
         disconnectionType = switch (type) {
             case BUS -> DisconnectionType.BUS;
+            case BUSBAR_SECTION -> DisconnectionType.BUSBAR_SECTION;
             case HVDC_LINE -> DisconnectionType.HVDC;
             case GENERATOR, LOAD, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR -> DisconnectionType.INJECTION;
             case LINE, TWO_WINDINGS_TRANSFORMER -> DisconnectionType.BRANCH;
@@ -94,6 +96,17 @@ public class EventDisconnectionBuilder extends AbstractEventModelBuilder<Identif
                     }
                     if (disconnectSide != null) {
                         BuilderReports.reportFieldSetWithWrongEquipment(reportNode, "disconnectOnly", bus.getType(), bus.getId());
+                        isInstantiable = false;
+                    }
+                }
+                case BUSBAR_SECTION -> {
+                    BusbarSection busbarSection = (BusbarSection) builderEquipment.getEquipment();
+                    if (!EnergizedUtils.isEnergizedAndInMainConnectedComponent(busbarSection.getTerminal())) {
+                        BuilderReports.reportNotEnergized(reportNode, STATIC_ID_FIELD_NAME, builderEquipment.getStaticId());
+                        isInstantiable = false;
+                    }
+                    if (disconnectSide != null) {
+                        BuilderReports.reportFieldSetWithWrongEquipment(reportNode, "disconnectOnly", busbarSection.getType(), busbarSection.getId());
                         isInstantiable = false;
                     }
                 }
@@ -141,8 +154,8 @@ public class EventDisconnectionBuilder extends AbstractEventModelBuilder<Identif
                     new EventBranchDisconnection(eventId, (Branch<?>) builderEquipment.getEquipment(), MODEL_INFO, startTime, disconnectSide);
                 case HVDC ->
                     new EventHvdcDisconnection(eventId, (HvdcLine) builderEquipment.getEquipment(), MODEL_INFO, startTime, disconnectSide);
-                case BUS ->
-                    new EventBusDisconnection(eventId, (Bus) builderEquipment.getEquipment(), MODEL_INFO, startTime, true);
+                case BUS, BUSBAR_SECTION ->
+                    new EventBusDisconnection(eventId, builderEquipment.getEquipment(), MODEL_INFO, startTime, true);
                 default -> null;
             };
         }
