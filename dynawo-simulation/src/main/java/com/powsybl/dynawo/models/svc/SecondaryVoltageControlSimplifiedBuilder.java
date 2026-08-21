@@ -31,7 +31,7 @@ import java.util.Collection;
  */
 public class SecondaryVoltageControlSimplifiedBuilder extends AbstractAutomationSystemModelBuilder<SecondaryVoltageControlSimplifiedBuilder> {
 
-    public static final String CATEGORY = "SECONDARY_VOLTAGE_CONTROL";
+    public static final String CATEGORY = "SECONDARY_VOLTAGE_CONTROL_SIMPLIFIED";
     private static final ModelConfigs MODEL_CONFIGS = ModelConfigsHandler.getInstance().getModelConfigs(CATEGORY);
 
     private final BuilderEquipmentsList<Identifiable<?>> generators;

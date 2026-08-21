@@ -464,7 +464,7 @@
       }
     ]
   },
-  "SECONDARY_VOLTAGE_CONTROL": {
+  "SECONDARY_VOLTAGE_CONTROL_SIMPLIFIED": {
     "defaultLib": "DYNModelSecondaryVoltageControlSimplified",
     "libs": [
       {
