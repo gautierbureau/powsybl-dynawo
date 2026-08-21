@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -59,6 +61,37 @@ class JobsXmlTest extends DynawoTestUtil {
                                 .setPrecompiledModelsDirs(List.of(Path.of("models")))
                                 .addPrecompiledModelsDir(Path.of("moreModels")))
         );
+    }
+
+    @Test
+    void aJobWithSymbolicJacobianAndLineariseWritesBoth() throws IOException {
+        DynawoSimulationParameters parameters = DynawoSimulationParameters.load()
+                .setSymbolicJacobian(true)
+                .setLineariseTime(60.0);
+        DynawoSimulationContext context = new DynawoSimulationContext
+                .Builder(network, dynamicModels)
+                .dynawoParameters(parameters)
+                .eventModels(eventModels)
+                .outputVariables(outputVariables)
+                .build();
+        JobsXml.write(tmpDir, context);
+        String jobs = Files.readString(tmpDir.resolve(DynawoSimulationConstants.JOBS_FILENAME));
+        assertTrue(jobs.contains("symbolicJacobian=\"true\""), "the modeler carries the symbolic Jacobian flag");
+        assertTrue(jobs.contains("<dyn:linearise lineariseTime=\"60.0\""), "the outputs carry the linearise element");
+    }
+
+    @Test
+    void aJobWithoutTheOptionsWritesNeither() throws IOException {
+        DynawoSimulationContext context = new DynawoSimulationContext
+                .Builder(network, dynamicModels)
+                .eventModels(eventModels)
+                .outputVariables(outputVariables)
+                .build();
+        JobsXml.write(tmpDir, context);
+        String jobs = Files.readString(tmpDir.resolve(DynawoSimulationConstants.JOBS_FILENAME));
+        // unset, neither is exported, so an older Dynawo that does not know them still reads the job
+        assertFalse(jobs.contains("symbolicJacobian"), "an unset symbolic Jacobian is not exported");
+        assertFalse(jobs.contains("linearise"), "an unset linearise is not exported");
     }
 
     @Test

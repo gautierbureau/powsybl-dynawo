@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 import static com.powsybl.dynawo.DynawoSimulationConstants.*;
@@ -91,6 +92,10 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
                                      String additionalDydFile, String networkParameterSetId) throws XMLStreamException {
         writer.writeStartElement(DYN_URI, "modeler");
         writer.writeAttribute("compileDir", "outputs/compilation");
+        // written only when true, so an older Dynawo that does not know the attribute still reads the job
+        if (parameters.isSymbolicJacobian()) {
+            writer.writeAttribute("symbolicJacobian", Boolean.toString(true));
+        }
 
         writer.writeEmptyElement(DYN_URI, "network");
         writer.writeAttribute("iidmFile", NETWORK_FILENAME);
@@ -200,6 +205,13 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writer.writeStartElement(DYN_URI, "logs");
         writeAppender(writer, parameters);
         writer.writeEndElement();
+
+        // written only when set, so an older Dynawo that does not know the element still reads the job
+        OptionalDouble lineariseTime = parameters.getLineariseTime();
+        if (lineariseTime.isPresent()) {
+            writer.writeEmptyElement(DYN_URI, "linearise");
+            writer.writeAttribute("lineariseTime", Double.toString(lineariseTime.getAsDouble()));
+        }
 
         writer.writeEndElement();
     }

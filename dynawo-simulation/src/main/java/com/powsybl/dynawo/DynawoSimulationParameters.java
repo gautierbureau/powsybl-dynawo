@@ -53,6 +53,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     public static final String DEFAULT_NETWORK_PAR_ID = "Network";
     public static final String DEFAULT_SOLVER_PAR_ID = "SIM";
     public static final boolean DEFAULT_MERGE_LOADS = false;
+    public static final boolean DEFAULT_SYMBOLIC_JACOBIAN = false;
     public static final boolean DEFAULT_DUMP_INIT_VALUES = false;
     public static final double DEFAULT_PRECISION = 1e-6;
     public static final ExportMode DEFAULT_TIMELINE_EXPORT_MODE = ExportMode.XML;
@@ -65,6 +66,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private static final String SOLVER_PARAMETERS_ID = "solver.parametersId";
     private static final String SOLVER_TYPE = "solver.type";
     private static final String MERGE_LOADS = "mergeLoads";
+    private static final String SYMBOLIC_JACOBIAN = "symbolicJacobian";
+    private static final String LINEARISE_TIME = "lineariseTime";
     private static final String DUMP_INIT_VALUES = "dumpInitValues";
     private static final String MODEL_SIMPLIFIERS = "modelSimplifiers";
     private static final String PRECISION_PROPERTY_NAME = "precision";
@@ -122,6 +125,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private ParametersSet solverParameters;
     private SolverType solverType = DEFAULT_SOLVER_TYPE;
     private boolean mergeLoads = DEFAULT_MERGE_LOADS;
+    private boolean symbolicJacobian = DEFAULT_SYMBOLIC_JACOBIAN;
+    private Double lineariseTime;
     private boolean dumpInitValues = DEFAULT_DUMP_INIT_VALUES;
     private Set<String> modelSimplifiers = new LinkedHashSet<>();
     private DumpFileParameters dumpFileParameters = DumpFileParameters.createDefaultDumpFileParameters();
@@ -144,6 +149,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             new Parameter(SOLVER_PARAMETERS_ID, ParameterType.STRING, "Solver parameters set id", DEFAULT_SOLVER_PAR_ID),
             new Parameter(SOLVER_TYPE, ParameterType.STRING, "Solver used in the simulation", DEFAULT_SOLVER_TYPE.toString(), getEnumPossibleValues(SolverType.class)),
             new Parameter(MERGE_LOADS, ParameterType.BOOLEAN, "Merge loads connected to same bus", DEFAULT_MERGE_LOADS),
+            new Parameter(SYMBOLIC_JACOBIAN, ParameterType.BOOLEAN, "Use the symbolic Jacobian (writes symbolicJacobian on the job modeler)", DEFAULT_SYMBOLIC_JACOBIAN),
+            new Parameter(LINEARISE_TIME, ParameterType.DOUBLE, "Linearise the system at this time (writes a linearise output on the job); unset writes none", Double.NaN),
             new Parameter(DUMP_INIT_VALUES, ParameterType.BOOLEAN, "Dump the initial values each model computes", DEFAULT_DUMP_INIT_VALUES),
             new Parameter(MODEL_SIMPLIFIERS, ParameterType.STRING, "Simplifiers used before macro connection computation", null),
             new Parameter(PRECISION_PROPERTY_NAME, ParameterType.DOUBLE, "Simulation step precision", DEFAULT_PRECISION),
@@ -207,6 +214,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         parameters.setDumpFileParameters(DumpFileParameters.createDumpFileParametersFromConfig(moduleConfig, filePathResolver));
         moduleConfig.getOptionalEnumProperty(SOLVER_TYPE, SolverType.class).ifPresent(parameters::setSolverType);
         moduleConfig.getOptionalBooleanProperty(MERGE_LOADS).ifPresent(parameters::setMergeLoads);
+        moduleConfig.getOptionalBooleanProperty(SYMBOLIC_JACOBIAN).ifPresent(parameters::setSymbolicJacobian);
+        moduleConfig.getOptionalDoubleProperty(LINEARISE_TIME).ifPresent(parameters::setLineariseTime);
         moduleConfig.getOptionalBooleanProperty(DUMP_INIT_VALUES).ifPresent(parameters::setDumpInitValues);
         moduleConfig.getOptionalStringListProperty(MODEL_SIMPLIFIERS).ifPresent(parameters::setModelSimplifiers);
         moduleConfig.getOptionalDoubleProperty(PRECISION_PROPERTY_NAME).ifPresent(parameters::setPrecision);
@@ -270,6 +279,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         });
         Optional.ofNullable(properties.get(SOLVER_TYPE)).ifPresent(prop -> setSolverType(SolverType.valueOf(prop)));
         Optional.ofNullable(properties.get(MERGE_LOADS)).ifPresent(prop -> setMergeLoads(Boolean.parseBoolean(prop)));
+        Optional.ofNullable(properties.get(SYMBOLIC_JACOBIAN)).ifPresent(prop -> setSymbolicJacobian(Boolean.parseBoolean(prop)));
+        Optional.ofNullable(properties.get(LINEARISE_TIME)).ifPresent(prop -> setLineariseTime(Double.parseDouble(prop)));
         Optional.ofNullable(properties.get(DUMP_INIT_VALUES)).ifPresent(prop -> setDumpInitValues(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(MODEL_SIMPLIFIERS)).ifPresent(prop ->
                 setModelSimplifiers(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim).collect(Collectors.toSet())));
@@ -293,6 +304,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         addNotNullEntry("solverParameters", solverParameters, properties::put);
         addNotNullEntry(SOLVER_TYPE, solverType, properties::put);
         addNotNullEntry(MERGE_LOADS, mergeLoads, properties::put);
+        addNotNullEntry(SYMBOLIC_JACOBIAN, symbolicJacobian, properties::put);
+        addNotNullEntry(LINEARISE_TIME, lineariseTime, properties::put);
         addNotNullEntry(DUMP_INIT_VALUES, dumpInitValues, properties::put);
         if (!modelSimplifiers.isEmpty()) {
             properties.put(MODEL_SIMPLIFIERS, String.join(PROPERTY_LIST_DELIMITER, modelSimplifiers));
@@ -381,6 +394,24 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
 
     public boolean isMergeLoads() {
         return mergeLoads;
+    }
+
+    public boolean isSymbolicJacobian() {
+        return symbolicJacobian;
+    }
+
+    public DynawoSimulationParameters setSymbolicJacobian(boolean symbolicJacobian) {
+        this.symbolicJacobian = symbolicJacobian;
+        return this;
+    }
+
+    public OptionalDouble getLineariseTime() {
+        return lineariseTime == null || Double.isNaN(lineariseTime) ? OptionalDouble.empty() : OptionalDouble.of(lineariseTime);
+    }
+
+    public DynawoSimulationParameters setLineariseTime(double lineariseTime) {
+        this.lineariseTime = lineariseTime;
+        return this;
     }
 
     /**
