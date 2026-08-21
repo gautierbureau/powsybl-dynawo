@@ -53,6 +53,10 @@ public final class DynamicModelsMappings {
      */
     private static final Set<String> DEFAULT_SIMPLIFIERS = Set.of("energizedEquipment", "mainComponentEquipment");
 
+    // the transient study (DynaSwing) resolves a finer step than the voltage stability one, which keeps
+    // the DynawoSimulationParameters default (1e-6); the detailed flavour tightens the precision to 1e-8
+    private static final double DYNA_SWING_PRECISION = 1e-8;
+
     private final Map<String, DynamicMappingProvider> providers = new LinkedHashMap<>();
 
     DynamicModelsMappings(Iterable<DynamicMappingProvider> providers) {
@@ -230,6 +234,10 @@ public final class DynamicModelsMappings {
         }
         if (parameters.getModelSimplifiers().isEmpty()) {
             parameters.setModelSimplifiers(DEFAULT_SIMPLIFIERS);
+        }
+        // only tighten when still at the default, so an explicitly chosen precision is left alone
+        if (detailed && parameters.getPrecision() == DynawoSimulationParameters.DEFAULT_PRECISION) {
+            parameters.setPrecision(DYNA_SWING_PRECISION);
         }
     }
 }
