@@ -34,6 +34,9 @@
     },
     "solverType" : "SIM",
     "mergeLoads" : false,
+    "symbolicJacobian" : false,
+    "lineariseTime" : null,
+    "dumpInitValues" : false,
     "modelSimplifiers" : [ ],
     "dumpFileParameters" : {
       "exportDumpFile" : false,
@@ -46,6 +49,7 @@
     "logLevelFilter" : "INFO",
     "specificLogs" : [ ],
     "criteriaFilePath" : null,
+    "criteria" : null,
     "additionalModelsPath" : null,
     "modelsParameters" : [ {
       "id" : "test",
