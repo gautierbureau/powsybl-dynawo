@@ -214,14 +214,19 @@ public final class DynamicModelsMappings {
      * with the variable time step one.
      */
     private static void addDefaultParameters(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
+        DynawoSimulationParameters.SolverType solverType = mapping.getSolverType();
+        boolean detailed = solverType == DynawoSimulationParameters.SolverType.IDA;
         if (parameters.getSolverParameters() == null) {
-            DynawoSimulationParameters.SolverType solverType = mapping.getSolverType();
             parameters.setSolverType(solverType);
-            parameters.setSolverParameters(solverType == DynawoSimulationParameters.SolverType.IDA
+            parameters.setSolverParameters(detailed
                     ? DefaultSolverParameters.ida() : DefaultSolverParameters.sim());
         }
         if (parameters.getNetworkParameters() == null) {
-            parameters.setNetworkParameters(DefaultNetworkParameters.network());
+            // the network settings follow the same flavour as the solver: the detailed models
+            // (DynaSwing) want the transient network, the simplified ones (DynaWaltz) the voltage
+            // stability one
+            parameters.setNetworkParameters(detailed
+                    ? DefaultNetworkParameters.dynaSwing() : DefaultNetworkParameters.dynaWaltz());
         }
         if (parameters.getModelSimplifiers().isEmpty()) {
             parameters.setModelSimplifiers(DEFAULT_SIMPLIFIERS);

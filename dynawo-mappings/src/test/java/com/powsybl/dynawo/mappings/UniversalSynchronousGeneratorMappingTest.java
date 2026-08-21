@@ -217,8 +217,11 @@ class UniversalSynchronousGeneratorMappingTest {
 
         assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.SIM_ID);
         assertThat(parameters.getSolverParameters().getDouble("hMax")).isEqualTo(5.0);
+        // the simplified flavour gets the voltage stability network: loads restore, generators held
         assertThat(parameters.getNetworkParameters().getId()).isEqualTo(DefaultNetworkParameters.NETWORK_ID);
-        assertThat(parameters.getNetworkParameters().getDouble("load_alpha")).isEqualTo(1.5);
+        assertThat(parameters.getNetworkParameters().getDouble("load_alpha")).isEqualTo(1.0);
+        assertThat(parameters.getNetworkParameters().getBool("generator_isVoltageDependant")).isFalse();
+        assertThat(parameters.getNetworkParameters().getBool("load_isRestorative")).isTrue();
     }
 
     @Test
@@ -229,6 +232,10 @@ class UniversalSynchronousGeneratorMappingTest {
 
         assertThat(parameters.getSolverType()).isEqualTo(DynawoSimulationParameters.SolverType.IDA);
         assertThat(parameters.getSolverParameters().getId()).isEqualTo(DefaultSolverParameters.IDA_ID);
+        // and the transient network: voltage dependent machines, held tap changers, HVDC nodes kept
+        assertThat(parameters.getNetworkParameters().getDouble("load_alpha")).isEqualTo(1.5);
+        assertThat(parameters.getNetworkParameters().getBool("generator_isVoltageDependant")).isTrue();
+        assertThat(parameters.getNetworkParameters().getBool("keepHvdcForeignNodes")).isTrue();
     }
 
     @Test

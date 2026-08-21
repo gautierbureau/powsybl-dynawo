@@ -30,10 +30,11 @@ public final class DefaultNetworkParameters {
     }
 
     /**
-     * Loads follow the voltage, which is what a machine dynamics study expects of the part of the
-     * network it does not model in detail.
+     * The detailed (DynaSwing) network: the machines and the loads it does not model in detail
+     * follow the voltage, the tap changers are held for the length of a transient run, and the
+     * foreign nodes of an HVDC link are kept so the link has something to sit against.
      */
-    public static ParametersSet network() {
+    public static ParametersSet dynaSwing() {
         ParametersSet set = common(NETWORK_ID);
         set.addParameter("generator_alpha", DOUBLE, "1.5");
         set.addParameter("generator_beta", DOUBLE, "2.5");
@@ -42,7 +43,25 @@ public final class DefaultNetworkParameters {
         set.addParameter("load_beta", DOUBLE, "2.5");
         set.addParameter("load_isRestorative", BOOL, "false");
         set.addParameter("deactivateRootFunctions", BOOL, "true");
+        set.addParameter("keepHvdcForeignNodes", BOOL, "true");
         addTapChangerDelays(set, 6000, 6000, 6000, 6000);
+        return set;
+    }
+
+    /**
+     * The simplified (DynaWaltz) network: the generators are held fixed while the loads restore to
+     * their set point, which is what a long term voltage stability study asks of the part of the
+     * network it does not model in detail, and the tap changers act on their real time constants.
+     */
+    public static ParametersSet dynaWaltz() {
+        ParametersSet set = common(NETWORK_ID);
+        set.addParameter("generator_alpha", DOUBLE, "0");
+        set.addParameter("generator_beta", DOUBLE, "0");
+        set.addParameter("generator_isVoltageDependant", BOOL, "false");
+        set.addParameter("load_alpha", DOUBLE, "1");
+        set.addParameter("load_beta", DOUBLE, "2");
+        set.addParameter("load_isRestorative", BOOL, "true");
+        addTapChangerDelays(set, 30, 60, 10, 10);
         return set;
     }
 
