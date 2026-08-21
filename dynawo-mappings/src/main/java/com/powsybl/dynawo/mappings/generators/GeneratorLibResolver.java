@@ -203,7 +203,7 @@ public class GeneratorLibResolver {
         GeneratorControls controls = controls(properties, simplified);
         String core = controlCore(controls, properties);
         Set<GeneratorCapability> wanted = capabilities(properties, simplified, transformer);
-        Optional<String> installed = selectLib(core, wanted);
+        Optional<String> installed = selectLib(core, wanted, generatorId);
         // an installed model providing everything asked for is the model asked for, and nothing
         // is built for a generator the catalog already answers
         if (installed.isPresent() && nothingDropped(core, wanted)) {
@@ -323,13 +323,13 @@ public class GeneratorLibResolver {
      * wanted capabilities as possible without providing any unwanted one. Falls back on the model
      * without capability when none matches better.
      */
-    private static Optional<String> selectLib(String controlCore, Set<GeneratorCapability> wanted) {
+    private static Optional<String> selectLib(String controlCore, Set<GeneratorCapability> wanted, String generatorId) {
         List<ModelConfig> candidates = ModelConfigsHandler.getInstance().getModelConfigStream()
                 .filter(mc -> mc.lib().startsWith(controlCore))
                 .filter(mc -> providedCapabilities(mc).stream().allMatch(wanted::contains))
                 .toList();
         if (candidates.isEmpty()) {
-            LOGGER.warn("No model found for controls {}", controlCore);
+            LOGGER.warn("No model found for controls {} of generator {}", controlCore, generatorId);
             return Optional.empty();
         }
         ModelConfig best = candidates.stream()
@@ -341,7 +341,7 @@ public class GeneratorLibResolver {
         dropped.addAll(wanted);
         dropped.removeAll(providedCapabilities(best));
         if (!dropped.isEmpty()) {
-            LOGGER.info("No model providing {} for controls {}, {} used instead", dropped, controlCore, best.lib());
+            LOGGER.info("No model providing {} for controls {} of generator {}, {} used instead", dropped, controlCore, generatorId, best.lib());
         }
         return Optional.of(best.name());
     }
