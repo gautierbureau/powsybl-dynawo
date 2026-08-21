@@ -16,6 +16,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DumpFileParameters;
 import com.powsybl.dynawo.DynawoSimulationConfig;
+import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.algorithms.DynawoAlgorithmsConfig;
 import com.powsybl.dynawo.commons.DynawoUtil;
 import com.powsybl.dynawo.commons.DynawoVersion;
@@ -164,6 +165,15 @@ public class DynaFlowSecurityAnalysisJavaProvider implements DynamicSecurityAnal
                                                                           Path dumpFolder, String dumpDir) {
         DynaFlowJavaProvider.MappedInputs inputs = DynaFlowJavaProvider.buildMappedInputs(network, saReportNode, dynaFlowParameters);
         inputs.dynawoParameters().setDumpFileParameters(DumpFileParameters.createImportDumpFileParameters(dumpFolder, findExportedDump(dumpFolder)));
+        // the mapping builds the run's Dynawo parameters fresh, so carry across a caller-supplied criteria
+        // (a typed model or a file), set on the dynamic simulation parameters' Dynawo extension: the
+        // security analysis then writes it and checks it, adding the criteria's violations to each result
+        DynawoSimulationParameters callerDynawoParameters = parameters.getDynamicSimulationParameters()
+                .getExtension(DynawoSimulationParameters.class);
+        if (callerDynawoParameters != null) {
+            callerDynawoParameters.getCriteria().ifPresent(inputs.dynawoParameters()::setCriteria);
+            callerDynawoParameters.getCriteriaFilePath().ifPresent(inputs.dynawoParameters()::setCriteriaFilePath);
+        }
 
         SecurityAnalysisContext context = new SecurityAnalysisContext.Builder(network,
                 inputs.blackBoxModels(),

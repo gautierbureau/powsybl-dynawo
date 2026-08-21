@@ -15,10 +15,18 @@ import com.powsybl.dynaflow.DynaFlowSecurityAnalysisJavaProvider;
 import com.powsybl.dynaflow.DynaFlowSecurityAnalysisProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.algorithms.DynawoAlgorithmsConfig;
+import com.powsybl.dynawo.criteria.Criteria;
+import com.powsybl.dynawo.criteria.CriteriaCollection;
+import com.powsybl.dynawo.criteria.CriteriaParams;
+import com.powsybl.dynawo.criteria.CriteriaParamsVoltageLevel;
+import com.powsybl.dynawo.criteria.CriteriaScope;
+import com.powsybl.dynawo.criteria.CriteriaType;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisRunParameters;
@@ -37,6 +45,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -129,6 +138,55 @@ class DynaFlowSaJavaVsCppTest {
                     "the per-contingency computation status must agree with the launcher");
             assertEquals(violationsByContingency(cppResult), violationsByContingency(javaResult),
                     "the limit violations found per contingency must agree with the launcher");
+        }
+    }
+
+    @Test
+    void theJavaSecurityAnalysisAppliesABaseBreachingCriteria() throws Exception {
+        assumeTrue(Files.exists(INSTALL.resolve("dynawo-algorithms.sh")) && Files.exists(INSTALL.resolve("dynawo.sh")),
+                "local DynaFlow Launcher install required at " + INSTALL);
+
+        try (LocalComputationManager computationManager = new LocalComputationManager()) {
+            Network network = IeeeCdfNetworkFactory.create14Solved();
+            List<Contingency> contingencies = network.getLineStream().limit(1)
+                    .map(line -> Contingency.line(line.getId()))
+                    .toList();
+
+            // a criteria every bus breaches: no bus may sit above half its nominal voltage, yet a solved
+            // IEEE14 sits near 1 pu everywhere, so every bus violates it at the final state
+            CriteriaCollection criteria = new CriteriaCollection()
+                    .add(CriteriaCollection.Type.BUS, Criteria.builder()
+                            .params(CriteriaParams.builder()
+                                    .id("bus voltage above half nominal").scope(CriteriaScope.FINAL).type(CriteriaType.LOCAL_VALUE)
+                                    .voltageLevel(CriteriaParamsVoltageLevel.builder().uMaxPu(0.5).build())
+                                    .build())
+                            .build());
+            // the caller attaches it the pypowsybl way: on the dynamic simulation parameters' Dynawo extension
+            DynamicSimulationParameters dynamicSimulationParameters = new DynamicSimulationParameters(0, 100);
+            dynamicSimulationParameters.addExtension(DynawoSimulationParameters.class,
+                    new DynawoSimulationParameters().setCriteria(criteria));
+            DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters()
+                    .setDynamicSimulationParameters(dynamicSimulationParameters);
+            DynamicSecurityAnalysisRunParameters runParameters = new DynamicSecurityAnalysisRunParameters()
+                    .setComputationManager(computationManager)
+                    .setDynamicSecurityAnalysisParameters(parameters)
+                    .setReportNode(ReportNode.NO_OP);
+
+            DynamicModelsSupplier noExtraModels = (n, r) -> List.of();
+            SecurityAnalysisResult result = new DynaFlowSecurityAnalysisJavaProvider(new DynawoAlgorithmsConfig(INSTALL, false))
+                    .run(network, VariantManagerConstants.INITIAL_VARIANT_ID, noExtraModels, n -> contingencies, runParameters)
+                    .join()
+                    .getResult();
+
+            // dynawo reports a breached criteria as the scenario status CRITERIA_NON_RESPECTED, which the
+            // security analysis maps to a FAILED post-contingency status. The sibling tests show the same
+            // line contingency CONVERGES without a criteria, so this failure is the criteria's doing: the
+            // typed criteria reached DynaFlow and was applied to the run.
+            System.out.println("criteria post-contingency statuses: " + statusByContingency(result));
+            assertEquals(contingencies.size(), result.getPostContingencyResults().size());
+            assertTrue(result.getPostContingencyResults().stream()
+                            .allMatch(r -> r.getStatus() == PostContingencyComputationStatus.FAILED),
+                    "the breached criteria must fail every contingency (CRITERIA_NON_RESPECTED -> FAILED)");
         }
     }
 
