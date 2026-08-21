@@ -10,21 +10,32 @@ package com.powsybl.dynaflow;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.LineContingency;
+import com.powsybl.dynawo.DynawoFilesUtils;
+import com.powsybl.dynawo.DynawoSimulationConstants;
 import com.powsybl.dynawo.algorithms.ContingencyEventModels;
 import com.powsybl.dynawo.commons.DynawoConstants;
+import com.powsybl.dynawo.criteria.Criteria;
+import com.powsybl.dynawo.criteria.CriteriaCollection;
+import com.powsybl.dynawo.criteria.CriteriaParams;
+import com.powsybl.dynawo.criteria.CriteriaParamsVoltageLevel;
+import com.powsybl.dynawo.criteria.CriteriaScope;
+import com.powsybl.dynawo.criteria.CriteriaType;
 import com.powsybl.dynawo.models.BlackBoxModel;
 import com.powsybl.dynawo.security.SecurityAnalysisContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -73,6 +84,49 @@ class DynaFlowSecurityAnalysisJavaProviderTest {
                 "a line contingency disconnects a branch, as the launcher does");
         assertEquals("Disconnect_" + lineId, event.getDynamicModelId(),
                 "the event id matches the launcher's Disconnect_<lineId>");
+    }
+
+    @Test
+    void aTypedCriteriaReachesTheRunAsTheDynawoCriteriaFile(@TempDir Path workingDir) throws Exception {
+        Path network = TESTS_DIR.resolve("res").resolve("TestIIDM_launch.iidm");
+        assumeTrue(Files.exists(network), "launcher SA sources required at " + TESTS_DIR);
+        Network net = NetworkSerDe.read(network);
+
+        DynaFlowJavaProvider.MappedInputs inputs =
+                DynaFlowJavaProvider.buildMappedInputs(net, ReportNode.NO_OP, new DynaFlowParameters());
+        // a study attaches a typed criteria to the run's Dynawo parameters, the way the pypowsybl binding
+        // sets it; here a bus criteria watching a minimum voltage, one of the DynaFlow SA criteria kinds
+        inputs.dynawoParameters().setCriteria(new CriteriaCollection()
+                .add(CriteriaCollection.Type.BUS, Criteria.builder()
+                        .params(CriteriaParams.builder()
+                                .id("Risque modele").scope(CriteriaScope.DYNAMIC).type(CriteriaType.LOCAL_VALUE)
+                                .voltageLevel(CriteriaParamsVoltageLevel.builder().uMinPu(0.8).uNomMin(225).build())
+                                .build())
+                        .country("FR")
+                        .build()));
+
+        SecurityAnalysisContext context = new SecurityAnalysisContext.Builder(net, inputs.blackBoxModels(), List.of())
+                .eventModels(List.of())
+                .dynamicSecurityAnalysisParameters(new DynamicSecurityAnalysisParameters())
+                .dynawoParameters(inputs.dynawoParameters())
+                .currentVersion(DynawoConstants.VERSION_MIN)
+                .reportNode(ReportNode.NO_OP)
+                .build();
+
+        // the SA input staging (AbstractDynawoAlgorithmsHandler.before) writes the Dynawo inputs, the typed
+        // criteria among them, under the fixed name the jobs reference -- no wiring of DynaFlow's own is
+        // needed, the criteria riding on the shared Dynawo parameters
+        DynawoFilesUtils.writeInputFiles(workingDir, context);
+
+        Path criteriaFile = workingDir.resolve(DynawoSimulationConstants.CRITERIA_FILENAME);
+        assertTrue(Files.exists(criteriaFile), "the DynaFlow SA run writes the typed criteria as its criteria file");
+        String written = Files.readString(criteriaFile);
+        assertTrue(written.contains("busCriteria") && written.contains("Risque modele")
+                        && written.contains("uMinPu") && written.contains("uNomMin"),
+                "the criteria file holds the typed model, was " + written);
+        // and the run names that file, which is how the Dynawo job references it
+        assertEquals(Optional.of(DynawoSimulationConstants.CRITERIA_FILENAME),
+                context.getDynawoSimulationParameters().getCriteriaFileName());
     }
 
     /** Builds the SA context exactly as {@link DynaFlowSecurityAnalysisJavaProvider#run} does, minus the Dynawo run. */
