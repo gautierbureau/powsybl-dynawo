@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A ready to use mapping between the equipments of a network and the dynamic models representing
@@ -50,6 +51,16 @@ public interface DynamicModelsMapping {
      * from the models it produces.
      */
     DynawoSimulationParameters.SolverType getSolverType();
+
+    /**
+     * The model simplifiers this mapping runs by default, applied only where a study set none of its
+     * own. A general mapping removes the models of equipment left de-energized or off the main
+     * connected component; a mapping whose flavour keeps deliberately separate components, or has its
+     * own removal rules, overrides this to name the simplifiers that fit it.
+     */
+    default Set<String> getDefaultModelSimplifiers() {
+        return Set.of("energizedEquipment", "mainComponentEquipment");
+    }
 
     /**
      * Creates the extensions describing the dynamic characteristics of the equipments, leaving

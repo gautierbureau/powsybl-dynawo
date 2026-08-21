@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A mapping that stands in for another, passing everything on to it.
@@ -45,6 +46,11 @@ public abstract class AbstractForwardingDynamicModelsMapping implements DynamicM
     @Override
     public DynawoSimulationParameters.SolverType getSolverType() {
         return delegate().getSolverType();
+    }
+
+    @Override
+    public Set<String> getDefaultModelSimplifiers() {
+        return delegate().getDefaultModelSimplifiers();
     }
 
     @Override

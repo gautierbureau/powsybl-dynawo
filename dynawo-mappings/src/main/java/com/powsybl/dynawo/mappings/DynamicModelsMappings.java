@@ -45,14 +45,6 @@ public final class DynamicModelsMappings {
 
     private static final DynamicModelsMappings INSTANCE = new DynamicModelsMappings(ServiceLoader.load(DynamicMappingProvider.class));
 
-    /**
-     * A mapping describes every equipment it recognises, including the ones a simulation cannot
-     * start from: an equipment left out of the main connected component, or one whose terminals
-     * are not all energised, has no operating point to initialise from and would fail the
-     * simulation. Dropping their models is what makes a mapping usable on a network as it comes.
-     */
-    private static final Set<String> DEFAULT_SIMPLIFIERS = Set.of("energizedEquipment", "mainComponentEquipment");
-
     // the transient study (DynaSwing) resolves a finer step than the voltage stability one, which keeps
     // the DynawoSimulationParameters default (1e-6); the detailed flavour tightens the precision to 1e-8
     private static final double DYNA_SWING_PRECISION = 1e-8;
@@ -233,7 +225,7 @@ public final class DynamicModelsMappings {
                     ? DefaultNetworkParameters.dynaSwing() : DefaultNetworkParameters.dynaWaltz());
         }
         if (parameters.getModelSimplifiers().isEmpty()) {
-            parameters.setModelSimplifiers(DEFAULT_SIMPLIFIERS);
+            parameters.setModelSimplifiers(mapping.getDefaultModelSimplifiers());
         }
         // only tighten when still at the default, so an explicitly chosen precision is left alone
         if (detailed && parameters.getPrecision() == DynawoSimulationParameters.DEFAULT_PRECISION) {
