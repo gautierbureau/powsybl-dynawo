@@ -24,6 +24,7 @@ import com.powsybl.dynawo.criteria.CriteriaParamsVoltageLevel;
 import com.powsybl.dynawo.criteria.CriteriaScope;
 import com.powsybl.dynawo.criteria.CriteriaType;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.security.PostContingencyComputationStatus;
@@ -39,11 +40,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -188,6 +191,49 @@ class DynaFlowSaJavaVsCppTest {
                             .allMatch(r -> r.getStatus() == PostContingencyComputationStatus.FAILED),
                     "the breached criteria must fail every contingency (CRITERIA_NON_RESPECTED -> FAILED)");
         }
+    }
+
+    @Test
+    void theJavaSecurityAnalysisReportsAndAgreesOnALineOverloadConstraint() throws Exception {
+        assumeTrue(Files.exists(INSTALL.resolve("dynawo-algorithms.sh")) && Files.exists(INSTALL.resolve("dynaflow-launcher.sh")),
+                "local DynaFlow Launcher install required at " + INSTALL);
+
+        try (LocalComputationManager computationManager = new LocalComputationManager()) {
+            // one line is given an unreachably low (1 A) permanent current limit, so it overloads in every
+            // scenario and the security analysis reports a Line current-limit violation on it -- the
+            // constraints path, distinct from the criteria-status path the sibling test checks
+            String overloadedLine = IeeeCdfNetworkFactory.create14Solved().getLineStream()
+                    .findFirst().orElseThrow().getId();
+            Network javaNetwork = withOverloadedLine(overloadedLine);
+            Network cppNetwork = withOverloadedLine(overloadedLine);
+            // a contingency on a different line, so the overloaded one stays in service to breach its limit
+            List<Contingency> contingencies = javaNetwork.getLineStream()
+                    .filter(line -> !line.getId().equals(overloadedLine)).limit(1)
+                    .map(line -> Contingency.line(line.getId()))
+                    .toList();
+
+            SecurityAnalysisResult javaResult = runJava(javaNetwork, contingencies, computationManager);
+            SecurityAnalysisResult cppResult = runCpp(cppNetwork, contingencies, computationManager);
+
+            Map<String, TreeSet<String>> javaViolations = violationsByContingency(javaResult);
+            Map<String, TreeSet<String>> cppViolations = violationsByContingency(cppResult);
+            System.out.println("Java overload violations: " + javaViolations);
+            System.out.println("C++  overload violations: " + cppViolations);
+
+            List<String> javaAll = javaViolations.values().stream().flatMap(Set::stream).toList();
+            assertFalse(javaAll.isEmpty(),
+                    "the overloaded line must make the security analysis report a limit violation");
+            assertTrue(javaAll.stream().anyMatch(v -> v.startsWith(overloadedLine + "/")),
+                    "the overloaded line " + overloadedLine + " must be among the reported violations");
+            assertEquals(cppViolations, javaViolations, "the limit violations must agree with the C++ launcher");
+        }
+    }
+
+    private static Network withOverloadedLine(String lineId) {
+        Network network = IeeeCdfNetworkFactory.create14Solved();
+        Line line = network.getLine(lineId);
+        line.newCurrentLimits1().setPermanentLimit(1.0).add();
+        return network;
     }
 
     private static SecurityAnalysisResult runJava(Network network, List<Contingency> contingencies, LocalComputationManager computationManager) {
