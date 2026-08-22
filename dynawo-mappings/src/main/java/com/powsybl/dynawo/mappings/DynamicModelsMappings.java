@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.corrections.NetworkCorrections;
 import com.powsybl.dynawo.mappings.parameters.DefaultNetworkParameters;
 import com.powsybl.dynawo.mappings.parameters.DefaultSolverParameters;
 import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
@@ -22,6 +23,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -149,6 +151,11 @@ public final class DynamicModelsMappings {
     public DynamicModelsSupplier apply(DynamicModelsMapping mapping, Network network,
                                        DynawoSimulationParameters parameters, ModelDescriptionLookup descriptions,
                                        ReportNode reportNode) {
+        // the corrections run before the models are built from the network, so an equipment one adds is
+        // there to be mapped; here rather than at run time so a study that only looks at the models
+        // (get_models) sees the corrected network too. Each runs at most once, so the run does not
+        // apply them again.
+        applyNetworkCorrections(mapping, network, parameters, reportNode);
         mapping.createExtensions(network);
         // the models are resolved first, since that is what builds the ones nothing installed
         // provides, and only then is it known whether anything was built
@@ -209,6 +216,20 @@ public final class DynamicModelsMappings {
      * from the models: the simplified ones run with the fixed time step solver, the detailed ones
      * with the variable time step one.
      */
+    /**
+     * Applies the corrections the study asked for together with the mapping's own defaults, in that
+     * order, the study's first. {@link NetworkCorrections} skips any already applied, so a mapping run
+     * more than once against the same network corrects it once.
+     */
+    private static void applyNetworkCorrections(DynamicModelsMapping mapping, Network network,
+                                                DynawoSimulationParameters parameters, ReportNode reportNode) {
+        Set<String> corrections = new LinkedHashSet<>(parameters.getNetworkCorrections());
+        corrections.addAll(mapping.getDefaultNetworkCorrections());
+        if (!corrections.isEmpty()) {
+            new NetworkCorrections().applyActive(network, corrections, reportNode);
+        }
+    }
+
     private static void addDefaultParameters(DynamicModelsMapping mapping, DynawoSimulationParameters parameters) {
         DynawoSimulationParameters.SolverType solverType = mapping.getSolverType();
         boolean detailed = solverType == DynawoSimulationParameters.SolverType.IDA;
@@ -226,6 +247,9 @@ public final class DynamicModelsMappings {
         }
         if (parameters.getModelSimplifiers().isEmpty()) {
             parameters.setModelSimplifiers(mapping.getDefaultModelSimplifiers());
+        }
+        if (parameters.getNetworkCorrections().isEmpty()) {
+            parameters.setNetworkCorrections(mapping.getDefaultNetworkCorrections());
         }
         // only tighten when still at the default, so an explicitly chosen precision is left alone
         if (detailed && parameters.getPrecision() == DynawoSimulationParameters.DEFAULT_PRECISION) {

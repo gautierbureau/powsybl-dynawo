@@ -54,6 +54,11 @@ public abstract class AbstractForwardingDynamicModelsMapping implements DynamicM
     }
 
     @Override
+    public Set<String> getDefaultNetworkCorrections() {
+        return delegate().getDefaultNetworkCorrections();
+    }
+
+    @Override
     public void createExtensions(Network network) {
         delegate().createExtensions(network);
     }

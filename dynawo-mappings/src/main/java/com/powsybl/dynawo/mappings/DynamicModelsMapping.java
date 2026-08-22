@@ -63,6 +63,15 @@ public interface DynamicModelsMapping {
     }
 
     /**
+     * The network corrections this mapping runs by default, applied to the network before it builds
+     * its models, where a study set none of its own. None by default; a mapping that needs the network
+     * adjusted for its models to make sense names them here, in the order they must run.
+     */
+    default Set<String> getDefaultNetworkCorrections() {
+        return Set.of();
+    }
+
+    /**
      * Creates the extensions describing the dynamic characteristics of the equipments, leaving
      * untouched those the network already carries.
      */
