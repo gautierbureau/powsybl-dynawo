@@ -40,8 +40,7 @@ public class DefaultControlTranslation implements ControlTranslation {
                 "HyGov", GOVER_PROPORTIONAL,
                 "IEEEG1", GOVER_PROPORTIONAL,
                 "TGov1", GOVER_PROPORTIONAL,
-                "TGov3", GOVER_PROPORTIONAL,
-                "PmConst", GOVER_PROPORTIONAL);
+                "TGov3", GOVER_PROPORTIONAL);
     }
 
     @Override
