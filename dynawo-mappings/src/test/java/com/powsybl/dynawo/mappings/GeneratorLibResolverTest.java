@@ -7,6 +7,8 @@
  */
 package com.powsybl.dynawo.mappings;
 
+import com.powsybl.dynawo.builders.ModelConfig;
+import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
@@ -24,6 +26,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,6 +98,36 @@ class GeneratorLibResolverTest {
     void shouldReturnEmptyForUnknownControls() {
         SynchronousGeneratorProperties properties = properties("FOUR_WINDINGS", "NoSuchGovernor", "NoSuchRegulator", false);
         assertThat(resolver.resolve(properties, false, false)).isEmpty();
+    }
+
+    @Test
+    void shouldNotGiveANoControlsMachineAControlledModel() {
+        // the catalog carries a controlled transformer model (PmConstVRNordicTfo) but no transformer
+        // variant without controls; a machine wanting none, whose control core is the bare four
+        // windings name, must not be handed the controlled model just because it shares that prefix.
+        // It degrades to the plain no-controls model, the transformer dropped, rather than gaining
+        // controls it never had
+        SynchronousGeneratorProperties properties = properties("FOUR_WINDINGS", "", "", false);
+        assertThat(resolver.resolve(properties, false, true)).contains("GeneratorSynchronousFourWindings");
+    }
+
+    @Test
+    void shouldResolveTheNoControlsCapabilityModelWhereTheCatalogHasIt() {
+        // with the no-controls capability variants installed, a machine wanting no controls resolves
+        // to the transformer, auxiliary or both variant, not to a controlled model sharing the prefix
+        try (ModelConfigsHandler.Scope scope = ModelConfigsHandler.getInstance().openScope()) {
+            ModelConfigsHandler.getInstance().addModels(Map.of("SYNCHRONOUS_GENERATOR", List.of(
+                    new ModelConfig("GeneratorSynchronousFourWindingsTfo"),
+                    new ModelConfig("GeneratorSynchronousFourWindingsAux"),
+                    new ModelConfig("GeneratorSynchronousFourWindingsAuxTfo"))));
+
+            assertThat(resolver.resolve(properties("FOUR_WINDINGS", "", "", false), false, true))
+                    .contains("GeneratorSynchronousFourWindingsTfo");
+            assertThat(resolver.resolve(properties("FOUR_WINDINGS", "", "", true), false, false))
+                    .contains("GeneratorSynchronousFourWindingsAux");
+            assertThat(resolver.resolve(properties("FOUR_WINDINGS", "", "", true), false, true))
+                    .contains("GeneratorSynchronousFourWindingsAuxTfo");
+        }
     }
 
     @Test

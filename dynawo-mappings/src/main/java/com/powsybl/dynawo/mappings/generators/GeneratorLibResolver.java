@@ -240,7 +240,7 @@ public class GeneratorLibResolver {
         Set<GeneratorCapability> dropped = EnumSet.noneOf(GeneratorCapability.class);
         dropped.addAll(wanted);
         ModelConfigsHandler.getInstance().getModelConfigStream()
-                .filter(mc -> mc.lib().startsWith(controlCore))
+                .filter(mc -> hasControlCore(mc, controlCore))
                 .filter(mc -> providedCapabilities(mc).stream().allMatch(wanted::contains))
                 .map(GeneratorLibResolver::providedCapabilities)
                 .max(Comparator.comparingInt(Set::size))
@@ -265,7 +265,7 @@ public class GeneratorLibResolver {
      */
     private static boolean nothingDropped(String controlCore, Set<GeneratorCapability> wanted) {
         return ModelConfigsHandler.getInstance().getModelConfigStream()
-                .filter(mc -> mc.lib().startsWith(controlCore))
+                .filter(mc -> hasControlCore(mc, controlCore))
                 .anyMatch(mc -> providedCapabilities(mc).equals(wanted));
     }
 
@@ -325,7 +325,7 @@ public class GeneratorLibResolver {
      */
     private static Optional<String> selectLib(String controlCore, Set<GeneratorCapability> wanted, String generatorId) {
         List<ModelConfig> candidates = ModelConfigsHandler.getInstance().getModelConfigStream()
-                .filter(mc -> mc.lib().startsWith(controlCore))
+                .filter(mc -> hasControlCore(mc, controlCore))
                 .filter(mc -> providedCapabilities(mc).stream().allMatch(wanted::contains))
                 .toList();
         if (candidates.isEmpty()) {
@@ -344,6 +344,24 @@ public class GeneratorLibResolver {
             LOGGER.info("No model providing {} for controls {} of generator {}, {} used instead", dropped, controlCore, generatorId, best.lib());
         }
         return Optional.of(best.name());
+    }
+
+    /**
+     * Whether the model implements exactly the wanted controls, no more. The control part of a name
+     * is a prefix of the whole, so a model carrying further controls starts with a shorter control
+     * core: a machine wanting none, whose core is the bare {@code GeneratorSynchronousFourWindings},
+     * would otherwise match every controlled model of the same windings. Stripping the capabilities
+     * the model provides -- the only fragments its name may carry beyond its controls -- must leave
+     * the wanted control core for the model to be a match.
+     */
+    private static boolean hasControlCore(ModelConfig modelConfig, String controlCore) {
+        String stripped = modelConfig.lib();
+        for (GeneratorCapability capability : GeneratorCapability.values()) {
+            if (capability.isProvidedBy(modelConfig)) {
+                stripped = stripped.replace(capability.getNameFragment(), "");
+            }
+        }
+        return stripped.equals(controlCore);
     }
 
     private static Set<GeneratorCapability> providedCapabilities(ModelConfig modelConfig) {
