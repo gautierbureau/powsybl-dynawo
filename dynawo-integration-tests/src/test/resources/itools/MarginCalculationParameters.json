@@ -156,6 +156,7 @@
     "solverType" : "IDA",
     "mergeLoads" : false,
     "modelSimplifiers" : [ ],
+    "networkCorrections" : [ ],
     "dumpFileParameters" : {
       "exportDumpFile" : false,
       "useDumpFile" : false,

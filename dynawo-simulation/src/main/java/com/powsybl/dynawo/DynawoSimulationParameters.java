@@ -70,6 +70,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private static final String LINEARISE_TIME = "lineariseTime";
     private static final String DUMP_INIT_VALUES = "dumpInitValues";
     private static final String MODEL_SIMPLIFIERS = "modelSimplifiers";
+    private static final String NETWORK_CORRECTIONS = "networkCorrections";
     private static final String PRECISION_PROPERTY_NAME = "precision";
     private static final String TIMELINE_EXPORT_MODE = "timeline.exportMode";
     private static final String LOG_LEVEL_FILTER = "log.levelFilter";
@@ -129,6 +130,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private Double lineariseTime;
     private boolean dumpInitValues = DEFAULT_DUMP_INIT_VALUES;
     private Set<String> modelSimplifiers = new LinkedHashSet<>();
+    private Set<String> networkCorrections = new LinkedHashSet<>();
     private DumpFileParameters dumpFileParameters = DumpFileParameters.createDefaultDumpFileParameters();
     private double precision = DEFAULT_PRECISION;
     private ExportMode timelineExportMode = DEFAULT_TIMELINE_EXPORT_MODE;
@@ -153,6 +155,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             new Parameter(LINEARISE_TIME, ParameterType.DOUBLE, "Linearise the system at this time (writes a linearise output on the job); unset writes none", Double.NaN),
             new Parameter(DUMP_INIT_VALUES, ParameterType.BOOLEAN, "Dump the initial values each model computes", DEFAULT_DUMP_INIT_VALUES),
             new Parameter(MODEL_SIMPLIFIERS, ParameterType.STRING, "Simplifiers used before macro connection computation", null),
+            new Parameter(NETWORK_CORRECTIONS, ParameterType.STRING, "Corrections applied to the network before the mapping builds its models", null),
             new Parameter(PRECISION_PROPERTY_NAME, ParameterType.DOUBLE, "Simulation step precision", DEFAULT_PRECISION),
             new Parameter(TIMELINE_EXPORT_MODE, ParameterType.STRING, "Timeline export file extension", DEFAULT_TIMELINE_EXPORT_MODE.toString(), getEnumPossibleValues(ExportMode.class)),
             new Parameter(LOG_LEVEL_FILTER, ParameterType.STRING, "Dynawo log level", DEFAULT_LOG_LEVEL_FILTER.toString(), getEnumPossibleValues(LogLevel.class)),
@@ -218,6 +221,7 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         moduleConfig.getOptionalDoubleProperty(LINEARISE_TIME).ifPresent(parameters::setLineariseTime);
         moduleConfig.getOptionalBooleanProperty(DUMP_INIT_VALUES).ifPresent(parameters::setDumpInitValues);
         moduleConfig.getOptionalStringListProperty(MODEL_SIMPLIFIERS).ifPresent(parameters::setModelSimplifiers);
+        moduleConfig.getOptionalStringListProperty(NETWORK_CORRECTIONS).ifPresent(parameters::setNetworkCorrections);
         moduleConfig.getOptionalDoubleProperty(PRECISION_PROPERTY_NAME).ifPresent(parameters::setPrecision);
         moduleConfig.getOptionalEnumProperty(TIMELINE_EXPORT_MODE, ExportMode.class).ifPresent(parameters::setTimelineExportMode);
         moduleConfig.getOptionalEnumProperty(LOG_LEVEL_FILTER, LogLevel.class).ifPresent(parameters::setLogLevelFilter);
@@ -284,6 +288,10 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         Optional.ofNullable(properties.get(DUMP_INIT_VALUES)).ifPresent(prop -> setDumpInitValues(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(MODEL_SIMPLIFIERS)).ifPresent(prop ->
                 setModelSimplifiers(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim).collect(Collectors.toSet())));
+        // a LinkedHashSet keeps the order the corrections are given in, which is the order they are applied
+        Optional.ofNullable(properties.get(NETWORK_CORRECTIONS)).ifPresent(prop ->
+                setNetworkCorrections(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))));
         Optional.ofNullable(properties.get(PRECISION_PROPERTY_NAME)).ifPresent(prop -> setPrecision(Double.parseDouble(prop)));
         Optional.ofNullable(properties.get(TIMELINE_EXPORT_MODE)).ifPresent(prop -> setTimelineExportMode(ExportMode.valueOf(prop)));
         Optional.ofNullable(properties.get(LOG_LEVEL_FILTER)).ifPresent(prop -> setLogLevelFilter(LogLevel.valueOf(prop)));
@@ -309,6 +317,9 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         addNotNullEntry(DUMP_INIT_VALUES, dumpInitValues, properties::put);
         if (!modelSimplifiers.isEmpty()) {
             properties.put(MODEL_SIMPLIFIERS, String.join(PROPERTY_LIST_DELIMITER, modelSimplifiers));
+        }
+        if (!networkCorrections.isEmpty()) {
+            properties.put(NETWORK_CORRECTIONS, String.join(PROPERTY_LIST_DELIMITER, networkCorrections));
         }
         addNotNullEntry(PRECISION_PROPERTY_NAME, precision, properties::put);
         addNotNullEntry(TIMELINE_EXPORT_MODE, timelineExportMode, properties::put);
@@ -444,6 +455,20 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
 
     public DynawoSimulationParameters addModelSimplifier(String modelSimplifier) {
         modelSimplifiers.add(modelSimplifier);
+        return this;
+    }
+
+    public Set<String> getNetworkCorrections() {
+        return networkCorrections;
+    }
+
+    public DynawoSimulationParameters setNetworkCorrections(Collection<String> networkCorrections) {
+        this.networkCorrections = new LinkedHashSet<>(networkCorrections);
+        return this;
+    }
+
+    public DynawoSimulationParameters addNetworkCorrection(String networkCorrection) {
+        networkCorrections.add(networkCorrection);
         return this;
     }
 

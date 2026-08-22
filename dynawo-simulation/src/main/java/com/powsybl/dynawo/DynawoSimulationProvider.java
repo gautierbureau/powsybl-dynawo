@@ -21,6 +21,7 @@ import com.powsybl.dynawo.commons.DynawoUtil;
 import com.powsybl.dynawo.commons.DynawoVersion;
 import com.powsybl.dynawo.commons.ExecutionEnvironmentUtils;
 import com.powsybl.dynawo.commons.PowsyblDynawoVersion;
+import com.powsybl.dynawo.corrections.NetworkCorrections;
 import com.powsybl.dynawo.json.DynawoSimulationParametersSerializer;
 import com.powsybl.dynawo.models.utils.BlackBoxSupplierUtils;
 import com.powsybl.iidm.network.Network;
@@ -113,6 +114,9 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
         if (!dynawoParameters.getAdditionalModels().isEmpty()) {
             ModelConfigsHandler.getInstance().addModels(dynawoParameters.getAdditionalModels());
         }
+        // the corrections act on the network before the models are built from it, so an equipment one
+        // adds is there for the supplier to map; each runs at most once per network
+        new NetworkCorrections().applyActive(network, dynawoParameters.getNetworkCorrections(), dsReportNode);
         DynawoSimulationContext context = new DynawoSimulationContext
                 .Builder(network, BlackBoxSupplierUtils.getBlackBoxModelList(dynamicModelsSupplier, network, dsReportNode))
                 .workingVariantId(workingVariantId)

@@ -39,6 +39,7 @@
     "lineariseTime" : null,
     "dumpInitValues" : false,
     "modelSimplifiers" : [ ],
+    "networkCorrections" : [ ],
     "dumpFileParameters" : {
       "exportDumpFile" : false,
       "useDumpFile" : false,
