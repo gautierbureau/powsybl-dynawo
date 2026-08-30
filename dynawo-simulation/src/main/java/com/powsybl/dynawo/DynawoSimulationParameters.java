@@ -7,7 +7,9 @@
 package com.powsybl.dynawo;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
@@ -16,7 +18,9 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.commons.ExportMode;
+import com.powsybl.dynawo.criteria.CriteriaCollection;
 import com.powsybl.dynawo.parameters.ParametersSet;
 import com.powsybl.dynawo.xml.ParametersXml;
 
@@ -49,6 +53,8 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     public static final String DEFAULT_NETWORK_PAR_ID = "Network";
     public static final String DEFAULT_SOLVER_PAR_ID = "SIM";
     public static final boolean DEFAULT_MERGE_LOADS = false;
+    public static final boolean DEFAULT_SYMBOLIC_JACOBIAN = false;
+    public static final boolean DEFAULT_DUMP_INIT_VALUES = false;
     public static final double DEFAULT_PRECISION = 1e-6;
     public static final ExportMode DEFAULT_TIMELINE_EXPORT_MODE = ExportMode.XML;
     public static final LogLevel DEFAULT_LOG_LEVEL_FILTER = LogLevel.INFO;
@@ -60,13 +66,18 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private static final String SOLVER_PARAMETERS_ID = "solver.parametersId";
     private static final String SOLVER_TYPE = "solver.type";
     private static final String MERGE_LOADS = "mergeLoads";
+    private static final String SYMBOLIC_JACOBIAN = "symbolicJacobian";
+    private static final String LINEARISE_TIME = "lineariseTime";
+    private static final String DUMP_INIT_VALUES = "dumpInitValues";
     private static final String MODEL_SIMPLIFIERS = "modelSimplifiers";
+    private static final String NETWORK_CORRECTIONS = "networkCorrections";
     private static final String PRECISION_PROPERTY_NAME = "precision";
     private static final String TIMELINE_EXPORT_MODE = "timeline.exportMode";
     private static final String LOG_LEVEL_FILTER = "log.levelFilter";
     private static final String LOG_SPECIFIC_LOGS = "log.specificLogs";
     private static final String CRITERIA_FILE = "criteria.file";
     private static final String ADDITIONAL_MODELS_FILE = "additionalModelsFile";
+    private static final String PRECOMPILED_MODELS_DIRS = "precompiledModelsDirs";
 
     /**
      * Information about the solver to use in the simulation
@@ -115,14 +126,22 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
     private ParametersSet solverParameters;
     private SolverType solverType = DEFAULT_SOLVER_TYPE;
     private boolean mergeLoads = DEFAULT_MERGE_LOADS;
+    private boolean symbolicJacobian = DEFAULT_SYMBOLIC_JACOBIAN;
+    private Double lineariseTime;
+    private boolean dumpInitValues = DEFAULT_DUMP_INIT_VALUES;
     private Set<String> modelSimplifiers = new LinkedHashSet<>();
+    private Set<String> networkCorrections = new LinkedHashSet<>();
     private DumpFileParameters dumpFileParameters = DumpFileParameters.createDefaultDumpFileParameters();
     private double precision = DEFAULT_PRECISION;
     private ExportMode timelineExportMode = DEFAULT_TIMELINE_EXPORT_MODE;
     private LogLevel logLevelFilter = DEFAULT_LOG_LEVEL_FILTER;
     private EnumSet<SpecificLog> specificLogs = EnumSet.noneOf(SpecificLog.class);
     private Path criteriaFilePath = null;
+    private CriteriaCollection criteria = null;
     private Path additionalModelsPath = null;
+    private List<Path> precompiledModelsDirs = new ArrayList<>();
+    private Map<String, List<ModelConfig>> additionalModels = new LinkedHashMap<>();
+    private Map<String, List<ModelConfig>> additionalModelOverrides = new LinkedHashMap<>();
 
     public static final List<Parameter> SPECIFIC_PARAMETERS = Stream.concat(Stream.of(
             new Parameter(PARAMETERS_FILE, ParameterType.STRING, "Main parameters file path", DEFAULT_INPUT_PARAMETERS_FILE),
@@ -132,13 +151,18 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             new Parameter(SOLVER_PARAMETERS_ID, ParameterType.STRING, "Solver parameters set id", DEFAULT_SOLVER_PAR_ID),
             new Parameter(SOLVER_TYPE, ParameterType.STRING, "Solver used in the simulation", DEFAULT_SOLVER_TYPE.toString(), getEnumPossibleValues(SolverType.class)),
             new Parameter(MERGE_LOADS, ParameterType.BOOLEAN, "Merge loads connected to same bus", DEFAULT_MERGE_LOADS),
+            new Parameter(SYMBOLIC_JACOBIAN, ParameterType.BOOLEAN, "Use the symbolic Jacobian (writes symbolicJacobian on the job modeler)", DEFAULT_SYMBOLIC_JACOBIAN),
+            new Parameter(LINEARISE_TIME, ParameterType.DOUBLE, "Linearise the system at this time (writes a linearise output on the job); unset writes none", Double.NaN),
+            new Parameter(DUMP_INIT_VALUES, ParameterType.BOOLEAN, "Dump the initial values each model computes", DEFAULT_DUMP_INIT_VALUES),
             new Parameter(MODEL_SIMPLIFIERS, ParameterType.STRING, "Simplifiers used before macro connection computation", null),
+            new Parameter(NETWORK_CORRECTIONS, ParameterType.STRING, "Corrections applied to the network before the mapping builds its models", null),
             new Parameter(PRECISION_PROPERTY_NAME, ParameterType.DOUBLE, "Simulation step precision", DEFAULT_PRECISION),
             new Parameter(TIMELINE_EXPORT_MODE, ParameterType.STRING, "Timeline export file extension", DEFAULT_TIMELINE_EXPORT_MODE.toString(), getEnumPossibleValues(ExportMode.class)),
             new Parameter(LOG_LEVEL_FILTER, ParameterType.STRING, "Dynawo log level", DEFAULT_LOG_LEVEL_FILTER.toString(), getEnumPossibleValues(LogLevel.class)),
             new Parameter(LOG_SPECIFIC_LOGS, ParameterType.STRING, "List specific logs returned", null, getEnumPossibleValues(SpecificLog.class)),
             new Parameter(CRITERIA_FILE, ParameterType.STRING, "Simulation criteria file path", null),
-            new Parameter(ADDITIONAL_MODELS_FILE, ParameterType.STRING, "Additional models file path", null)),
+            new Parameter(ADDITIONAL_MODELS_FILE, ParameterType.STRING, "Additional models file path", null),
+            new Parameter(PRECOMPILED_MODELS_DIRS, ParameterType.STRING, "Directories holding precompiled models, alongside the ones Dynawo ships", null)),
             DumpFileParameters.SPECIFIC_PARAMETERS.stream()).toList();
 
     /**
@@ -193,13 +217,19 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         parameters.setDumpFileParameters(DumpFileParameters.createDumpFileParametersFromConfig(moduleConfig, filePathResolver));
         moduleConfig.getOptionalEnumProperty(SOLVER_TYPE, SolverType.class).ifPresent(parameters::setSolverType);
         moduleConfig.getOptionalBooleanProperty(MERGE_LOADS).ifPresent(parameters::setMergeLoads);
+        moduleConfig.getOptionalBooleanProperty(SYMBOLIC_JACOBIAN).ifPresent(parameters::setSymbolicJacobian);
+        moduleConfig.getOptionalDoubleProperty(LINEARISE_TIME).ifPresent(parameters::setLineariseTime);
+        moduleConfig.getOptionalBooleanProperty(DUMP_INIT_VALUES).ifPresent(parameters::setDumpInitValues);
         moduleConfig.getOptionalStringListProperty(MODEL_SIMPLIFIERS).ifPresent(parameters::setModelSimplifiers);
+        moduleConfig.getOptionalStringListProperty(NETWORK_CORRECTIONS).ifPresent(parameters::setNetworkCorrections);
         moduleConfig.getOptionalDoubleProperty(PRECISION_PROPERTY_NAME).ifPresent(parameters::setPrecision);
         moduleConfig.getOptionalEnumProperty(TIMELINE_EXPORT_MODE, ExportMode.class).ifPresent(parameters::setTimelineExportMode);
         moduleConfig.getOptionalEnumProperty(LOG_LEVEL_FILTER, LogLevel.class).ifPresent(parameters::setLogLevelFilter);
         moduleConfig.getOptionalEnumSetProperty(LOG_SPECIFIC_LOGS, SpecificLog.class).ifPresent(parameters::setSpecificLogs);
         moduleConfig.getOptionalStringProperty(CRITERIA_FILE).ifPresent(cf -> parameters.setCriteriaFilePath(filePathResolver.apply(cf)));
         moduleConfig.getOptionalStringProperty(ADDITIONAL_MODELS_FILE).ifPresent(am -> parameters.setAdditionalModelsPath(filePathResolver.apply(am)));
+        moduleConfig.getOptionalStringListProperty(PRECOMPILED_MODELS_DIRS).ifPresent(dirs ->
+                parameters.setPrecompiledModelsDirs(dirs.stream().map(filePathResolver).toList()));
     }
 
     public static DynawoSimulationParameters load(Map<String, String> properties) {
@@ -253,8 +283,15 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         });
         Optional.ofNullable(properties.get(SOLVER_TYPE)).ifPresent(prop -> setSolverType(SolverType.valueOf(prop)));
         Optional.ofNullable(properties.get(MERGE_LOADS)).ifPresent(prop -> setMergeLoads(Boolean.parseBoolean(prop)));
+        Optional.ofNullable(properties.get(SYMBOLIC_JACOBIAN)).ifPresent(prop -> setSymbolicJacobian(Boolean.parseBoolean(prop)));
+        Optional.ofNullable(properties.get(LINEARISE_TIME)).ifPresent(prop -> setLineariseTime(Double.parseDouble(prop)));
+        Optional.ofNullable(properties.get(DUMP_INIT_VALUES)).ifPresent(prop -> setDumpInitValues(Boolean.parseBoolean(prop)));
         Optional.ofNullable(properties.get(MODEL_SIMPLIFIERS)).ifPresent(prop ->
                 setModelSimplifiers(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim).collect(Collectors.toSet())));
+        // a LinkedHashSet keeps the order the corrections are given in, which is the order they are applied
+        Optional.ofNullable(properties.get(NETWORK_CORRECTIONS)).ifPresent(prop ->
+                setNetworkCorrections(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(String::trim)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))));
         Optional.ofNullable(properties.get(PRECISION_PROPERTY_NAME)).ifPresent(prop -> setPrecision(Double.parseDouble(prop)));
         Optional.ofNullable(properties.get(TIMELINE_EXPORT_MODE)).ifPresent(prop -> setTimelineExportMode(ExportMode.valueOf(prop)));
         Optional.ofNullable(properties.get(LOG_LEVEL_FILTER)).ifPresent(prop -> setLogLevelFilter(LogLevel.valueOf(prop)));
@@ -262,6 +299,9 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
                 setSpecificLogs(Stream.of(prop.split(PROPERTY_LIST_DELIMITER)).map(o -> SpecificLog.valueOf(o.trim())).collect(Collectors.toSet())));
         Optional.ofNullable(properties.get(CRITERIA_FILE)).ifPresent(prop -> setCriteriaFilePath(prop, fileSystem));
         Optional.ofNullable(properties.get(ADDITIONAL_MODELS_FILE)).ifPresent(prop -> setAdditionalModelsPath(prop, fileSystem));
+        Optional.ofNullable(properties.get(PRECOMPILED_MODELS_DIRS)).ifPresent(prop ->
+                setPrecompiledModelsDirs(Stream.of(prop.split(PROPERTY_LIST_DELIMITER))
+                        .map(String::trim).map(fileSystem::getPath).toList()));
         dumpFileParameters = DumpFileParameters.updateDumpFileParametersFromPropertiesMap(properties, dumpFileParameters, fileSystem::getPath);
     }
 
@@ -272,8 +312,14 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         addNotNullEntry("solverParameters", solverParameters, properties::put);
         addNotNullEntry(SOLVER_TYPE, solverType, properties::put);
         addNotNullEntry(MERGE_LOADS, mergeLoads, properties::put);
+        addNotNullEntry(SYMBOLIC_JACOBIAN, symbolicJacobian, properties::put);
+        addNotNullEntry(LINEARISE_TIME, lineariseTime, properties::put);
+        addNotNullEntry(DUMP_INIT_VALUES, dumpInitValues, properties::put);
         if (!modelSimplifiers.isEmpty()) {
             properties.put(MODEL_SIMPLIFIERS, String.join(PROPERTY_LIST_DELIMITER, modelSimplifiers));
+        }
+        if (!networkCorrections.isEmpty()) {
+            properties.put(NETWORK_CORRECTIONS, String.join(PROPERTY_LIST_DELIMITER, networkCorrections));
         }
         addNotNullEntry(PRECISION_PROPERTY_NAME, precision, properties::put);
         addNotNullEntry(TIMELINE_EXPORT_MODE, timelineExportMode, properties::put);
@@ -283,6 +329,10 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         }
         addNotNullEntry(CRITERIA_FILE, criteriaFilePath, properties::put);
         addNotNullEntry(ADDITIONAL_MODELS_FILE, additionalModelsPath, properties::put);
+        if (!precompiledModelsDirs.isEmpty()) {
+            properties.put(PRECOMPILED_MODELS_DIRS, precompiledModelsDirs.stream()
+                    .map(Path::toString).collect(Collectors.joining(PROPERTY_LIST_DELIMITER)));
+        }
         dumpFileParameters.addParametersToMap((k, v) -> addNotNullEntry(k, v, properties::put));
         return properties;
     }
@@ -357,6 +407,38 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         return mergeLoads;
     }
 
+    public boolean isSymbolicJacobian() {
+        return symbolicJacobian;
+    }
+
+    public DynawoSimulationParameters setSymbolicJacobian(boolean symbolicJacobian) {
+        this.symbolicJacobian = symbolicJacobian;
+        return this;
+    }
+
+    public OptionalDouble getLineariseTime() {
+        return lineariseTime == null || Double.isNaN(lineariseTime) ? OptionalDouble.empty() : OptionalDouble.of(lineariseTime);
+    }
+
+    public DynawoSimulationParameters setLineariseTime(double lineariseTime) {
+        this.lineariseTime = lineariseTime;
+        return this;
+    }
+
+    /**
+     * Whether each model writes the initial values it computes, which says what a model starts
+     * from when a run will not solve. Off by default, being a study's own diagnostic rather than
+     * something a plain run needs.
+     */
+    public boolean isDumpInitValues() {
+        return dumpInitValues;
+    }
+
+    public DynawoSimulationParameters setDumpInitValues(boolean dumpInitValues) {
+        this.dumpInitValues = dumpInitValues;
+        return this;
+    }
+
     public DynawoSimulationParameters setMergeLoads(boolean mergeLoads) {
         this.mergeLoads = mergeLoads;
         return this;
@@ -373,6 +455,20 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
 
     public DynawoSimulationParameters addModelSimplifier(String modelSimplifier) {
         modelSimplifiers.add(modelSimplifier);
+        return this;
+    }
+
+    public Set<String> getNetworkCorrections() {
+        return networkCorrections;
+    }
+
+    public DynawoSimulationParameters setNetworkCorrections(Collection<String> networkCorrections) {
+        this.networkCorrections = new LinkedHashSet<>(networkCorrections);
+        return this;
+    }
+
+    public DynawoSimulationParameters addNetworkCorrection(String networkCorrection) {
+        networkCorrections.add(networkCorrection);
         return this;
     }
 
@@ -434,7 +530,27 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
         return Optional.ofNullable(criteriaFilePath);
     }
 
+    /**
+     * The criteria collection the simulation checks its equipments against, when it is given as a model
+     * rather than as a raw file (a model, when set, takes precedence over {@link #getCriteriaFilePath()}).
+     */
+    public Optional<CriteriaCollection> getCriteria() {
+        return Optional.ofNullable(criteria);
+    }
+
+    public DynawoSimulationParameters setCriteria(CriteriaCollection criteria) {
+        this.criteria = criteria;
+        return this;
+    }
+
+    /**
+     * The name the criteria file takes in the working dir, whichever way the criteria were given: the fixed
+     * name a criteria model is written under, or the raw file's own name.
+     */
     public Optional<String> getCriteriaFileName() {
+        if (criteria != null) {
+            return Optional.of(DynawoSimulationConstants.CRITERIA_FILENAME);
+        }
         return getCriteriaFilePath().map(c -> c.getFileName().toString());
     }
 
@@ -466,5 +582,72 @@ public class DynawoSimulationParameters extends AbstractExtension<DynamicSimulat
             throw new PowsyblException("File " + additionalModelsPathName + " set in 'additionalModelsFile' property cannot be found");
         }
         setAdditionalModelsPath(path);
+    }
+
+    /**
+     * The directories of precompiled models the simulation is to look in, besides the ones Dynawo
+     * ships, which it keeps looking in either way.
+     * <p>
+     * Left out of the serialized form when there are none, so that a run naming no directory of
+     * its own reads as it did before there was anything to name.
+     */
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public List<Path> getPrecompiledModelsDirs() {
+        return Collections.unmodifiableList(precompiledModelsDirs);
+    }
+
+    public DynawoSimulationParameters setPrecompiledModelsDirs(List<Path> precompiledModelsDirs) {
+        this.precompiledModelsDirs = new ArrayList<>(Objects.requireNonNull(precompiledModelsDirs));
+        return this;
+    }
+
+    public DynawoSimulationParameters addPrecompiledModelsDir(Path precompiledModelsDir) {
+        precompiledModelsDirs.add(Objects.requireNonNull(precompiledModelsDir));
+        return this;
+    }
+
+    /**
+     * Additional dynamic model definitions to register at runtime, grouped by category name. This is the
+     * in-memory (programmatic) equivalent of {@link #getAdditionalModelsPath()}: models declared here are
+     * registered in the same way as those loaded from an additional models file, and both can be combined.
+     * <p>
+     * As a purely programmatic input, these models are not part of the JSON-serialized form of the parameters;
+     * use {@link #setAdditionalModelsPath(Path)} to persist additional models through a file.
+     */
+    @JsonIgnore
+    public Map<String, List<ModelConfig>> getAdditionalModels() {
+        return additionalModels;
+    }
+
+    public DynawoSimulationParameters setAdditionalModels(Map<String, List<ModelConfig>> additionalModels) {
+        this.additionalModels = new LinkedHashMap<>(Objects.requireNonNull(additionalModels));
+        return this;
+    }
+
+    public DynawoSimulationParameters addAdditionalModel(String category, ModelConfig modelConfig) {
+        additionalModels.computeIfAbsent(Objects.requireNonNull(category), k -> new ArrayList<>())
+                .add(Objects.requireNonNull(modelConfig));
+        return this;
+    }
+
+    /**
+     * Model definitions registered over the ones already known rather than beside them, for a
+     * model whose configuration is to be corrected. Kept apart from {@link #getAdditionalModels()},
+     * which are added and a name already present kept, since these are meant to replace it.
+     */
+    @JsonIgnore
+    public Map<String, List<ModelConfig>> getAdditionalModelOverrides() {
+        return additionalModelOverrides;
+    }
+
+    public DynawoSimulationParameters setAdditionalModelOverrides(Map<String, List<ModelConfig>> additionalModelOverrides) {
+        this.additionalModelOverrides = new LinkedHashMap<>(Objects.requireNonNull(additionalModelOverrides));
+        return this;
+    }
+
+    public DynawoSimulationParameters overrideAdditionalModel(String category, ModelConfig modelConfig) {
+        additionalModelOverrides.computeIfAbsent(Objects.requireNonNull(category), k -> new ArrayList<>())
+                .add(Objects.requireNonNull(modelConfig));
+        return this;
     }
 }

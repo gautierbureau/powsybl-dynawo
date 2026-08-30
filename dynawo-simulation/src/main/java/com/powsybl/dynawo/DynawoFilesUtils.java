@@ -8,6 +8,7 @@
 package com.powsybl.dynawo;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dynawo.xml.CriteriaXml;
 import com.powsybl.dynawo.xml.DydXml;
 import com.powsybl.dynawo.xml.OutputVariablesXml;
 import com.powsybl.dynawo.xml.ParametersXml;
@@ -59,6 +60,11 @@ public final class DynawoFilesUtils {
     }
 
     private static void writeCriteriaFile(Path workingDir, DynawoSimulationParameters parameters) {
+        if (parameters.getCriteria().isPresent()) {
+            // a criteria model is written straight into the working dir, under the fixed name the jobs reference
+            CriteriaXml.write(parameters.getCriteria().get(), workingDir.resolve(DynawoSimulationConstants.CRITERIA_FILENAME));
+            return;
+        }
         parameters.getCriteriaFilePath().ifPresent(filePath -> {
             try {
                 Files.copy(filePath, workingDir.resolve(filePath.getFileName()), StandardCopyOption.REPLACE_EXISTING);

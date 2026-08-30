@@ -55,6 +55,10 @@
       <xs:element name="modelicaModels" type="dyn:ModelicaModelsDirEntry"/>
     </xs:sequence>
     <xs:attribute name="compileDir" use="required" type="xs:string"/>
+    <xs:attribute name="symbolicJacobian" use="optional" type="xs:boolean"/>
+  </xs:complexType>
+  <xs:complexType name="LineariseEntry">
+    <xs:attribute name="lineariseTime" use="required" type="xs:float"/>
   </xs:complexType>
 
   <xs:complexType name="NetworkEntry">
@@ -117,6 +121,7 @@
       <xs:element name="finalStateValues" type="dyn:FinalStateValuesEntry" minOccurs="0"/>
       <xs:element name="lostEquipments" type="dyn:LostEquipmentsEntry" minOccurs="0"/>
       <xs:element name="logs" type="dyn:LogsEntry" minOccurs="0"/>
+      <xs:element name="linearise" type="dyn:LineariseEntry" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="directory" use="required" type="xs:string"/>
   </xs:complexType>

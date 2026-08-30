@@ -76,6 +76,20 @@ public record ModelConfig(String lib, String alias, String internalModelPrefix, 
         return properties.contains(property);
     }
 
+    /**
+     * The same model, but usable from as far back as any model is: everything it is made of kept,
+     * only the version it is available from lowered to the default floor.
+     * <p>
+     * The version a catalog carries says when a model's source first shipped upstream, not whether
+     * an installation can run it. An installation may hold a model its catalog dates later, its
+     * library sitting in the database ready to load, and there the floor is in the way. This gives
+     * back a configuration that no longer holds it out.
+     */
+    public ModelConfig availableFromDefaultVersion() {
+        return new ModelConfig(lib, alias, internalModelPrefix, properties, doc,
+                VersionInterval.createDefaultVersion(), varMapping, varPrefix);
+    }
+
     @Override
     public String name() {
         return alias == null ? lib : alias;

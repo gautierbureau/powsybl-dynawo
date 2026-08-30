@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
 import com.powsybl.dynawo.commons.ExportMode;
 import com.powsybl.dynawo.parameters.Parameter;
 import com.powsybl.dynawo.parameters.ParameterType;
@@ -86,6 +87,38 @@ class DynawoParametersTest extends AbstractSerDeTest {
         assertThat(parameters.getCriteriaFileName()).hasValue(criteriaFileName);
         assertThat(parameters.getCriteriaFilePath()).hasValue(fileSystem.getPath(USER_HOME + criteriaFileName));
         assertThat(parameters.getAdditionalModelsPath()).hasValue(fileSystem.getPath(USER_HOME + additionalModelsFileName));
+    }
+
+    @Test
+    void checkPrecompiledModelsDirs() {
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE_SPECIFIC_PARAMETERS);
+        moduleConfig.setStringListProperty("precompiledModelsDirs", List.of("models", "moreModels"));
+
+        DynawoSimulationParameters parameters = DynawoSimulationParameters.load(platformConfig, fileSystem);
+
+        // named relative to the configuration directory, the way the other paths of the module are
+        Path configDir = platformConfig.getConfigDir().orElseThrow();
+        assertThat(parameters.getPrecompiledModelsDirs())
+                .containsExactly(configDir.resolve("models"), configDir.resolve("moreModels"));
+    }
+
+    @Test
+    void checkNoPrecompiledModelsDirsByDefault() {
+        assertThat(DynawoSimulationParameters.load(platformConfig, fileSystem).getPrecompiledModelsDirs()).isEmpty();
+        assertThat(DynawoSimulationParameters.load(platformConfig, fileSystem).createMapFromParameters())
+                .doesNotContainKey("precompiledModelsDirs");
+    }
+
+    @Test
+    void checkPrecompiledModelsDirsSurviveAPropertiesRoundTrip() {
+        DynawoSimulationParameters parameters = DynawoSimulationParameters.load(platformConfig, fileSystem)
+                .setPrecompiledModelsDirs(List.of(fileSystem.getPath("models")))
+                .addPrecompiledModelsDir(fileSystem.getPath("moreModels"));
+
+        Map<String, String> properties = parameters.createMapFromParameters();
+        assertThat(properties).containsEntry("precompiledModelsDirs", "models,moreModels");
+        assertThat(DynawoSimulationParameters.load(properties, fileSystem).getPrecompiledModelsDirs())
+                .containsExactly(fileSystem.getPath("models"), fileSystem.getPath("moreModels"));
     }
 
     @Test
@@ -189,6 +222,25 @@ class DynawoParametersTest extends AbstractSerDeTest {
         assertEquals(DEFAULT_TIMELINE_EXPORT_MODE, parameters.getTimelineExportMode());
         assertTrue(parameters.getCriteriaFilePath().isEmpty());
         assertTrue(parameters.getAdditionalModelsPath().isEmpty());
+        assertTrue(parameters.getAdditionalModels().isEmpty());
+    }
+
+    @Test
+    void additionalModelsProgrammatic() {
+        DynawoSimulationParameters parameters = new DynawoSimulationParameters();
+        assertTrue(parameters.getAdditionalModels().isEmpty());
+
+        ModelConfig gen = new ModelConfig("MyGenerator");
+        parameters.addAdditionalModel("BASE_GENERATOR", gen);
+        assertThat(parameters.getAdditionalModels())
+                .containsOnlyKeys("BASE_GENERATOR")
+                .containsEntry("BASE_GENERATOR", List.of(gen));
+
+        ModelConfig load = new ModelConfig("MyLoad");
+        parameters.setAdditionalModels(Map.of("BASE_LOAD", List.of(load)));
+        assertThat(parameters.getAdditionalModels())
+                .containsOnlyKeys("BASE_LOAD")
+                .containsEntry("BASE_LOAD", List.of(load));
     }
 
     @Test
@@ -266,6 +318,8 @@ class DynawoParametersTest extends AbstractSerDeTest {
                         "solverParametersId,{order=Parameter[name=order, type=INT, value=1], absAccuracy=Parameter[name=absAccuracy, type=DOUBLE, value=1e-4]},{},{}"),
                 Map.entry("solver.type", "IDA"),
                 Map.entry("mergeLoads", "true"),
+                Map.entry("symbolicJacobian", "false"),
+                Map.entry("dumpInitValues", "false"),
                 Map.entry("modelSimplifiers", "Substitution,Filter"),
                 Map.entry("precision", "1.0E-8"),
                 Map.entry("timeline.exportMode", "XML"),

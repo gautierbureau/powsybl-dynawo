@@ -1,0 +1,247 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.dynawo.mappings;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.dynawo.DynawoSimulationParameters;
+import com.powsybl.dynawo.builders.ModelConfig;
+import com.powsybl.dynawo.builders.ModelConfigsHandler;
+import com.powsybl.dynawo.characteristics.EnergySourceSynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.characteristics.GeneratorFilters;
+import com.powsybl.dynawo.characteristics.SynchronousGeneratorPropertiesProvider;
+import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
+import com.powsybl.dynawo.mappings.generators.GeneratorCapability;
+import com.powsybl.dynawo.mappings.generators.GeneratorLibResolver;
+import com.powsybl.dynawo.mappings.generators.GeneratorMappingReports;
+import com.powsybl.dynawo.mappings.generators.MissingModelBuilder;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
+import com.powsybl.dynawo.mappings.parameters.ReferenceGeneratorParameters;
+import com.powsybl.dynawo.mappings.parameters.SynchronousGeneratorParametersGenerator;
+import com.powsybl.dynawo.parameters.ParametersSet;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+/**
+ * Maps every synchronous generator of a network onto the dynamic model implementing its controls,
+ * in a simplified (DynaWaltz) or detailed (DynaSwing) flavour.
+ * <p>
+ * Both flavours share the very same extensions and the very same algorithm: the extensions carry
+ * the detailed controls, and the simplified flavour deduces its models from them. Which models are
+ * actually reachable depends on the catalogs present on the classpath, see
+ * {@link GeneratorLibResolver}.
+ *
+ * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
+ */
+public class UniversalSynchronousGeneratorMapping implements DynamicModelsMapping {
+
+    public static final String DYNAWALTZ_NAME = "UniversalDynaWaltz";
+    public static final String DYNASWING_NAME = "UniversalDynaSwing";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UniversalSynchronousGeneratorMapping.class);
+
+    private final String name;
+    private final boolean simplified;
+    private final double tsoVoltageMin;
+    private final SynchronousGeneratorPropertiesProvider propertiesProvider;
+    private final GeneratorLibResolver libResolver;
+    private final SynchronousGeneratorParametersGenerator parametersGenerator;
+
+    public UniversalSynchronousGeneratorMapping(String name, boolean simplified, double tsoVoltageMin,
+                                                SynchronousGeneratorPropertiesProvider propertiesProvider,
+                                                GeneratorLibResolver libResolver) {
+        this(name, simplified, tsoVoltageMin, propertiesProvider, libResolver, new SynchronousGeneratorParametersGenerator());
+    }
+
+    public UniversalSynchronousGeneratorMapping(String name, boolean simplified, double tsoVoltageMin,
+                                                SynchronousGeneratorPropertiesProvider propertiesProvider,
+                                                GeneratorLibResolver libResolver,
+                                                SynchronousGeneratorParametersGenerator parametersGenerator) {
+        this.name = Objects.requireNonNull(name);
+        this.simplified = simplified;
+        this.tsoVoltageMin = tsoVoltageMin;
+        this.propertiesProvider = Objects.requireNonNull(propertiesProvider);
+        this.libResolver = Objects.requireNonNull(libResolver);
+        this.parametersGenerator = Objects.requireNonNull(parametersGenerator);
+    }
+
+    public static UniversalSynchronousGeneratorMapping dynaWaltz() {
+        return dynaWaltz(EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
+    }
+
+    public static UniversalSynchronousGeneratorMapping dynaWaltz(double tsoVoltageMin) {
+        return dynaWaltz(tsoVoltageMin, GeneratorFilters.connected());
+    }
+
+    /**
+     * @param filter which machines the mapping describes, see {@link GeneratorFilters}
+     */
+    public static UniversalSynchronousGeneratorMapping dynaWaltz(double tsoVoltageMin, Predicate<Generator> filter) {
+        return new UniversalSynchronousGeneratorMapping(DYNAWALTZ_NAME, true, tsoVoltageMin,
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
+    }
+
+    public static UniversalSynchronousGeneratorMapping dynaSwing() {
+        return dynaSwing(EnergySourceSynchronousGeneratorPropertiesProvider.DEFAULT_TSO_VOLTAGE_MIN);
+    }
+
+    public static UniversalSynchronousGeneratorMapping dynaSwing(double tsoVoltageMin) {
+        return dynaSwing(tsoVoltageMin, GeneratorFilters.connected());
+    }
+
+    /**
+     * @param filter which machines the mapping describes, see {@link GeneratorFilters}
+     */
+    public static UniversalSynchronousGeneratorMapping dynaSwing(double tsoVoltageMin, Predicate<Generator> filter) {
+        return new UniversalSynchronousGeneratorMapping(DYNASWING_NAME, false, tsoVoltageMin,
+                new EnergySourceSynchronousGeneratorPropertiesProvider(tsoVoltageMin, filter), new GeneratorLibResolver());
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Optional<Path> getBuiltModelsDir() {
+        return libResolver.getMissingModelBuilder().map(MissingModelBuilder::getModelsDir);
+    }
+
+    @Override
+    public ModelDescriptionLookup describeBuiltModels(ModelDescriptionLookup installed) {
+        return libResolver.getMissingModelBuilder()
+                .map(builder -> builder.describe(installed))
+                .orElse(installed);
+    }
+
+    @Override
+    public Map<String, List<ModelConfig>> getBuiltModelConfigs() {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getBuiltModelConfigs)
+                .orElseGet(Map::of);
+    }
+
+    @Override
+    public Map<String, List<ModelConfig>> getModelConfigOverrides() {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getModelConfigOverrides)
+                .orElseGet(Map::of);
+    }
+
+    @Override
+    public DynawoSimulationParameters.SolverType getSolverType() {
+        return simplified ? DynawoSimulationParameters.SolverType.SIM : DynawoSimulationParameters.SolverType.IDA;
+    }
+
+    @Override
+    public void createExtensions(Network network) {
+        propertiesProvider.createExtensions(network);
+    }
+
+    @Override
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network) {
+        return createModelConfigs(network, ReportNode.NO_OP);
+    }
+
+    @Override
+    public List<MappedModelsSupplier.MappedModel> createModelConfigs(Network network, ReportNode reportNode) {
+        return mappedGenerators(network, GeneratorMappingReports.createGeneratorMappingReportNode(reportNode))
+                .map(mapped -> new MappedModelsSupplier.MappedModel(mapped.lib(), mapped.generator().getId(), mapped.setId()))
+                .toList();
+    }
+
+    @Override
+    public List<ParametersSet> createParameters(Network network, ModelDescriptionLookup descriptions) {
+        List<ParametersSet> sets = new ArrayList<>();
+        mappedGenerators(network).forEach(mapped -> descriptions.find(mapped.lib())
+                .ifPresentOrElse(
+                        // a known system's model is valued from the parameters shipped with it,
+                        // which are not derivable, and any other model from its characteristics
+                        description -> sets.add(ReferenceGeneratorParameters.getInstance()
+                                .forModel(mapped.setId(), mapped.lib())
+                                .orElseGet(() -> parametersGenerator.generate(mapped.setId(), description,
+                                        mapped.generator(), mapped.hasTransformer()))),
+                        () -> LOGGER.warn("No description found for model {}, no parameter set generated for generator {}",
+                                mapped.lib(), mapped.generator().getId())));
+        return sets;
+    }
+
+    /**
+     * Resolves the model of every generator the mapping covers, so that models and parameters are
+     * built from the very same resolution.
+     */
+    private Stream<MappedGenerator> mappedGenerators(Network network) {
+        return mappedGenerators(network, ReportNode.NO_OP);
+    }
+
+    private Stream<MappedGenerator> mappedGenerators(Network network, ReportNode reportNode) {
+        return network.getGeneratorStream()
+                .map(generator -> resolve(generator, reportNode))
+                .filter(Objects::nonNull);
+    }
+
+    private MappedGenerator resolve(Generator generator, ReportNode reportNode) {
+        SynchronousGeneratorProperties properties = generator.getExtension(SynchronousGeneratorProperties.class);
+        if (properties == null) {
+            return null;
+        }
+        boolean transformerWanted = generator.getTerminal().getVoltageLevel().getNominalV() >= tsoVoltageMin;
+        return libResolver.resolve(properties, simplified, transformerWanted, reportNode, generator.getId())
+                .map(lib -> new MappedGenerator(generator, lib, getParameterSetId(generator), hasTransformer(lib)))
+                .orElseGet(() -> {
+                    LOGGER.warn("No model found for generator {}, it will not be mapped", generator.getId());
+                    return null;
+                });
+    }
+
+    /**
+     * Whether the selected model represents the generator transformer, which the wanted capability
+     * does not tell since the catalog may not provide it.
+     */
+    /**
+     * Whether the model has a transformer between the machine and the grid, which decides the
+     * parameters generated for it. A model Dynawo ships says so through its catalog entry; one
+     * built here is not in the catalog yet, so its own description is consulted too.
+     */
+    private boolean hasTransformer(String lib) {
+        return ModelConfigsHandler.getInstance().findModelConfig(lib)
+                .or(() -> builtConfig(lib))
+                .filter(GeneratorCapability.TRANSFORMER::isProvidedBy)
+                .isPresent();
+    }
+
+    private Optional<ModelConfig> builtConfig(String lib) {
+        return libResolver.getMissingModelBuilder()
+                .map(MissingModelBuilder::getBuiltModelConfigs)
+                .stream()
+                .flatMap(byCategory -> byCategory.values().stream())
+                .flatMap(List::stream)
+                .filter(config -> config.name().equals(lib))
+                .findFirst();
+    }
+
+    private record MappedGenerator(Generator generator, String lib, String setId, boolean hasTransformer) {
+    }
+
+    /**
+     * One parameter set per generator, since the sets are generated from the characteristics of
+     * each machine.
+     */
+    private String getParameterSetId(Generator generator) {
+        return (simplified ? "DynaWaltz_" : "DynaSwing_") + generator.getId();
+    }
+}

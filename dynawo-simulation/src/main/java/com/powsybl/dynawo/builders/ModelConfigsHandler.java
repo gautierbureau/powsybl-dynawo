@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -32,6 +33,7 @@ public final class ModelConfigsHandler {
     private final Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorByName = new HashMap<>();
     private final List<EventBuilderConfig> eventBuilderConfigs;
     private final Map<String, EventBuilderConfig.EventModelBuilderConstructor> eventBuilderConstructorByName;
+    private final CatalogSnapshot baseCatalog;
 
     private ModelConfigsHandler() {
         List<ModelConfigLoader> modelConfigLoaders = Lists.newArrayList(ServiceLoader.load(ModelConfigLoader.class));
@@ -53,6 +55,8 @@ public final class ModelConfigsHandler {
                 .toList();
         eventBuilderConstructorByName = eventBuilderConfigs.stream()
                 .collect(Collectors.toMap(e -> e.getEventModelInfo().name(), EventBuilderConfig::getBuilderConstructor));
+        // the catalog as the loaders leave it, before any run adds to it, to reset to per study
+        baseCatalog = capture();
     }
 
     public static ModelConfigsHandler getInstance() {
@@ -90,22 +94,129 @@ public final class ModelConfigsHandler {
     }
 
     public void addModels(AdditionalModelConfigLoader additionalModelsLoader) {
-        additionalModelsLoader.loadModelConfigs().forEach(
-                (cat, modelsMap) -> {
-                    ModelConfigs currentModelConfigs = modelConfigsCat.get(cat);
-                    if (currentModelConfigs != null) {
-                        currentModelConfigs.addModelConfigs(modelsMap);
-                        BuilderConfig.ModelBuilderConstructor constructor = builderConfigs.stream()
-                                    .filter(bc -> bc.getCategory().equals(cat))
-                                    .map(BuilderConfig::getBuilderConstructor)
-                                    .findFirst()
-                                    .orElse(null);
-                        modelsMap.getModelsName().forEach(lib -> builderConstructorByName.put(lib, constructor));
-                    } else {
-                        LOGGER.warn("Category {} not found, the additional models under this category will be skipped", cat);
-                    }
-                }
-        );
+        additionalModelsLoader.loadModelConfigs().forEach((cat, modelsMap) -> mergeModelConfigs(cat, modelsMap, false));
+    }
+
+    /**
+     * Registers additional model configurations programmatically, without going through a JSON file.
+     * The models are provided by category name (the same categories used in the models.json catalog);
+     * models declared in an unknown category are skipped, and models overwriting an existing one are ignored.
+     *
+     * @param modelConfigsByCategory the additional model configurations grouped by category name
+     */
+    public void addModels(Map<String, List<ModelConfig>> modelConfigsByCategory) {
+        modelConfigsByCategory.forEach((cat, modelConfigList) ->
+                mergeModelConfigs(cat, toModelConfigs(modelConfigList), false));
+    }
+
+    /**
+     * Registers configurations that stand in for ones already there, correcting them rather than
+     * adding beside them. Where {@link #addModels} keeps a name already present, this replaces it,
+     * for a caller that means to change a model's configuration, its version among the reasons.
+     */
+    public void overrideModels(Map<String, List<ModelConfig>> modelConfigsByCategory) {
+        modelConfigsByCategory.forEach((cat, modelConfigList) ->
+                mergeModelConfigs(cat, toModelConfigs(modelConfigList), true));
+    }
+
+    private static ModelConfigs toModelConfigs(List<ModelConfig> modelConfigList) {
+        SortedMap<String, ModelConfig> modelConfigMap = new TreeMap<>();
+        modelConfigList.forEach(modelConfig -> modelConfigMap.put(modelConfig.name(), modelConfig));
+        return new ModelConfigs(modelConfigMap, null);
+    }
+
+    private void mergeModelConfigs(String cat, ModelConfigs modelsMap, boolean override) {
+        ModelConfigs currentModelConfigs = modelConfigsCat.get(cat);
+        if (currentModelConfigs != null) {
+            if (override) {
+                currentModelConfigs.overrideModelConfigs(modelsMap);
+            } else {
+                currentModelConfigs.addModelConfigs(modelsMap);
+            }
+            BuilderConfig.ModelBuilderConstructor constructor = builderConfigs.stream()
+                        .filter(bc -> bc.getCategory().equals(cat))
+                        .map(BuilderConfig::getBuilderConstructor)
+                        .findFirst()
+                        .orElse(null);
+            modelsMap.getModelsName().forEach(lib -> builderConstructorByName.put(lib, constructor));
+        } else {
+            LOGGER.warn("Category {} not found, the additional models under this category will be skipped", cat);
+        }
+    }
+
+    /**
+     * Opens a scope over the runtime model registrations. The catalog as it stands is captured now;
+     * closing the scope puts it back, dropping every model {@link #addModels} or {@link #overrideModels}
+     * registered while it was open. A run registers the models a mapping built inside such a scope,
+     * so a later run in the same long-lived process does not read them as installed — the handler is
+     * a JVM-wide singleton that nothing else takes models back out of.
+     */
+    public Scope openScope() {
+        return new Scope();
+    }
+
+    /**
+     * Drops every runtime registration, putting the catalog back as the loaders left it. Where a
+     * {@link Scope} restores to a point in time, this restores to the base catalog outright, for a
+     * study that means to start from what Dynawo ships rather than from whatever an earlier study in
+     * the same process left behind.
+     */
+    public void resetToBase() {
+        restore(baseCatalog);
+    }
+
+    private CatalogSnapshot capture() {
+        Map<String, ModelConfigs.Snapshot> categorySnapshots = new HashMap<>();
+        modelConfigsCat.forEach((cat, configs) -> categorySnapshots.put(cat, configs.snapshot()));
+        return new CatalogSnapshot(categorySnapshots, new HashMap<>(builderConstructorByName));
+    }
+
+    private void restore(CatalogSnapshot snapshot) {
+        snapshot.categorySnapshots().forEach((cat, s) -> modelConfigsCat.get(cat).restore(s));
+        builderConstructorByName.clear();
+        builderConstructorByName.putAll(snapshot.builderConstructorByName());
+    }
+
+    private record CatalogSnapshot(Map<String, ModelConfigs.Snapshot> categorySnapshots,
+                                   Map<String, BuilderConfig.ModelBuilderConstructor> builderConstructorByName) {
+    }
+
+    /**
+     * A span across which runtime registrations are undone on {@link #close}. Not reentrant and not
+     * thread-safe, like the handler it scopes; use it in a try-with-resources around a run's
+     * registration and the reads that depend on it.
+     */
+    public final class Scope implements AutoCloseable {
+
+        private final CatalogSnapshot snapshot = capture();
+
+        private Scope() {
+        }
+
+        @Override
+        public void close() {
+            restore(snapshot);
+        }
+    }
+
+    public Set<String> getCategories() {
+        return Collections.unmodifiableSet(modelConfigsCat.keySet());
+    }
+
+    /**
+     * Returns every model configuration of every category, whichever {@link ModelConfigLoader}
+     * contributed it. Used to select a model from its name and capabilities without having to
+     * know in which category it was declared.
+     */
+    public Stream<ModelConfig> getModelConfigStream() {
+        return modelConfigsCat.values().stream().flatMap(mc -> mc.getModelConfigs().stream());
+    }
+
+    public Optional<ModelConfig> findModelConfig(String modelName) {
+        return modelConfigsCat.values().stream()
+                .map(mc -> mc.getModelConfig(modelName))
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     public List<String> getSupportedLibs(DynawoVersion dynawoVersion) {

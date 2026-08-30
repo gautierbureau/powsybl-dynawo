@@ -17,7 +17,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 import static com.powsybl.dynawo.DynawoSimulationConstants.*;
@@ -90,6 +92,10 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
                                      String additionalDydFile, String networkParameterSetId) throws XMLStreamException {
         writer.writeStartElement(DYN_URI, "modeler");
         writer.writeAttribute("compileDir", "outputs/compilation");
+        // written only when true, so an older Dynawo that does not know the attribute still reads the job
+        if (parameters.isSymbolicJacobian()) {
+            writer.writeAttribute("symbolicJacobian", Boolean.toString(true));
+        }
 
         writer.writeEmptyElement(DYN_URI, "network");
         writer.writeAttribute("iidmFile", NETWORK_FILENAME);
@@ -109,12 +115,38 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
             writer.writeAttribute("file", dumpFileParameters.dumpFile());
         }
 
-        writer.writeEmptyElement(DYN_URI, "precompiledModels");
-        writer.writeAttribute("useStandardModels", Boolean.toString(true));
+        writePrecompiledModels(writer, parameters);
 
         writer.writeEmptyElement(DYN_URI, "modelicaModels");
         writer.writeAttribute("useStandardModels", Boolean.toString(false));
 
+        writer.writeEndElement();
+    }
+
+    /**
+     * Where the simulation looks for compiled models: the ones Dynawo ships, and any directory of
+     * our own named alongside them.
+     * <p>
+     * Dynawo takes those directories relative to the directory the jobs file sits in, so a path
+     * given relative to it travels with the case. It refuses one that does not exist rather than
+     * quietly finding nothing.
+     */
+    private static void writePrecompiledModels(XMLStreamWriter writer, DynawoSimulationParameters parameters) throws XMLStreamException {
+        List<Path> dirs = parameters.getPrecompiledModelsDirs();
+        if (dirs.isEmpty()) {
+            writer.writeEmptyElement(DYN_URI, "precompiledModels");
+            writer.writeAttribute("useStandardModels", Boolean.toString(true));
+            return;
+        }
+        writer.writeStartElement(DYN_URI, "precompiledModels");
+        writer.writeAttribute("useStandardModels", Boolean.toString(true));
+        for (Path dir : dirs) {
+            writer.writeEmptyElement(DYN_URI, "directory");
+            writer.writeAttribute("path", dir.toString());
+            // Dynawo reads this attribute for Modelica models and ignores it for compiled ones,
+            // scanning a single directory whatever it says, so the libraries have to sit flat
+            writer.writeAttribute("recursive", Boolean.toString(false));
+        }
         writer.writeEndElement();
     }
 
@@ -141,8 +173,10 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writer.writeAttribute("directory", OUTPUTS_FOLDER);
 
         writer.writeEmptyElement(DYN_URI, "dumpInitValues");
-        writer.writeAttribute("local", Boolean.toString(false));
-        writer.writeAttribute("global", Boolean.toString(false));
+        // both the per-model values and the whole-system ones, so a run that will not solve says
+        // both what each model started from and what they made together
+        writer.writeAttribute("local", Boolean.toString(parameters.isDumpInitValues()));
+        writer.writeAttribute("global", Boolean.toString(parameters.isDumpInitValues()));
 
         if (context.withConstraints()) {
             writer.writeEmptyElement(DYN_URI, "constraints");
@@ -171,6 +205,13 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writer.writeStartElement(DYN_URI, "logs");
         writeAppender(writer, parameters);
         writer.writeEndElement();
+
+        // written only when set, so an older Dynawo that does not know the element still reads the job
+        OptionalDouble lineariseTime = parameters.getLineariseTime();
+        if (lineariseTime.isPresent()) {
+            writer.writeEmptyElement(DYN_URI, "linearise");
+            writer.writeAttribute("lineariseTime", Double.toString(lineariseTime.getAsDouble()));
+        }
 
         writer.writeEndElement();
     }

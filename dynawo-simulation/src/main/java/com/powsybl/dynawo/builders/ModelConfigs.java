@@ -47,6 +47,14 @@ public class ModelConfigs {
         return Collections.unmodifiableCollection(modelConfigMap.values());
     }
 
+    /**
+     * Returns the configurations themselves, giving access to the model properties used to
+     * select a model from its capabilities (transformer, auxiliary, rpcl, ...)
+     */
+    public Collection<ModelConfig> getModelConfigs() {
+        return Collections.unmodifiableCollection(modelConfigMap.values());
+    }
+
     public Collection<ModelInfo> getModelInfos(DynawoVersion dynawoVersion) {
         return modelConfigMap.values().stream()
                 .filter(m -> m.version().includes(dynawoVersion))
@@ -70,5 +78,32 @@ public class ModelConfigs {
                 LOGGER.warn("Model {} already exist, the first one will be kept", k);
             }
         });
+    }
+
+    /**
+     * Puts these configurations in, a name already present standing aside for the one brought in.
+     * Where adding keeps the first, this keeps the last, for a caller that means to correct a
+     * configuration already there rather than add beside it.
+     */
+    void overrideModelConfigs(ModelConfigs modelConfigsToMerge) {
+        modelConfigMap.putAll(modelConfigsToMerge.modelConfigMap);
+    }
+
+    /**
+     * The configurations as they stand, to put back later with {@link #restore}. A configuration is
+     * an immutable record, so a copy of the map holds them; the map itself is shared with the
+     * builders and is reverted in place rather than replaced.
+     */
+    Snapshot snapshot() {
+        return new Snapshot(new TreeMap<>(modelConfigMap), defaultModelConfig);
+    }
+
+    void restore(Snapshot snapshot) {
+        modelConfigMap.clear();
+        modelConfigMap.putAll(snapshot.modelConfigMap());
+        defaultModelConfig = snapshot.defaultModelConfig();
+    }
+
+    record Snapshot(SortedMap<String, ModelConfig> modelConfigMap, ModelConfig defaultModelConfig) {
     }
 }

@@ -169,4 +169,93 @@ class ModelConfigLoaderTest {
                 .hasMessage("Additional dynamic models configuration file not found");
 
     }
+
+    @Test
+    void addModelsProgrammatically() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        int baseGenNumber = BaseGeneratorBuilder.getSupportedModelInfos().size();
+        int baseLineNumber = LineBuilder.getSupportedModelInfos().size();
+
+        ModelConfig gen1 = new ModelConfig("ProgrammaticGenerator1");
+        ModelConfig gen2 = new ModelConfig("ProgrammaticGenerator2", List.of("CONTROLLABLE"));
+        ModelConfig line = new ModelConfig("ProgrammaticLine");
+        handler.addModels(Map.of(
+                "BASE_GENERATOR", List.of(gen1, gen2),
+                "BASE_LINE", List.of(line)));
+
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos())
+                .hasSize(baseGenNumber + 2)
+                .contains(gen1, gen2);
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticGenerator1", ReportNode.NO_OP));
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticGenerator2", ReportNode.NO_OP));
+
+        assertThat(LineBuilder.getSupportedModelInfos())
+                .hasSize(baseLineNumber + 1)
+                .contains(line);
+        assertNotNull(handler.getModelBuilder(network, "ProgrammaticLine", ReportNode.NO_OP));
+    }
+
+    @Test
+    void addModelsProgrammaticallyUnknownCategoryIsSkipped() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        handler.addModels(Map.of("UNKNOWN_CATEGORY", List.of(new ModelConfig("ShouldBeSkipped"))));
+        assertNull(handler.getModelBuilder(network, "ShouldBeSkipped", ReportNode.NO_OP));
+    }
+
+    @Test
+    void scopedRegistrationsAreUndoneOnClose() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        int baseGenNumber = BaseGeneratorBuilder.getSupportedModelInfos().size();
+
+        ModelConfig scoped = new ModelConfig("ScopedGenerator");
+        try (ModelConfigsHandler.Scope scope = handler.openScope()) {
+            handler.addModels(Map.of("BASE_GENERATOR", List.of(scoped)));
+            // inside the scope the model is registered, catalog and builders alike
+            assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenNumber + 1).contains(scoped);
+            assertNotNull(handler.getModelBuilder(network, "ScopedGenerator", ReportNode.NO_OP));
+        }
+
+        // closing the scope puts the catalog back as it was, the model gone from both
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenNumber).doesNotContain(scoped);
+        assertNull(handler.getModelBuilder(network, "ScopedGenerator", ReportNode.NO_OP));
+        assertThat(handler.findModelConfig("ScopedGenerator")).isEmpty();
+    }
+
+    @Test
+    void resetToBaseDropsRuntimeRegistrations() {
+        Network network = NoEquipmentNetworkFactory.create();
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        // reset first so an earlier test's leaked registration is not mistaken for the base catalog
+        handler.resetToBase();
+        int baseGenCount = BaseGeneratorBuilder.getSupportedModelInfos().size();
+
+        handler.addModels(Map.of("BASE_GENERATOR", List.of(new ModelConfig("ResetGenerator"))));
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenCount + 1);
+        assertNotNull(handler.getModelBuilder(network, "ResetGenerator", ReportNode.NO_OP));
+
+        handler.resetToBase();
+
+        // the runtime addition is gone and the base catalog is whole again
+        assertThat(BaseGeneratorBuilder.getSupportedModelInfos()).hasSize(baseGenCount);
+        assertNull(handler.getModelBuilder(network, "ResetGenerator", ReportNode.NO_OP));
+        assertThat(handler.findModelConfig("ResetGenerator")).isEmpty();
+    }
+
+    @Test
+    void scopeRestoresAConfigurationAnOverrideReplaced() {
+        ModelConfigsHandler handler = ModelConfigsHandler.getInstance();
+        String lib = BaseGeneratorBuilder.getSupportedModelInfos().stream().findFirst().orElseThrow().lib();
+        ModelConfig original = handler.findModelConfig(lib).orElseThrow();
+
+        try (ModelConfigsHandler.Scope scope = handler.openScope()) {
+            handler.overrideModels(Map.of("BASE_GENERATOR", List.of(new ModelConfig(lib, List.of("OVERRIDDEN")))));
+            assertThat(handler.findModelConfig(lib).orElseThrow().properties()).contains("OVERRIDDEN");
+        }
+
+        // an override corrects a configuration in place; the scope brings the original one back
+        assertThat(handler.findModelConfig(lib)).contains(original);
+    }
 }

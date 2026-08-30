@@ -1,0 +1,14 @@
+[
+  {
+    "name": "com.powsybl.dynawo.mappings.preassembled.GovernorUnits",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.powsybl.dynawo.mappings.preassembled.VoltageRegulatorUnits",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.powsybl.dynawo.mappings.preassembled.RegulatorControlUnits",
+    "allDeclaredMethods": true
+  }
+]

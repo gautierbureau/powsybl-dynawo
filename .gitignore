@@ -29,3 +29,6 @@ powsybl.log
 
 # Generated readthedocs pages
 build-docs/
+
+# Locally rendered diagram (Graphviz), not tracked
+dynawo-mappings/docs/generator-model-resolution.png
