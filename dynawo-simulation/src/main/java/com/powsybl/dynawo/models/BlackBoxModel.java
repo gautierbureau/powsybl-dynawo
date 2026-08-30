@@ -13,6 +13,8 @@ import com.powsybl.dynawo.parameters.ParametersSet;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -55,4 +57,15 @@ public interface BlackBoxModel extends Model {
     void createDynamicModelInfoExtension();
 
     boolean isConnected();
+
+    /**
+     * Writes the auxiliary input files this model needs beside the DYD and PAR — a table file a parameter
+     * points at, for one. Called once per model when the input files are written; a model that needs none
+     * (most) leaves it be.
+     *
+     * @param workingDir the directory the DYD and PAR are written to
+     */
+    default void writeAuxiliaryFiles(Path workingDir) throws IOException {
+        // most models need no file of their own
+    }
 }

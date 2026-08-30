@@ -12,6 +12,7 @@ import com.powsybl.dynawo.models.AbstractPureDynamicBlackBoxModel;
 import com.powsybl.dynawo.models.VarConnection;
 import com.powsybl.dynawo.models.buses.BusOfSignalNModel;
 import com.powsybl.dynawo.models.buses.DefaultBusOfSignalN;
+import com.powsybl.dynawo.models.buses.SlackBusOfSignalN;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 
 import javax.xml.stream.XMLStreamException;
@@ -27,11 +28,21 @@ public class SignalN extends AbstractPureDynamicBlackBoxModel {
     private static final ModelConfig MODEL_CONFIG = new ModelConfig("SignalN");
     private final List<SignalNModel> signalNEquipments;
     private final String defaultParFile;
+    private final String slackBusId;
 
     public SignalN(List<SignalNModel> signalNEquipments, String defaultParFile) {
+        this(signalNEquipments, defaultParFile, null);
+    }
+
+    /**
+     * @param slackBusId the bus the phase reference anchors to (the DynaFlow slack node); when {@code null}
+     *                   the reference falls back to the first equipment's bus
+     */
+    public SignalN(List<SignalNModel> signalNEquipments, String defaultParFile, String slackBusId) {
         super(SIGNAL_N_ID, "", MODEL_CONFIG);
         this.signalNEquipments = signalNEquipments;
         this.defaultParFile = defaultParFile;
+        this.slackBusId = slackBusId;
     }
 
     @Override
@@ -39,8 +50,11 @@ public class SignalN extends AbstractPureDynamicBlackBoxModel {
         for (SignalNModel eq : signalNEquipments) {
             adder.createMacroConnections(this, eq, getVarConnectionsWith(eq));
         }
-        SignalNModel firstModel = signalNEquipments.getFirst();
-        BusOfSignalNModel busOf = DefaultBusOfSignalN.of(firstModel);
+        // the phase reference anchors to the slack bus (the launcher's slack node), or the first
+        // equipment's bus when no slack was resolved
+        BusOfSignalNModel busOf = slackBusId != null
+                ? new SlackBusOfSignalN(slackBusId)
+                : DefaultBusOfSignalN.of(signalNEquipments.getFirst());
         adder.createMacroConnections(this, busOf, getVarConnectionsWithBus(busOf));
     }
 

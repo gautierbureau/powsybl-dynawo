@@ -26,6 +26,14 @@ public final class EnergizedUtils {
         return isEnergizedAndInMainConnectedComponent(equipment.getTerminal1()) && isEnergizedAndInMainConnectedComponent(equipment.getTerminal2());
     }
 
+    /**
+     * A branch is reachable for a whole-branch disconnection as long as one of its ends is energized and in
+     * the main connected component; the other end may be open (an open-ended branch).
+     */
+    public static boolean isEnergizedAndInMainConnectedComponentOnAnySide(Branch<?> equipment) {
+        return isEnergizedAndInMainConnectedComponent(equipment.getTerminal1()) || isEnergizedAndInMainConnectedComponent(equipment.getTerminal2());
+    }
+
     public static boolean isEnergizedAndInMainConnectedComponent(Branch<?> equipment, TwoSides side) {
         return TwoSides.ONE == side ? isEnergizedAndInMainConnectedComponent(equipment.getTerminal1()) : isEnergizedAndInMainConnectedComponent(equipment.getTerminal2());
     }

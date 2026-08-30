@@ -64,7 +64,13 @@ public class SignalNGeneratorBuilder extends AbstractGeneratorBuilder<SignalNGen
 
     @Override
     public SignalNGenerator build() {
-        return isInstantiable() ? new SignalNGenerator(getEquipment(), parameterSetId, modelConfig) : null;
+        if (!isInstantiable()) {
+            return null;
+        }
+        // a proportionally-shared machine (PQProp) is coordinated by a VRRemote; it carries the extra model
+        return modelConfig.lib().contains("PQProp")
+                ? new PropSignalNGenerator(getEquipment(), parameterSetId, modelConfig)
+                : new SignalNGenerator(getEquipment(), parameterSetId, modelConfig);
     }
 
     @Override

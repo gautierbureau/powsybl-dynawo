@@ -13,10 +13,12 @@ import com.powsybl.dynawo.models.VarConnection;
 import com.powsybl.dynawo.models.buses.EquipmentConnectionPoint;
 import com.powsybl.dynawo.models.macroconnections.MacroConnectionsAdder;
 import com.powsybl.dynawo.models.utils.SideUtils;
+import com.powsybl.dynawo.models.voltageregulation.VRRemoteModel;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.TwoSides;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +51,17 @@ public class HvdcDangling extends BaseHvdc {
     @Override
     public List<HvdcConverterStation<?>> getConnectedStations() {
         return List.of(danglingSide == TwoSides.ONE ? equipment.getConverterStation2() : equipment.getConverterStation1());
+    }
+
+    @Override
+    public List<VRRemoteModel> getVoltageRegulationSides() {
+        if (!getLib().contains("PQProp")) {
+            return List.of();
+        }
+        // only the in-component converter regulates; it is the model's side 1 (the launcher's busId1)
+        List<VRRemoteModel> sides = new ArrayList<>(1);
+        addSide(sides, getConnectedStations().get(0), "1");
+        return sides;
     }
 
     private List<VarConnection> getVarConnectionsWithDangling(EquipmentConnectionPoint connected, TwoSides hvdcSide) {

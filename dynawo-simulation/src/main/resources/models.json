@@ -429,6 +429,47 @@
       {
         "lib": "GeneratorPVRemoteSignalN",
         "doc": "Simplified generator PV based on SignalN for the frequency handling and a remote voltage regulation."
+      },
+      {
+        "lib": "GeneratorPVRpclSignalN",
+        "doc": "Simplified generator PV based on SignalN with a reactive power control loop for the secondary voltage control."
+      },
+      {
+        "lib": "GeneratorPVRpcl2SignalN",
+        "doc": "Simplified generator PV based on SignalN with a second reactive power control loop for the secondary voltage control."
+      },
+      {
+        "lib": "GeneratorPVDiagramPQRpclSignalN",
+        "doc": "Simplified generator PV based on SignalN with a PQ diagram and a reactive power control loop."
+      },
+      {
+        "lib": "GeneratorPVDiagramPQRpcl2SignalN",
+        "doc": "Simplified generator PV based on SignalN with a PQ diagram and a second reactive power control loop."
+      },
+      {
+        "lib": "GeneratorPVTfoRpclSignalN",
+        "doc": "Simplified generator PV based on SignalN with a transformer and a reactive power control loop."
+      },
+      {
+        "lib": "GeneratorPVTfoRpcl2SignalN",
+        "doc": "Simplified generator PV based on SignalN with a transformer and a second reactive power control loop."
+      },
+      {
+        "lib": "GeneratorPVTfoDiagramPQRpclSignalN",
+        "doc": "Simplified generator PV based on SignalN with a transformer, a PQ diagram and a reactive power control loop."
+      },
+      {
+        "lib": "GeneratorPVTfoDiagramPQRpcl2SignalN",
+        "doc": "Simplified generator PV based on SignalN with a transformer, a PQ diagram and a second reactive power control loop."
+      }
+    ]
+  },
+  "SECONDARY_VOLTAGE_CONTROL_SIMPLIFIED": {
+    "defaultLib": "DYNModelSecondaryVoltageControlSimplified",
+    "libs": [
+      {
+        "lib": "DYNModelSecondaryVoltageControlSimplified",
+        "doc": "Simplified secondary voltage control coordinating a control zone's generators to hold a pilot bus voltage (DynaFlow)."
       }
     ]
   },
@@ -711,6 +752,10 @@
       {
         "lib": "LoadZIP",
         "doc": "ZIP coefficients load model."
+      },
+      {
+        "lib": "DYNModelLoadRestorativeWithLimits",
+        "doc": "Restorative load with voltage limits, the model DynaFlow runs a load on."
       }
     ]
   },

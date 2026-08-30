@@ -29,6 +29,7 @@ import com.powsybl.dynawo.models.lines.LineBuilder;
 import com.powsybl.dynawo.models.loads.*;
 import com.powsybl.dynawo.models.shunts.BaseShuntBuilder;
 import com.powsybl.dynawo.models.svarcs.BaseStaticVarCompensatorBuilder;
+import com.powsybl.dynawo.models.svc.SecondaryVoltageControlSimplifiedBuilder;
 import com.powsybl.dynawo.models.transformers.TransformerFixedRatioBuilder;
 
 import java.io.IOException;
@@ -69,6 +70,9 @@ public final class ModelConfigLoaderImpl implements ModelConfigLoader {
             new BuilderConfig(PhaseShifterBlockingIAutomationSystemBuilder.CATEGORY,
                     PhaseShifterBlockingIAutomationSystemBuilder::of,
                     PhaseShifterBlockingIAutomationSystemBuilder::getSupportedModelInfos),
+            new BuilderConfig(SecondaryVoltageControlSimplifiedBuilder.CATEGORY,
+                    SecondaryVoltageControlSimplifiedBuilder::of,
+                    SecondaryVoltageControlSimplifiedBuilder::getSupportedModelInfos),
             new BuilderConfig(StandardBusBuilder.CATEGORY, StandardBusBuilder::of, StandardBusBuilder::getSupportedModelInfos),
             new BuilderConfig(InfiniteBusBuilder.CATEGORY, InfiniteBusBuilder::of, InfiniteBusBuilder::getSupportedModelInfos),
             new BuilderConfig(TransformerFixedRatioBuilder.CATEGORY, TransformerFixedRatioBuilder::of, TransformerFixedRatioBuilder::getSupportedModelInfos),

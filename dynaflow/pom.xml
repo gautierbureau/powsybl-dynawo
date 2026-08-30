@@ -47,6 +47,26 @@
             <artifactId>powsybl-dynawo-contingencies</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-simulation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-mappings</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-algorithms-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-security-analysis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>de.vandermeer</groupId>
             <artifactId>asciitable</artifactId>
         </dependency>
@@ -105,6 +125,12 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-extensions-impl</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
