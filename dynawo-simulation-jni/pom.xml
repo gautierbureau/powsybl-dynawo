@@ -48,17 +48,20 @@
             <groupId>com.powsybl</groupId>
             <artifactId>iidm-bridge-java</artifactId>
         </dependency>
-        <!-- Needed by iidm-bridge-java, whose published pom does not declare them -->
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
-        </dependency>
+        <!-- Needed by iidm-bridge-java, whose published pom does not declare it -->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
+        <!-- The networks of the tests, Dynawo running on the network of any implementation of IIDM: that of a network
+             store for instance, the user of this module choosing it -->
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
