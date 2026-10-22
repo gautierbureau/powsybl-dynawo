@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+    <dyn:blackBoxModel id="GEN" lib="GeneratorPVSignalN" parFile="models.par" parId="n" staticId="GEN">
+        <dyn:macroStaticRef id="MSR_GeneratorPVSignalN"/>
+    </dyn:blackBoxModel>
+    <dyn:blackBoxModel id="LOAD" lib="LoadAlphaBetaRestorative" parFile="models.par" parId="load" staticId="LOAD">
+        <dyn:macroStaticRef id="MSR_LoadAlphaBetaRestorative"/>
+    </dyn:blackBoxModel>
+    <dyn:blackBoxModel id="Signal_N" lib="SignalN"/>
+    <dyn:blackBoxModel id="Disconnect_NHV1_NHV2_1" lib="EventQuadripoleDisconnection" parFile="sim1.par" parId="Disconnect_NHV1_NHV2_1"/>
+    <dyn:blackBoxModel id="Disconnect_LOAD" lib="EventSetPointBoolean" parFile="sim1.par" parId="Disconnect_LOAD"/>
+    <dyn:macroConnector id="MC_GeneratorPVSignalN-DefaultEquipmentConnectionPoint">
+        <dyn:connect var1="generator_terminal" var2="@STATIC_ID@@NODE@_ACPIN"/>
+        <dyn:connect var1="generator_switchOffSignal1" var2="@STATIC_ID@@NODE@_switchOff"/>
+    </dyn:macroConnector>
+    <dyn:macroConnector id="MC_LoadAlphaBetaRestorative-DefaultEquipmentConnectionPoint">
+        <dyn:connect var1="load_terminal" var2="@STATIC_ID@@NODE@_ACPIN"/>
+        <dyn:connect var1="load_switchOffSignal1" var2="@STATIC_ID@@NODE@_switchOff"/>
+    </dyn:macroConnector>
+    <dyn:macroConnector id="MC_SignalN-GeneratorPVSignalN">
+        <dyn:connect var1="signalN_N" var2="generator_N"/>
+    </dyn:macroConnector>
+    <dyn:macroConnector id="MC_SignalN-DefaultBusOfSignalN">
+        <dyn:connect var1="signalN_thetaRef" var2="@@NAME@@@NODE@_phi"/>
+    </dyn:macroConnector>
+    <dyn:macroConnector id="MC_EventBranchDisconnection-DefaultLine">
+        <dyn:connect var1="event_state1" var2="@NAME@_state"/>
+    </dyn:macroConnector>
+    <dyn:macroConnector id="MC_EventInjectionDisconnection-LoadAlphaBetaRestorative">
+        <dyn:connect var1="event_state1" var2="load_switchOffSignal2"/>
+    </dyn:macroConnector>
+    <dyn:macroStaticReference id="MSR_GeneratorPVSignalN">
+        <dyn:staticRef var="generator_PGenPu" staticVar="p"/>
+        <dyn:staticRef var="generator_QGenPu" staticVar="q"/>
+        <dyn:staticRef var="generator_state" staticVar="state"/>
+    </dyn:macroStaticReference>
+    <dyn:macroStaticReference id="MSR_LoadAlphaBetaRestorative">
+        <dyn:staticRef var="load_PPu" staticVar="p"/>
+        <dyn:staticRef var="load_QPu" staticVar="q"/>
+        <dyn:staticRef var="load_state" staticVar="state"/>
+    </dyn:macroStaticReference>
+    <dyn:macroConnect connector="MC_GeneratorPVSignalN-DefaultEquipmentConnectionPoint" id1="GEN" id2="NETWORK"/>
+    <dyn:macroConnect connector="MC_LoadAlphaBetaRestorative-DefaultEquipmentConnectionPoint" id1="LOAD" id2="NETWORK"/>
+    <dyn:macroConnect connector="MC_SignalN-GeneratorPVSignalN" id1="Signal_N" id2="GEN"/>
+    <dyn:macroConnect connector="MC_SignalN-DefaultBusOfSignalN" id1="Signal_N" id2="NETWORK" name2="GEN"/>
+    <dyn:macroConnect connector="MC_EventBranchDisconnection-DefaultLine" id1="Disconnect_NHV1_NHV2_1" id2="NETWORK" name2="NHV1_NHV2_1"/>
+    <dyn:macroConnect connector="MC_EventInjectionDisconnection-LoadAlphaBetaRestorative" id1="Disconnect_LOAD" id2="LOAD"/>
+</dyn:dynamicModelsArchitecture>

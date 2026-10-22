@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Checked at the end of the simulation only, and never respected -->
+<criteria xmlns="http://www.rte-france.com/dynawo">
+  <busCriteria>
+    <parameters id="minimum final bus voltage" scope="FINAL" type="LOCAL_VALUE" uMinPu="10.5"/>
+    <component id="_BUS___10_TN"/>
+  </busCriteria>
+</criteria>

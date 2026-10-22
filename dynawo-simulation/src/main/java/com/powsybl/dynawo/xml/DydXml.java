@@ -7,7 +7,9 @@
 
 package com.powsybl.dynawo.xml;
 
+import com.powsybl.dynawo.commons.DynawoVersion;
 import com.powsybl.dynawo.models.BlackBoxModel;
+import com.powsybl.dynawo.models.VariableNames;
 import com.powsybl.dynawo.models.macroconnections.MacroConnect;
 import com.powsybl.dynawo.models.macroconnections.MacroConnector;
 
@@ -15,6 +17,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.UnaryOperator;
 
 import static com.powsybl.dynawo.DynawoSimulationConstants.DYD_FILENAME;
 
@@ -23,20 +26,30 @@ import static com.powsybl.dynawo.DynawoSimulationConstants.DYD_FILENAME;
  */
 public final class DydXml extends AbstractXmlDynawoSimulationWriter<DynawoData> {
 
-    private DydXml(String fileName) {
-        super(fileName, "dynamicModelsArchitecture");
-    }
+    private final UnaryOperator<String> variableNames;
 
-    private DydXml() {
-        this(DYD_FILENAME);
+    private DydXml(String fileName, DynawoVersion dynawoVersion) {
+        super(fileName, "dynamicModelsArchitecture");
+        this.variableNames = VariableNames.of(dynawoVersion);
     }
 
     public static void write(Path workingDir, DynawoData dataSupplier) throws IOException {
-        new DydXml().createXmlFileFromDataSupplier(workingDir, dataSupplier);
+        write(workingDir, dataSupplier, null);
     }
 
     public static void write(Path workingDir, String fileName, DynawoData dataSupplier) throws IOException {
-        new DydXml(fileName).createXmlFileFromDataSupplier(workingDir, dataSupplier);
+        write(workingDir, fileName, dataSupplier, null);
+    }
+
+    /**
+     * The dyd file for a version of Dynawo, that names the variables of the models ({@link VariableNames})
+     */
+    public static void write(Path workingDir, DynawoData dataSupplier, DynawoVersion dynawoVersion) throws IOException {
+        write(workingDir, DYD_FILENAME, dataSupplier, dynawoVersion);
+    }
+
+    public static void write(Path workingDir, String fileName, DynawoData dataSupplier, DynawoVersion dynawoVersion) throws IOException {
+        new DydXml(fileName, dynawoVersion).createXmlFileFromDataSupplier(workingDir, dataSupplier);
     }
 
     @Override
@@ -59,10 +72,10 @@ public final class DydXml extends AbstractXmlDynawoSimulationWriter<DynawoData> 
             }
         }
         for (MacroConnector macroConnector : dataSupplier.getMacroConnectors()) {
-            macroConnector.write(writer);
+            macroConnector.write(writer, variableNames);
         }
         for (MacroStaticReference macroStaticReference : dataSupplier.getMacroStaticReferences()) {
-            macroStaticReference.write(writer);
+            macroStaticReference.write(writer, variableNames);
         }
         for (MacroConnect macroConnect : dataSupplier.getMacroConnectList()) {
             macroConnect.write(writer);

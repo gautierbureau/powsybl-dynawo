@@ -36,7 +36,17 @@ public final class DynawoUtil {
 
     public static DynawoVersion requireDynaMinVersion(ExecutionEnvironment env, ComputationManager computationManager,
                                                       Command versionCmd, String dynaName, boolean fromErr) {
-        DynawoVersion version = getDynawoVersion(env, computationManager, versionCmd, fromErr);
+        return requireDynaMinVersion(getDynawoVersion(env, computationManager, versionCmd, fromErr), dynaName);
+    }
+
+    /**
+     * The version of a version output, as the version command prints it, if it is supported
+     */
+    public static DynawoVersion requireDynaMinVersion(String versionOutput, String dynaName) {
+        return requireDynaMinVersion(DynawoVersion.createFromString(versionSanitizer(versionOutput)), dynaName);
+    }
+
+    private static DynawoVersion requireDynaMinVersion(DynawoVersion version, String dynaName) {
         if (DynawoConstants.VERSION_MIN.compareTo(version) > 0) {
             throw new PowsyblException(dynaName + " version not supported. Must be >= " + DynawoConstants.VERSION_MIN);
         }

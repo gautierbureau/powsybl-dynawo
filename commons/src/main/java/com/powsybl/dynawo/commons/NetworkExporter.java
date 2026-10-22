@@ -37,6 +37,14 @@ public final class NetworkExporter {
         writeIidm(network, file, version, false);
     }
 
+    /**
+     * Whether network modifiers (found by the {@link java.util.ServiceLoader}) change the network before it is written
+     * for Dynawo: on a copy of it
+     */
+    public static boolean hasNetworkModifiers() {
+        return !CONFIGURATION_HANDLER.getNetworkModifiers().isEmpty();
+    }
+
     public static void writeIidm(Network network, Path file, DynawoVersion version, boolean isMergeLoads) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(file);

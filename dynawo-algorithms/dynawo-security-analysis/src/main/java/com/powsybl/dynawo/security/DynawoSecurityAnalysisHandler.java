@@ -66,7 +66,7 @@ public final class DynawoSecurityAnalysisHandler extends AbstractDynawoAlgorithm
     protected void writeMultipleJobs(Path workingDir) throws XMLStreamException, IOException {
         JobsXml.write(workingDir, context);
         MultipleJobsXml.write(workingDir, context);
-        ContingenciesDydXml.write(workingDir, context.getContingencyEventModels());
+        ContingenciesDydXml.write(workingDir, context.getContingencyEventModels(), context.getCurrentDynawoVersion());
         ContingenciesParXml.write(workingDir, context.getContingencyEventModels());
     }
 }

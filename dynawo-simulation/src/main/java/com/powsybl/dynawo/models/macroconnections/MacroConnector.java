@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoSides;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import static com.powsybl.dynawo.xml.DynawoSimulationXmlConstants.DYN_URI;
 import static com.powsybl.dynawo.xml.DynawoSimulationXmlConstants.MACRO_CONNECTOR_PREFIX;
@@ -48,12 +49,19 @@ public final class MacroConnector {
     }
 
     public void write(XMLStreamWriter writer) throws XMLStreamException {
+        write(writer, UnaryOperator.identity());
+    }
+
+    /**
+     * Writes the connections with the names of the variables for a version of Dynawo ({@link com.powsybl.dynawo.models.VariableNames})
+     */
+    public void write(XMLStreamWriter writer, UnaryOperator<String> variableNames) throws XMLStreamException {
         writer.writeStartElement(DYN_URI, "macroConnector");
         writer.writeAttribute("id", id);
         for (VarConnection varConnection : this.varConnections) {
             writer.writeEmptyElement(DYN_URI, "connect");
-            writer.writeAttribute("var1", varConnection.var1());
-            writer.writeAttribute("var2", varConnection.var2());
+            writer.writeAttribute("var1", variableNames.apply(varConnection.var1()));
+            writer.writeAttribute("var2", variableNames.apply(varConnection.var2()));
         }
         writer.writeEndElement();
     }

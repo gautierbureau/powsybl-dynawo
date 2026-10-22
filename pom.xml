@@ -64,6 +64,7 @@
         <groovy.version>4.0.32</groovy.version> <!-- used for groovy-json but also for groovydoc (dynawo-dsl) -->
         <asciitable.version>0.3.2</asciitable.version>
         <jackson.version>2.21.1</jackson.version>
+        <iidm-bridge.version>1.0.0-SNAPSHOT</iidm-bridge.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution/target/site/jacoco-aggregate/jacoco.xml
@@ -110,6 +111,16 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <!-- Dynawo run in the JVM through JNI: needs iidm-bridge-java, built with the iidm-bridge library of Dynawo -->
+            <id>jni</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>dynawo-simulation-jni</module>
+            </modules>
         </profile>
         <profile>
             <id>integration-tests</id>
@@ -178,6 +189,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-dynawo-simulation-jni</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynawo-dsl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -203,6 +219,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-dynawo-mappings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynawo-extensions-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -215,6 +236,11 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynawo-extensions-serde</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>iidm-bridge-java</artifactId>
+                <version>${iidm-bridge.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.groovy</groupId>

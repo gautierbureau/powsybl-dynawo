@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 import static com.powsybl.dynawo.xml.DynawoSimulationXmlConstants.DYN_URI;
 import static com.powsybl.dynawo.xml.DynawoSimulationXmlConstants.MACRO_STATIC_REFERENCE_PREFIX;
@@ -30,13 +31,21 @@ public final class MacroStaticReference {
     }
 
     public void write(XMLStreamWriter writer) throws XMLStreamException {
+        write(writer, UnaryOperator.identity());
+    }
+
+    /**
+     * Writes the static references with the names of the dynamic variables for a version of Dynawo
+     * ({@link com.powsybl.dynawo.models.VariableNames})
+     */
+    public void write(XMLStreamWriter writer, UnaryOperator<String> variableNames) throws XMLStreamException {
         if (varMappings.isEmpty()) {
             return;
         }
         writer.writeStartElement(DYN_URI, "macroStaticReference");
         writer.writeAttribute("id", MACRO_STATIC_REFERENCE_PREFIX + lib);
         for (VarMapping varMapping : varMappings) {
-            writeStaticRef(writer, varMapping.dynamicVar(), varMapping.staticVar());
+            writeStaticRef(writer, variableNames.apply(varMapping.dynamicVar()), varMapping.staticVar());
         }
         writer.writeEndElement();
     }

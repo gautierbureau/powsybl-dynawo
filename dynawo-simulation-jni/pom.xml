@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2026, RTE (http://www.rte-france.com) This Source Code
+    Form is subject to the terms of the Mozilla Public License, v. 2.0. If a
+    copy of the MPL was not distributed with this file, You can obtain one at
+    http://mozilla.org/MPL/2.0/.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>powsybl-dynawo</artifactId>
+        <groupId>com.powsybl</groupId>
+        <version>3.4.0-tcb-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>powsybl-dynawo-simulation-jni</artifactId>
+    <name>Dynawo simulation through JNI</name>
+    <description>Dynawo run in the JVM through JNI, on the network itself: no IIDM file is written or read</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.dynawo.jni</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Compile dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-simulation</artifactId>
+        </dependency>
+        <!-- The Java side of the JNI backend of iidm-bridge, through which Dynawo reads and writes the network: its
+             version must be the one of the iidm-bridge library of the Dynawo installation -->
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>iidm-bridge-java</artifactId>
+        </dependency>
+        <!-- Needed by iidm-bridge-java, whose published pom does not declare it -->
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <!-- The networks of the tests, Dynawo running on the network of any implementation of IIDM: that of a network
+             store for instance, the user of this module choosing it -->
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-commons-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- IEEE 14 described by the universal mapping, whose extensions need their implementation -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-mappings</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-extensions-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
