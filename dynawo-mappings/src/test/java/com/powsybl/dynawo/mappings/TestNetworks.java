@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
@@ -46,7 +47,7 @@ public final class TestNetworks {
         return voltageLevel.newStaticVarCompensator().setId("svc")
                 .setBus("bus").setConnectableBus("bus")
                 .setBmin(-0.01).setBmax(0.01)
-                .setRegulating(true).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true).setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(nominalV)
                 .add();
     }
