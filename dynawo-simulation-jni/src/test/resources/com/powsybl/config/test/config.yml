@@ -1,0 +1,3 @@
+dynawo:
+  homeDir: /home/dynawo
+  debug: false
