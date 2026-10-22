@@ -15,12 +15,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidmbridge.jni.IidmBridgeRegistry;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Dynawo run in this JVM through its native methods: the network is registered in the registry of iidm-bridge, where
- * Dynawo reads it through the JNI backend of iidm-bridge, and writes the final values of the simulation into it.
+ * Dynawo reads it through the JNI backend of iidm-bridge, and writes the final values of the simulation into it; the
+ * other input files are given to Dynawo with their contents.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -41,15 +43,24 @@ public class JniDynawoLauncher implements DynawoJniLauncher {
     }
 
     @Override
-    public void run(Path dynawoHome, Path jobsFile, Network network, String variantId) {
+    public void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Network network, String variantId) {
         DynawoNative.load(dynawoHome);
+        String[] inputPaths = new String[inputFiles.size()];
+        byte[][] inputContents = new byte[inputFiles.size()][];
+        int i = 0;
+        for (Map.Entry<Path, byte[]> inputFile : inputFiles.entrySet()) {
+            inputPaths[i] = inputFile.getKey().toAbsolutePath().toString();
+            inputContents[i] = inputFile.getValue();
+            i++;
+        }
         String networkId = NETWORK_ID_PREFIX + UUID.randomUUID();
         IidmBridgeRegistry.register(networkId, network);
         try {
             runInDynawoThread(() -> {
                 // the working variant of this thread, if the variants of the network are per thread
                 network.getVariantManager().setWorkingVariant(variantId);
-                DynawoNative.runJobs(dynawoHome.toAbsolutePath().toString(), jobsFile.toAbsolutePath().toString(), networkId);
+                DynawoNative.runJobs(dynawoHome.toAbsolutePath().toString(), jobsFile.toAbsolutePath().toString(),
+                        inputPaths, inputContents, networkId);
             });
         } finally {
             IidmBridgeRegistry.unregister(networkId);

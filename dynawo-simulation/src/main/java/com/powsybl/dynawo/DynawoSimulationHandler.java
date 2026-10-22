@@ -7,6 +7,8 @@
  */
 package com.powsybl.dynawo;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.AbstractExecutionHandler;
@@ -33,12 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.powsybl.dynawo.DynawoFilesUtils.*;
 import static com.powsybl.dynawo.DynawoSimulationConstants.*;
@@ -59,6 +63,7 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     private final Command command;
     private final DynawoJniLauncher jniLauncher;
     private final Path dynawoHome;
+    private final boolean debug;
     private final ReportNode reportNode;
 
     private final List<TimelineEvent> timeline = new ArrayList<>();
@@ -69,25 +74,27 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     private String jniFailure;
 
     public DynawoSimulationHandler(DynawoSimulationContext context, Command command, ReportNode reportNode) {
-        this(context, Objects.requireNonNull(command), null, null, reportNode);
+        this(context, Objects.requireNonNull(command), null, null, false, reportNode);
     }
 
     private DynawoSimulationHandler(DynawoSimulationContext context, Command command, DynawoJniLauncher jniLauncher,
-                                    Path dynawoHome, ReportNode reportNode) {
+                                    Path dynawoHome, boolean debug, ReportNode reportNode) {
         this.context = context;
         this.command = command;
         this.jniLauncher = jniLauncher;
         this.dynawoHome = dynawoHome;
+        this.debug = debug;
         this.reportNode = reportNode;
     }
 
     /**
-     * Dynawo run in this JVM through JNI, on the network of the context itself: no IIDM file is written or read, and
-     * there is no command to execute
+     * Dynawo run in this JVM through JNI, on the network of the context itself: no IIDM file is written or read, the
+     * other input files are given to Dynawo in memory, and there is no command to execute. In debug, the input files
+     * are written in the working directory after the run, for inspection.
      */
     public static DynawoSimulationHandler withJniLauncher(DynawoSimulationContext context, DynawoJniLauncher jniLauncher,
-                                                          Path dynawoHome, ReportNode reportNode) {
-        return new DynawoSimulationHandler(context, null, Objects.requireNonNull(jniLauncher), Objects.requireNonNull(dynawoHome), reportNode);
+                                                          Path dynawoHome, boolean debug, ReportNode reportNode) {
+        return new DynawoSimulationHandler(context, null, Objects.requireNonNull(jniLauncher), Objects.requireNonNull(dynawoHome), debug, reportNode);
     }
 
     @Override
@@ -96,24 +103,31 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         deleteExistingFile(basePath, FINAL_STATE_FOLDER, OUTPUT_IIDM_FILENAME);
         deleteExistingFile(basePath, CURVES_OUTPUT_PATH, CURVES_FILENAME);
         deleteExistingFile(basePath, FSV_OUTPUT_PATH, FSV_OUTPUT_FILENAME);
-        writeInputFiles(workingDir);
-
-        Path tmpExecFile = LocalComputationConfig.load().getLocalDir().resolve(EXEC_TMP_FILENAME);
-        Files.writeString(tmpExecFile, workingDir.toAbsolutePath().toString());
-
         if (jniLauncher != null) {
-            runThroughJni(workingDir);
+            Map<Path, byte[]> inputFiles = writeInputFilesInMemory(workingDir);
+            writeExecTmpFile(workingDir);
+            runThroughJni(workingDir, inputFiles);
+            if (debug) {
+                writeInputFiles(inputFiles);
+            }
             return Collections.emptyList();
         }
+        writeInputFiles(workingDir);
+        writeExecTmpFile(workingDir);
         return getCommandExecutions(command);
     }
 
-    private void runThroughJni(Path workingDir) {
+    private static void writeExecTmpFile(Path workingDir) throws IOException {
+        Path tmpExecFile = LocalComputationConfig.load().getLocalDir().resolve(EXEC_TMP_FILENAME);
+        Files.writeString(tmpExecFile, workingDir.toAbsolutePath().toString());
+    }
+
+    private void runThroughJni(Path workingDir, Map<Path, byte[]> inputFiles) {
         Network network = context.getNetwork();
         network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
         SolvedPositions solvedPositions = SolvedPositions.save(network);
         try {
-            jniLauncher.run(dynawoHome, workingDir.resolve(JOBS_FILENAME), network, context.getWorkingVariantId());
+            jniLauncher.run(dynawoHome, workingDir.resolve(JOBS_FILENAME), inputFiles, network, context.getWorkingVariantId());
             network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
             solvedPositions.applySolved();
         } catch (PowsyblException e) {
@@ -254,13 +268,40 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     }
 
     private void writeInputFiles(Path workingDir) throws IOException {
-        // through JNI, Dynawo reads the network itself and writes the final state into it
-        boolean networkFiles = jniLauncher == null;
-        if (networkFiles) {
-            NetworkExporter.writeIidm(context.getNetwork(), workingDir.resolve(NETWORK_FILENAME),
-                    context.getCurrentDynawoVersion(), context.getDynawoSimulationParameters().isMergeLoads());
-        }
-        JobsXml.write(workingDir, context, networkFiles);
+        NetworkExporter.writeIidm(context.getNetwork(), workingDir.resolve(NETWORK_FILENAME),
+                context.getCurrentDynawoVersion(), context.getDynawoSimulationParameters().isMergeLoads());
+        JobsXml.write(workingDir, context);
         DynawoFilesUtils.writeInputFiles(workingDir, context);
+    }
+
+    /**
+     * Through JNI, the input files are given to Dynawo in memory, by the paths it reads them from in the working
+     * directory, without being written there. The network is not one of them: Dynawo reads it itself, and writes the
+     * final state into it, with no IIDM file of the final state. Only the dump file of an initial state, that Dynawo
+     * reads from the file system, is written in the working directory.
+     */
+    private Map<Path, byte[]> writeInputFilesInMemory(Path workingDir) throws IOException {
+        try (FileSystem memory = Jimfs.newFileSystem(Configuration.unix())) {
+            Path memoryDir = Files.createDirectory(memory.getPath("/" + workingDir.getFileName()));
+            JobsXml.write(memoryDir, context, false);
+            DynawoFilesUtils.writeInputFiles(memoryDir, workingDir, context);
+            Map<Path, byte[]> inputFiles = new LinkedHashMap<>();
+            try (Stream<Path> files = Files.walk(memoryDir)) {
+                for (Path file : files.filter(Files::isRegularFile).sorted().toList()) {
+                    inputFiles.put(workingDir.resolve(memoryDir.relativize(file).toString()), Files.readAllBytes(file));
+                }
+            }
+            return inputFiles;
+        }
+    }
+
+    /**
+     * The input files given to Dynawo in memory, written where it read them from
+     */
+    private static void writeInputFiles(Map<Path, byte[]> inputFiles) throws IOException {
+        for (Map.Entry<Path, byte[]> inputFile : inputFiles.entrySet()) {
+            Files.createDirectories(inputFile.getKey().getParent());
+            Files.write(inputFile.getKey(), inputFile.getValue());
+        }
     }
 }

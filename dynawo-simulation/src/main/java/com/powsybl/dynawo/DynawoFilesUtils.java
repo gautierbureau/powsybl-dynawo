@@ -38,6 +38,14 @@ public final class DynawoFilesUtils {
     }
 
     public static void writeInputFiles(Path workingDir, DynawoSimulationContext context) throws IOException {
+        writeInputFiles(workingDir, workingDir, context);
+    }
+
+    /**
+     * The input files of Dynawo, but the dump file of the initial state, that Dynawo reads from the file system, in its
+     * own directory: the working directory itself, when the other files are given to Dynawo in memory
+     */
+    public static void writeInputFiles(Path workingDir, Path dumpFilesDir, DynawoSimulationContext context) throws IOException {
         DydXml.write(workingDir, context.getSimulationDydData(), context.getCurrentDynawoVersion());
         ParametersXml.write(workingDir, context);
         if (context.withCurveVariables()) {
@@ -46,7 +54,7 @@ public final class DynawoFilesUtils {
         if (context.withFsvVariables()) {
             OutputVariablesXml.writeFsv(workingDir, context);
         }
-        writeDumpFiles(workingDir, context.getDynawoSimulationParameters().getDumpFileParameters());
+        writeDumpFiles(dumpFilesDir, context.getDynawoSimulationParameters().getDumpFileParameters());
         writeCriteriaFile(workingDir, context.getDynawoSimulationParameters());
     }
 
@@ -67,7 +75,8 @@ public final class DynawoFilesUtils {
         }
         parameters.getCriteriaFilePath().ifPresent(filePath -> {
             try {
-                Files.copy(filePath, workingDir.resolve(filePath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                // by its name, the working directory being maybe of another file system
+                Files.copy(filePath, workingDir.resolve(filePath.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new PowsyblException("Simulation criteria file error", e);
             }

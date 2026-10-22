@@ -107,6 +107,11 @@ class JniDynawoSimulationTest {
     }
 
     private DynamicSimulationResult runSignalN(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters) {
+        return runSignalN(network, launcher, dynawoParameters, true);
+    }
+
+    private DynamicSimulationResult runSignalN(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
+                                               boolean debug) {
         DynamicModelsSupplier dynamicModels = (n, r) -> {
             List<DynamicModel> models = new ArrayList<>();
             for (int i = 0; i < GENERATOR_IDS.length; i++) {
@@ -125,7 +130,7 @@ class JniDynawoSimulationTest {
                 .staticId(DISCONNECTED_LOAD_ID)
                 .startTime(1)
                 .build());
-        return run(network, launcher, dynawoParameters, dynamicModels, events);
+        return run(network, launcher, dynawoParameters, dynamicModels, events, debug);
     }
 
     /**
@@ -148,7 +153,16 @@ class JniDynawoSimulationTest {
 
     private DynamicSimulationResult run(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
                                         DynamicModelsSupplier dynamicModels, EventModelsSupplier events) {
-        DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(dynawoHome, true, launcher));
+        return run(network, launcher, dynawoParameters, dynamicModels, events, true);
+    }
+
+    /**
+     * In debug, the working directory is kept, and the input files given to Dynawo in memory are written in it after the
+     * run, for inspection
+     */
+    private DynamicSimulationResult run(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
+                                        DynamicModelsSupplier dynamicModels, EventModelsSupplier events, boolean debug) {
+        DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(dynawoHome, debug, launcher));
         DynamicSimulationParameters parameters = new DynamicSimulationParameters().setStartTime(0).setStopTime(10);
         parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
         DynamicSimulationRunParameters runParameters = new DynamicSimulationRunParameters()
@@ -172,7 +186,8 @@ class JniDynawoSimulationTest {
     }
 
     /**
-     * No IIDM file: Dynawo has read the network itself, and written the final state into it
+     * No IIDM file: Dynawo has read the network itself, and written the final state into it. The jobs file, given to
+     * Dynawo in memory, is written in the working directory after the run, in debug.
      */
     private void assertNoIidmFile() {
         Path workingDir = getWorkingDir();
@@ -199,6 +214,18 @@ class JniDynawoSimulationTest {
         // the load is off, and the voltage of its bus has risen
         assertEquals(0, network.getLoad(DISCONNECTED_LOAD_ID).getTerminal().getP(), 1e-6);
         assertThat(network.getBusBreakerView().getBus(BUS_ID).getV()).isGreaterThan(v + 1e-3);
+    }
+
+    @Test
+    void testIeee14SignalNWithoutDebug() {
+        Network network = createIeee14();
+
+        // no input file ever written: Dynawo reads them all from memory
+        DynamicSimulationResult result = runSignalN(network, DynawoSimulationConfig.Launcher.JNI, createSignalNParameters(), false);
+
+        assertSuccess(result);
+        assertThat(result.getTimeLine()).isNotEmpty();
+        assertEquals(0, network.getLoad(DISCONNECTED_LOAD_ID).getTerminal().getP(), 1e-6);
     }
 
     @Test

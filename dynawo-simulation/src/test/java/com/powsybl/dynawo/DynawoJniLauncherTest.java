@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -33,8 +34,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.powsybl.dynawo.DynawoSimulationConstants.JOBS_FILENAME;
-import static com.powsybl.dynawo.commons.DynawoConstants.NETWORK_FILENAME;
+import static com.powsybl.dynawo.DynawoSimulationConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -56,8 +56,9 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
 
         private final String version;
         private final Consumer<Network> dynawo;
-        private String jobsFileName;
+        private Path jobsFile;
         private List<String> workingDirFiles;
+        private List<String> inputFileNames;
         private String jobs;
         private String variantId;
         private String workingVariantId;
@@ -78,15 +79,16 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
         }
 
         @Override
-        public void run(Path dynawoHome, Path jobsFile, Network network, String variantId) {
+        public void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Network network, String variantId) {
             assertEquals(DYNAWO_HOME, dynawoHome);
-            jobsFileName = jobsFile.getFileName().toString();
-            try (Stream<Path> files = Files.list(jobsFile.getParent())) {
-                workingDirFiles = files.map(file -> file.getFileName().toString()).toList();
-                jobs = Files.readString(jobsFile);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            this.jobsFile = jobsFile;
+            workingDirFiles = listFileNames(jobsFile.getParent());
+            inputFileNames = inputFiles.keySet().stream()
+                    .peek(inputFile -> assertEquals(jobsFile.getParent(), inputFile.getParent()))
+                    .map(inputFile -> inputFile.getFileName().toString())
+                    .sorted()
+                    .toList();
+            jobs = new String(inputFiles.get(jobsFile), StandardCharsets.UTF_8);
             this.variantId = variantId;
             workingVariantId = network.getVariantManager().getWorkingVariantId();
             dynawo.accept(network);
@@ -113,8 +115,21 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
         super.tearDown();
     }
 
+    private static List<String> listFileNames(Path dir) {
+        try (Stream<Path> files = Files.list(dir)) {
+            return files.map(file -> file.getFileName().toString()).sorted().toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     private DynamicSimulationResult run(Network network, String variantId, DynawoJniLauncher launcher, DynawoSimulationParameters dynawoParameters) {
-        DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(DYNAWO_HOME, false, DynawoSimulationConfig.Launcher.JNI), launcher);
+        return run(network, variantId, launcher, dynawoParameters, false);
+    }
+
+    private DynamicSimulationResult run(Network network, String variantId, DynawoJniLauncher launcher, DynawoSimulationParameters dynawoParameters,
+                                        boolean debug) {
+        DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(DYNAWO_HOME, debug, DynawoSimulationConfig.Launcher.JNI), launcher);
         DynamicSimulationParameters parameters = new DynamicSimulationParameters().setStartTime(0).setStopTime(10);
         parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
         DynamicSimulationRunParameters runParameters = new DynamicSimulationRunParameters()
@@ -135,10 +150,27 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
 
         assertEquals(DynamicSimulationResult.Status.SUCCESS, run(network, launcher).getStatus());
 
-        // Dynawo reads the jobs file of the run, and the network itself: no network file, no IIDM file of the final state
-        assertEquals(JOBS_FILENAME, launcher.jobsFileName);
-        assertFalse(launcher.workingDirFiles.contains(NETWORK_FILENAME), launcher.workingDirFiles::toString);
+        // Dynawo reads the network itself, and its other input files from memory: no file in the working directory,
+        // and no IIDM file of the final state asked for
+        assertEquals(JOBS_FILENAME, launcher.jobsFile.getFileName().toString());
+        assertEquals(List.of(), launcher.workingDirFiles);
+        assertEquals(List.of(network.getId() + ".par", MODELS_PARAMETERS_FILENAME, NETWORK_PARAMETERS_FILENAME, DYD_FILENAME, JOBS_FILENAME,
+                SOLVER_PARAMETERS_FILENAME), launcher.inputFileNames);
         assertTrue(launcher.jobs.contains("exportIIDMFile=\"false\""), launcher.jobs);
+    }
+
+    @Test
+    void testDebug() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        DynawoJniLauncherMock launcher = new DynawoJniLauncherMock(n -> {
+        });
+
+        assertEquals(DynamicSimulationResult.Status.SUCCESS,
+                run(network, VariantManagerConstants.INITIAL_VARIANT_ID, launcher, DynawoSimulationParameters.load(), true).getStatus());
+
+        // the input files given in memory are written in the working directory after the run, for inspection
+        assertEquals(List.of(), launcher.workingDirFiles);
+        assertEquals(launcher.inputFileNames, listFileNames(launcher.jobsFile.getParent()));
     }
 
     @Test

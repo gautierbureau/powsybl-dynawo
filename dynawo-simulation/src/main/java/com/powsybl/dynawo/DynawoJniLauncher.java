@@ -10,12 +10,13 @@ package com.powsybl.dynawo;
 import com.powsybl.iidm.network.Network;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Runs Dynawo in this JVM, through JNI, on a network of this JVM: Dynawo reads the network itself and writes the
- * results of the simulation into it, so that no IIDM file is written or read. Used by the {@code jni} launcher of
- * {@link DynawoSimulationConfig}; its implementation, in the powsybl-dynawo-simulation-jni module, is found by the
- * {@link java.util.ServiceLoader}.
+ * results of the simulation into it, so that no IIDM file is written or read, and it reads its other input files from
+ * memory. Used by the {@code jni} launcher of {@link DynawoSimulationConfig}; its implementation, in the
+ * powsybl-dynawo-simulation-jni module, is found by the {@link java.util.ServiceLoader}.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -28,8 +29,10 @@ public interface DynawoJniLauncher {
 
     /**
      * Runs the jobs of a jobs file on a network: Dynawo reads the given variant of the network and writes the final
-     * values of the simulation into it. A failure of Dynawo throws a {@link com.powsybl.commons.PowsyblException}
-     * with the message of Dynawo, and leaves the network as it was.
+     * values of the simulation into it. The input files (the jobs file, and the dyd, par... files it refers to) are
+     * given by the paths Dynawo reads them from: it reads them from their content rather than from the file system,
+     * where they need not be, and writes its outputs in the directory of the jobs file. A failure of Dynawo throws a
+     * {@link com.powsybl.commons.PowsyblException} with the message of Dynawo, and leaves the network as it was.
      */
-    void run(Path dynawoHome, Path jobsFile, Network network, String variantId);
+    void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Network network, String variantId);
 }

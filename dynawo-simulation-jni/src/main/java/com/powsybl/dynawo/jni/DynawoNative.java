@@ -50,8 +50,9 @@ final class DynawoNative {
 
     /**
      * Runs the jobs of a jobs file on the network registered in {@link com.powsybl.iidmbridge.jni.IidmBridgeRegistry}
-     * under an id, in its working variant: Dynawo writes the final values of the simulation into it. A failure throws a
-     * {@link DynawoNativeException}.
+     * under an id, in its working variant: Dynawo writes the final values of the simulation into it. The input files,
+     * given by their paths and their contents in the same order, are read from their contents rather than from the file
+     * system; the outputs are written in the directory of the jobs file. A failure throws a {@link DynawoNativeException}.
      */
-    static native void runJobs(String installDir, String jobsFile, String networkId);
+    static native void runJobs(String installDir, String jobsFile, String[] inputPaths, byte[][] inputContents, String networkId);
 }

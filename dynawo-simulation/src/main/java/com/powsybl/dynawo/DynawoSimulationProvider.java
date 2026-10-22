@@ -152,7 +152,7 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
 
         ExecutionEnvironment execEnvSimulation = ExecutionEnvironmentUtils.createSimulationEnv(config, WORKING_DIR_PREFIX, dumpDir);
         DynawoSimulationHandler handler = throughJni
-                ? DynawoSimulationHandler.withJniLauncher(context, jniLauncher.get(), config.getHomeDir(), reportNode)
+                ? DynawoSimulationHandler.withJniLauncher(context, jniLauncher.get(), config.getHomeDir(), config.isDebug(), reportNode)
                 : new DynawoSimulationHandler(context, getCommand(config), reportNode);
         return computationManager.execute(execEnvSimulation, handler);
     }
