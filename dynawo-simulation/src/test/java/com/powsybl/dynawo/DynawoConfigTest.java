@@ -49,6 +49,16 @@ class DynawoConfigTest {
         DynawoSimulationConfig config = DynawoSimulationConfig.load(platformConfig);
         assertEquals(homeDir, config.getHomeDir().toString());
         assertEquals(debug, config.isDebug());
+        assertEquals(DynawoSimulationConfig.Launcher.PROCESS, config.getLauncher());
+    }
+
+    @Test
+    void checkJniLauncherConfig() {
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dynawo");
+        moduleConfig.setStringProperty("homeDir", "homeDir");
+        moduleConfig.setStringProperty("launcher", "JNI");
+        DynawoSimulationConfig config = DynawoSimulationConfig.load(platformConfig);
+        assertEquals(DynawoSimulationConfig.Launcher.JNI, config.getLauncher());
     }
 
 }

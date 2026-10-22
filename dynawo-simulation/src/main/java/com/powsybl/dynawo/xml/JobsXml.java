@@ -36,16 +36,31 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
     private final Supplier<SimulationTime> simulationTimeSupplier;
     private final String additionalDydFile;
     private final String networkParameterSetId;
+    private final boolean exportIidmFile;
 
     private JobsXml(String xmlFileName, Supplier<SimulationTime> simulationTimeSupplier, String additionalDydFile, String networkParameterSetId) {
+        this(xmlFileName, simulationTimeSupplier, additionalDydFile, networkParameterSetId, true);
+    }
+
+    private JobsXml(String xmlFileName, Supplier<SimulationTime> simulationTimeSupplier, String additionalDydFile, String networkParameterSetId,
+                    boolean exportIidmFile) {
         super(xmlFileName, "jobs");
         this.simulationTimeSupplier = simulationTimeSupplier;
         this.additionalDydFile = additionalDydFile;
         this.networkParameterSetId = networkParameterSetId;
+        this.exportIidmFile = exportIidmFile;
     }
 
     public static void write(Path workingDir, DynawoSimulationContext context) throws IOException {
-        new JobsXml(JOBS_FILENAME, context::getSimulationTime, null, context.getNetworkParameterSetId())
+        write(workingDir, context, true);
+    }
+
+    /**
+     * The jobs file, with or without the IIDM file of the final state: Dynawo run on the network itself writes the
+     * final state into it
+     */
+    public static void write(Path workingDir, DynawoSimulationContext context, boolean exportIidmFile) throws IOException {
+        new JobsXml(JOBS_FILENAME, context::getSimulationTime, null, context.getNetworkParameterSetId(), exportIidmFile)
                 .createXmlFileFromDataSupplier(workingDir, context);
     }
 
@@ -77,7 +92,7 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writeSolver(writer, parameters);
         writeModeler(writer, parameters, additionalDydFile, networkParameterSetId);
         writeSimulation(writer, parameters, simulationTimeSupplier.get());
-        writeOutput(writer, context);
+        writeOutput(writer, context, exportIidmFile);
         writer.writeEndElement();
     }
 
@@ -167,7 +182,7 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         }
     }
 
-    private static void writeOutput(XMLStreamWriter writer, DynawoSimulationContext context) throws XMLStreamException {
+    private static void writeOutput(XMLStreamWriter writer, DynawoSimulationContext context, boolean exportIidmFile) throws XMLStreamException {
         DynawoSimulationParameters parameters = context.getDynawoSimulationParameters();
         writer.writeStartElement(DYN_URI, "outputs");
         writer.writeAttribute("directory", OUTPUTS_FOLDER);
@@ -187,7 +202,7 @@ public final class JobsXml extends AbstractXmlDynawoSimulationWriter<DynawoSimul
         writer.writeAttribute(EXPORT_MODE, parameters.getTimelineExportMode().toString());
 
         writer.writeEmptyElement(DYN_URI, "finalState");
-        writer.writeAttribute("exportIIDMFile", Boolean.toString(true));
+        writer.writeAttribute("exportIIDMFile", Boolean.toString(exportIidmFile));
         writer.writeAttribute("exportDumpFile", Boolean.toString(parameters.getDumpFileParameters().exportDumpFile()));
 
         if (context.withCurveVariables()) {

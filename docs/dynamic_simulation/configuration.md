@@ -10,6 +10,11 @@ Use the `homeDir` property to define the installation directory of the dynawo si
 Use the `debug` property to specify if the temporary folder where the inputs are generated should be kept after the simulation.<br>
 This property is independent of the `debugDir` parameter [property](inv:powsyblcore:*:*#simulation/dynamic/configuration). If both properties are set to `true`, the temporary simulation folder will be kept **and** dumped in the requested folder.
 
+### launcher
+Use the `launcher` property to choose how Dynawo is run:
+- `PROCESS` (default): `dynawo.sh` is run by the computation manager. The network is exported to an IIDM file, and the results are read back from the IIDM file of the final state.
+- `JNI`: Dynawo is run in the JVM, through JNI, on the network itself: no IIDM file is written or read, Dynawo writes the final state of the simulation into the working variant of the network. It needs the `powsybl-dynawo-simulation-jni` module (`jni` Maven profile), whose `iidm-bridge-java` dependency must come from the same iidm-bridge as the library of the Dynawo installation, and the libraries of that installation on the library path (`LD_LIBRARY_PATH`). Merged loads and network modifiers, which need a copy of the network, are not supported.
+
 ### Examples
 
 **YAML configuration:**

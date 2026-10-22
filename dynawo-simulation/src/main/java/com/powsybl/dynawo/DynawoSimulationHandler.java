@@ -7,6 +7,7 @@
  */
 package com.powsybl.dynawo;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.AbstractExecutionHandler;
 import com.powsybl.computation.Command;
@@ -20,10 +21,12 @@ import com.powsybl.dynawo.commons.CommonReports;
 import com.powsybl.dynawo.commons.ExportMode;
 import com.powsybl.dynawo.commons.NetworkExporter;
 import com.powsybl.dynawo.commons.NetworkResultsUpdater;
+import com.powsybl.dynawo.commons.SolvedPositions;
 import com.powsybl.dynawo.commons.dynawologs.CsvLogParser;
 import com.powsybl.dynawo.commons.timeline.TimeLineParser;
 import com.powsybl.dynawo.outputvariables.CsvFsvParser;
 import com.powsybl.dynawo.xml.JobsXml;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.timeseries.*;
 import org.slf4j.Logger;
@@ -54,6 +57,8 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
 
     private final DynawoSimulationContext context;
     private final Command command;
+    private final DynawoJniLauncher jniLauncher;
+    private final Path dynawoHome;
     private final ReportNode reportNode;
 
     private final List<TimelineEvent> timeline = new ArrayList<>();
@@ -61,11 +66,28 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     private final Map<String, Double> fsv = new LinkedHashMap<>();
     private DynamicSimulationResult.Status status = DynamicSimulationResult.Status.SUCCESS;
     private String statusText = "";
+    private String jniFailure;
 
     public DynawoSimulationHandler(DynawoSimulationContext context, Command command, ReportNode reportNode) {
+        this(context, Objects.requireNonNull(command), null, null, reportNode);
+    }
+
+    private DynawoSimulationHandler(DynawoSimulationContext context, Command command, DynawoJniLauncher jniLauncher,
+                                    Path dynawoHome, ReportNode reportNode) {
         this.context = context;
         this.command = command;
+        this.jniLauncher = jniLauncher;
+        this.dynawoHome = dynawoHome;
         this.reportNode = reportNode;
+    }
+
+    /**
+     * Dynawo run in this JVM through JNI, on the network of the context itself: no IIDM file is written or read, and
+     * there is no command to execute
+     */
+    public static DynawoSimulationHandler withJniLauncher(DynawoSimulationContext context, DynawoJniLauncher jniLauncher,
+                                                          Path dynawoHome, ReportNode reportNode) {
+        return new DynawoSimulationHandler(context, null, Objects.requireNonNull(jniLauncher), Objects.requireNonNull(dynawoHome), reportNode);
     }
 
     @Override
@@ -79,7 +101,27 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         Path tmpExecFile = LocalComputationConfig.load().getLocalDir().resolve(EXEC_TMP_FILENAME);
         Files.writeString(tmpExecFile, workingDir.toAbsolutePath().toString());
 
+        if (jniLauncher != null) {
+            runThroughJni(workingDir);
+            return Collections.emptyList();
+        }
         return getCommandExecutions(command);
+    }
+
+    private void runThroughJni(Path workingDir) {
+        Network network = context.getNetwork();
+        network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
+        SolvedPositions solvedPositions = SolvedPositions.save(network);
+        try {
+            jniLauncher.run(dynawoHome, workingDir.resolve(JOBS_FILENAME), network, context.getWorkingVariantId());
+            network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
+            solvedPositions.applySolved();
+        } catch (PowsyblException e) {
+            // a failure of the simulation, as Dynawo prints it in the error file of its process
+            String message = String.valueOf(e.getMessage());
+            LOGGER.warn("Dynawo failed: {}", message);
+            jniFailure = message.startsWith(DYNAWO_ERROR_PATTERN) ? message.substring(DYNAWO_ERROR_PATTERN.length()) : message;
+        }
     }
 
     @Override
@@ -96,7 +138,14 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
             setFinalStateValues(outputsFolder);
         }
         Path errorFile = workingDir.resolve(ERROR_FILENAME);
-        if (Files.exists(errorFile)) {
+        if (jniLauncher != null) {
+            if (jniFailure == null) {
+                setSuccessOutputs(workingDir, outputsFolder);
+            } else {
+                status = DynamicSimulationResult.Status.FAILURE;
+                statusText = jniFailure;
+            }
+        } else if (Files.exists(errorFile)) {
             Matcher errorMatcher = Pattern.compile(DYNAWO_ERROR_PATTERN + "(.*)").matcher(Files.readString(errorFile));
             if (!errorMatcher.find()) {
                 setSuccessOutputs(workingDir, outputsFolder);
@@ -113,7 +162,10 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     }
 
     private void setSuccessOutputs(Path workingDir, Path outputsFolder) throws IOException {
-        updateNetwork(workingDir);
+        // through JNI, Dynawo has written the final state into the network itself
+        if (jniLauncher == null) {
+            updateNetwork(workingDir);
+        }
         DumpFileParameters dumpFileParameters = context.getDynawoSimulationParameters().getDumpFileParameters();
         if (dumpFileParameters.exportDumpFile()) {
             setDumpFile(outputsFolder, dumpFileParameters.dumpFileFolder(), workingDir.getFileName());
@@ -202,9 +254,13 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     }
 
     private void writeInputFiles(Path workingDir) throws IOException {
-        NetworkExporter.writeIidm(context.getNetwork(), workingDir.resolve(NETWORK_FILENAME),
-                context.getCurrentDynawoVersion(), context.getDynawoSimulationParameters().isMergeLoads());
-        JobsXml.write(workingDir, context);
+        // through JNI, Dynawo reads the network itself and writes the final state into it
+        boolean networkFiles = jniLauncher == null;
+        if (networkFiles) {
+            NetworkExporter.writeIidm(context.getNetwork(), workingDir.resolve(NETWORK_FILENAME),
+                    context.getCurrentDynawoVersion(), context.getDynawoSimulationParameters().isMergeLoads());
+        }
+        JobsXml.write(workingDir, context, networkFiles);
         DynawoFilesUtils.writeInputFiles(workingDir, context);
     }
 }

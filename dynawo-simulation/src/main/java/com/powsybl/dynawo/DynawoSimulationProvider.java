@@ -7,6 +7,8 @@
 package com.powsybl.dynawo;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
@@ -20,6 +22,7 @@ import com.powsybl.dynawo.builders.ModelConfigsHandler;
 import com.powsybl.dynawo.commons.DynawoUtil;
 import com.powsybl.dynawo.commons.DynawoVersion;
 import com.powsybl.dynawo.commons.ExecutionEnvironmentUtils;
+import com.powsybl.dynawo.commons.NetworkExporter;
 import com.powsybl.dynawo.commons.PowsyblDynawoVersion;
 import com.powsybl.dynawo.corrections.NetworkCorrections;
 import com.powsybl.dynawo.json.DynawoSimulationParametersSerializer;
@@ -28,6 +31,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static com.powsybl.dynawo.DynawoSimulationConstants.JOBS_FILENAME;
 
@@ -42,6 +46,7 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
     private static final String WORKING_DIR_PREFIX = "dynawo_";
 
     private final DynawoSimulationConfig config;
+    private final Supplier<DynawoJniLauncher> jniLauncher;
 
     public DynawoSimulationProvider() {
         this(PlatformConfig.defaultConfig());
@@ -53,6 +58,17 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
 
     public DynawoSimulationProvider(DynawoSimulationConfig config) {
         this.config = Objects.requireNonNull(config);
+        this.jniLauncher = Suppliers.memoize(() -> ServiceLoader.load(DynawoJniLauncher.class).findFirst()
+                .orElseThrow(() -> new PowsyblException("The jni launcher of Dynawo needs the powsybl-dynawo-simulation-jni module")));
+    }
+
+    /**
+     * With the launcher of Dynawo through JNI to use, for the {@code jni} launcher of the configuration
+     */
+    public DynawoSimulationProvider(DynawoSimulationConfig config, DynawoJniLauncher jniLauncher) {
+        this.config = Objects.requireNonNull(config);
+        Objects.requireNonNull(jniLauncher);
+        this.jniLauncher = () -> jniLauncher;
     }
 
     @Override
@@ -99,10 +115,19 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
         String dumpDir = parameters.getDebugDir();
-        ExecutionEnvironment execEnvVersionCheck = ExecutionEnvironmentUtils.createVersionEnv(config, WORKING_DIR_PREFIX, dumpDir);
-        DynawoVersion currentVersion = DynawoUtil.requireDynaMinVersion(execEnvVersionCheck, computationManager, getVersionCommand(config), DynawoSimulationConfig.DYNAWO_LAUNCHER_PROGRAM_NAME, false);
+        boolean throughJni = config.getLauncher() == DynawoSimulationConfig.Launcher.JNI;
+        DynawoVersion currentVersion;
+        if (throughJni) {
+            currentVersion = DynawoUtil.requireDynaMinVersion(jniLauncher.get().getVersion(config.getHomeDir()), DynawoSimulationConfig.DYNAWO_LAUNCHER_PROGRAM_NAME);
+        } else {
+            ExecutionEnvironment execEnvVersionCheck = ExecutionEnvironmentUtils.createVersionEnv(config, WORKING_DIR_PREFIX, dumpDir);
+            currentVersion = DynawoUtil.requireDynaMinVersion(execEnvVersionCheck, computationManager, getVersionCommand(config), DynawoSimulationConfig.DYNAWO_LAUNCHER_PROGRAM_NAME, false);
+        }
 
         DynawoSimulationParameters dynawoParameters = DynawoSimulationParameters.load(parameters);
+        if (throughJni) {
+            checkJniLauncher(dynawoParameters);
+        }
         dynawoParameters.getAdditionalModelsPath().ifPresent(additionalModelPath ->
                 ModelConfigsHandler.getInstance().addModels(new AdditionalModelConfigLoader(additionalModelPath)));
         if (!dynawoParameters.getAdditionalModelOverrides().isEmpty()) {
@@ -126,7 +151,22 @@ public class DynawoSimulationProvider implements DynamicSimulationProvider {
                 .build();
 
         ExecutionEnvironment execEnvSimulation = ExecutionEnvironmentUtils.createSimulationEnv(config, WORKING_DIR_PREFIX, dumpDir);
-        return computationManager.execute(execEnvSimulation, new DynawoSimulationHandler(context, getCommand(config), reportNode));
+        DynawoSimulationHandler handler = throughJni
+                ? DynawoSimulationHandler.withJniLauncher(context, jniLauncher.get(), config.getHomeDir(), reportNode)
+                : new DynawoSimulationHandler(context, getCommand(config), reportNode);
+        return computationManager.execute(execEnvSimulation, handler);
+    }
+
+    /**
+     * Through JNI, Dynawo runs on the network itself: what needs a copy of the network is not possible
+     */
+    private static void checkJniLauncher(DynawoSimulationParameters dynawoParameters) {
+        if (dynawoParameters.isMergeLoads()) {
+            throw new PowsyblException("Merged loads need a copy of the network: the jni launcher of Dynawo cannot merge loads");
+        }
+        if (NetworkExporter.hasNetworkModifiers()) {
+            throw new PowsyblException("Network modifiers change a copy of the network: the jni launcher of Dynawo cannot apply them");
+        }
     }
 
     @Override
