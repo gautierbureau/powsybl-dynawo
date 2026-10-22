@@ -38,7 +38,7 @@ public final class DynawoFilesUtils {
     }
 
     public static void writeInputFiles(Path workingDir, DynawoSimulationContext context) throws IOException {
-        DydXml.write(workingDir, context.getSimulationDydData());
+        DydXml.write(workingDir, context.getSimulationDydData(), context.getCurrentDynawoVersion());
         ParametersXml.write(workingDir, context);
         if (context.withCurveVariables()) {
             OutputVariablesXml.writeCurve(workingDir, context);

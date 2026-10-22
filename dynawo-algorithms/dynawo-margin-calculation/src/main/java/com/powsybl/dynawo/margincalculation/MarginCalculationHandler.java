@@ -51,13 +51,13 @@ public class MarginCalculationHandler extends AbstractDynawoAlgorithmsHandler<Ma
     protected void writeMultipleJobs(Path workingDir) throws XMLStreamException, IOException {
         MultipleJobsXml.write(workingDir, context);
         JobsXml.write(workingDir, context, LOAD_VARIATION_AREA_FILENAME);
-        DydXml.write(workingDir, LOAD_VARIATION_AREA_FILENAME, context.getLoadVariationAreaDydData());
-        ContingenciesDydXml.write(workingDir, context.getContingencyEventModels());
+        DydXml.write(workingDir, LOAD_VARIATION_AREA_FILENAME, context.getLoadVariationAreaDydData(), context.getCurrentDynawoVersion());
+        ContingenciesDydXml.write(workingDir, context.getContingencyEventModels(), context.getCurrentDynawoVersion());
         ContingenciesParXml.write(workingDir, context.getContingencyEventModels());
         JobsXml.writeFinalStep(workingDir, context);
         Optional<DynawoData> dydData = context.getFinalStepDydData();
         if (dydData.isPresent()) {
-            DydXml.write(workingDir, FINAL_STEP_DYD_FILENAME, dydData.get());
+            DydXml.write(workingDir, FINAL_STEP_DYD_FILENAME, dydData.get(), context.getCurrentDynawoVersion());
         }
     }
 }

@@ -8,7 +8,9 @@
 package com.powsybl.dynawo.algorithms.xml;
 
 import com.powsybl.dynawo.algorithms.ContingencyEventModels;
+import com.powsybl.dynawo.commons.DynawoVersion;
 import com.powsybl.dynawo.models.BlackBoxModel;
+import com.powsybl.dynawo.models.VariableNames;
 import com.powsybl.dynawo.models.macroconnections.MacroConnect;
 import com.powsybl.dynawo.models.macroconnections.MacroConnector;
 
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -28,19 +31,28 @@ public final class ContingenciesDydXml {
     }
 
     public static void write(Path workingDir, List<ContingencyEventModels> eventModels) throws IOException, XMLStreamException {
+        write(workingDir, eventModels, null);
+    }
+
+    /**
+     * The dyd files of the contingencies for a version of Dynawo, that names the variables of the models
+     * ({@link VariableNames})
+     */
+    public static void write(Path workingDir, List<ContingencyEventModels> eventModels, DynawoVersion dynawoVersion) throws IOException, XMLStreamException {
         Objects.requireNonNull(workingDir);
+        UnaryOperator<String> variableNames = VariableNames.of(dynawoVersion);
         for (ContingencyEventModels model : eventModels) {
             Path file = workingDir.resolve(createDydFileName(model));
-            XmlUtil.write(file, "dynamicModelsArchitecture", ContingenciesDydXml::writeEvent, model);
+            XmlUtil.write(file, "dynamicModelsArchitecture", (writer, m) -> writeEvent(writer, m, variableNames), model);
         }
     }
 
-    private static void writeEvent(XMLStreamWriter writer, ContingencyEventModels model) throws XMLStreamException {
+    private static void writeEvent(XMLStreamWriter writer, ContingencyEventModels model, UnaryOperator<String> variableNames) throws XMLStreamException {
         for (BlackBoxModel ev : model.eventModels()) {
             ev.write(writer, ContingenciesParXml.createParFileName(model));
         }
         for (MacroConnector mcr : model.macroConnectorsMap().values()) {
-            mcr.write(writer);
+            mcr.write(writer, variableNames);
         }
         for (MacroConnect mc : model.macroConnectList()) {
             mc.write(writer);
