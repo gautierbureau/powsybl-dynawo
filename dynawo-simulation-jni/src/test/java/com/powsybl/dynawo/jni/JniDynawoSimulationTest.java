@@ -22,7 +22,9 @@ import com.powsybl.dynawo.models.events.EventDisconnectionBuilder;
 import com.powsybl.dynawo.models.generators.SignalNGeneratorBuilder;
 import com.powsybl.dynawo.models.loads.BaseLoadBuilder;
 import com.powsybl.dynawo.networks.Ieee14EnergySources;
+import com.powsybl.dynawo.outputvariables.DynawoOutputVariablesBuilder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,6 +114,31 @@ class JniDynawoSimulationTest {
 
     private DynamicSimulationResult runSignalN(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
                                                boolean debug) {
+        return runSignalN(network, launcher, dynawoParameters, (n, r) -> List.of(), debug);
+    }
+
+    /**
+     * The active and reactive powers of the generators as curves, their voltages as final state values
+     */
+    private static List<OutputVariable> createGeneratorOutputVariables() {
+        List<OutputVariable> outputVariables = new ArrayList<>();
+        for (String generatorId : GENERATOR_IDS) {
+            outputVariables.addAll(new DynawoOutputVariablesBuilder()
+                    .staticId(generatorId)
+                    .variables("generator_PGenPu", "generator_QGenPu")
+                    .outputType(OutputVariable.OutputType.CURVE)
+                    .build());
+            outputVariables.addAll(new DynawoOutputVariablesBuilder()
+                    .staticId(generatorId)
+                    .variable("generator_UPu")
+                    .outputType(OutputVariable.OutputType.FINAL_STATE)
+                    .build());
+        }
+        return outputVariables;
+    }
+
+    private DynamicSimulationResult runSignalN(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
+                                               OutputVariablesSupplier outputVariables, boolean debug) {
         DynamicModelsSupplier dynamicModels = (n, r) -> {
             List<DynamicModel> models = new ArrayList<>();
             for (int i = 0; i < GENERATOR_IDS.length; i++) {
@@ -130,7 +157,7 @@ class JniDynawoSimulationTest {
                 .staticId(DISCONNECTED_LOAD_ID)
                 .startTime(1)
                 .build());
-        return run(network, launcher, dynawoParameters, dynamicModels, events, debug);
+        return run(network, launcher, dynawoParameters, dynamicModels, events, outputVariables, debug);
     }
 
     /**
@@ -153,22 +180,24 @@ class JniDynawoSimulationTest {
 
     private DynamicSimulationResult run(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
                                         DynamicModelsSupplier dynamicModels, EventModelsSupplier events) {
-        return run(network, launcher, dynawoParameters, dynamicModels, events, true);
+        return run(network, launcher, dynawoParameters, dynamicModels, events, (n, r) -> List.of(), true);
     }
 
     /**
-     * In debug, the working directory is kept, and the input files given to Dynawo in memory are written in it after the
-     * run, for inspection
+     * In debug, the working directory is kept, and the input and output files that Dynawo read and wrote in memory are
+     * written in it after the run, for inspection
      */
     private DynamicSimulationResult run(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
-                                        DynamicModelsSupplier dynamicModels, EventModelsSupplier events, boolean debug) {
+                                        DynamicModelsSupplier dynamicModels, EventModelsSupplier events, OutputVariablesSupplier outputVariables,
+                                        boolean debug) {
         DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(dynawoHome, debug, launcher));
         DynamicSimulationParameters parameters = new DynamicSimulationParameters().setStartTime(0).setStopTime(10);
         parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
         DynamicSimulationRunParameters runParameters = new DynamicSimulationRunParameters()
                 .setComputationManager(computationManager)
                 .setParameters(parameters)
-                .setEventModelsSupplier(events);
+                .setEventModelsSupplier(events)
+                .setOutputVariablesSupplier(outputVariables);
         return provider.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, dynamicModels, runParameters).join();
     }
 
@@ -232,13 +261,26 @@ class JniDynawoSimulationTest {
     void testIeee14SignalNAsProcess() {
         Network processNetwork = createIeee14();
         Network jniNetwork = createIeee14();
+        OutputVariablesSupplier outputVariables = (n, r) -> createGeneratorOutputVariables();
 
-        DynamicSimulationResult processResult = runSignalN(processNetwork, DynawoSimulationConfig.Launcher.PROCESS);
-        DynamicSimulationResult jniResult = runSignalN(jniNetwork, DynawoSimulationConfig.Launcher.JNI);
+        DynamicSimulationResult processResult = runSignalN(processNetwork, DynawoSimulationConfig.Launcher.PROCESS, createSignalNParameters(),
+                outputVariables, false);
+        DynamicSimulationResult jniResult = runSignalN(jniNetwork, DynawoSimulationConfig.Launcher.JNI, createSignalNParameters(),
+                outputVariables, false);
 
         assertSuccess(processResult);
         assertSuccess(jniResult);
+        // the outputs that Dynawo wrote in memory are the ones of its files
         assertEquals(processResult.getTimeLine(), jniResult.getTimeLine());
+        assertEquals(2 * GENERATOR_IDS.length, jniResult.getCurves().size());
+        assertEquals(processResult.getCurves().keySet(), jniResult.getCurves().keySet());
+        processResult.getCurves().forEach((name, processCurve) -> {
+            DoubleTimeSeries jniCurve = jniResult.getCurve(name);
+            assertEquals(processCurve.getMetadata().getIndex(), jniCurve.getMetadata().getIndex(), name);
+            assertArrayEquals(processCurve.toArray(), jniCurve.toArray(), name);
+        });
+        assertEquals(GENERATOR_IDS.length, jniResult.getFinalStateValues().size());
+        assertEquals(processResult.getFinalStateValues(), jniResult.getFinalStateValues());
         assertSameState(processNetwork, jniNetwork);
     }
 

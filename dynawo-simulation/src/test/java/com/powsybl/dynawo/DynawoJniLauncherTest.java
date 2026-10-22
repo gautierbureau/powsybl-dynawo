@@ -8,7 +8,9 @@
 package com.powsybl.dynawo;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationConfig;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -16,6 +18,8 @@ import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.DynamicSimulationRunParameters;
+import com.powsybl.dynamicsimulation.TimelineEvent;
+import com.powsybl.dynawo.commons.PowsyblDynawoReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +31,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +40,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.powsybl.dynawo.DynawoSimulationConstants.*;
+import static com.powsybl.dynawo.commons.DynawoConstants.OUTPUTS_FOLDER;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -46,16 +52,30 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
 
     private static final DynamicModelsSupplier EMPTY_DYNAMIC_MODELS_SUPPLIER = (n, r) -> Collections.emptyList();
     private static final Path DYNAWO_HOME = Path.of("/home/dynawo");
+    private static final String LOG_PATH = "outputs/logs/dynawo.log";
+    private static final String TIMELINE_PATH = "outputs/timeLine/timeline.xml";
+    /**
+     * The outputs that Dynawo writes in memory, by their paths in the working directory
+     */
+    private static final Map<String, String> OUTPUTS = Map.of(
+            LOG_PATH, "2026-10-22 10:00:00 | INFO | Simulation run in memory\n",
+            TIMELINE_PATH, """
+                    <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+                    <timeline xmlns="http://www.rte-france.com/dynawo">
+                      <event time="1.5" modelName="GH1" message="PMIN : activation"/>
+                    </timeline>
+                    """);
 
     private ComputationManager computationManager;
 
     /**
-     * Records what Dynawo is run on, and writes into the network as it would
+     * Records what Dynawo is run on, writes into the network as it would, and gives its outputs in memory
      */
     private static final class DynawoJniLauncherMock implements DynawoJniLauncher {
 
         private final String version;
         private final Consumer<Network> dynawo;
+        private Map<String, String> outputs = Map.of();
         private Path jobsFile;
         private List<String> workingDirFiles;
         private List<String> inputFileNames;
@@ -78,8 +98,14 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
             return version;
         }
 
+        private DynawoJniLauncherMock withOutputs(Map<String, String> outputs) {
+            this.outputs = outputs;
+            return this;
+        }
+
         @Override
-        public void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Network network, String variantId) {
+        public void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Map<Path, byte[]> outputFiles, Network network,
+                        String variantId) {
             assertEquals(DYNAWO_HOME, dynawoHome);
             this.jobsFile = jobsFile;
             workingDirFiles = listFileNames(jobsFile.getParent());
@@ -91,6 +117,8 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
             jobs = new String(inputFiles.get(jobsFile), StandardCharsets.UTF_8);
             this.variantId = variantId;
             workingVariantId = network.getVariantManager().getWorkingVariantId();
+            // given even if Dynawo fails
+            outputs.forEach((path, content) -> outputFiles.put(jobsFile.getParent().resolve(path), content.getBytes(StandardCharsets.UTF_8)));
             dynawo.accept(network);
         }
     }
@@ -129,13 +157,26 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
 
     private DynamicSimulationResult run(Network network, String variantId, DynawoJniLauncher launcher, DynawoSimulationParameters dynawoParameters,
                                         boolean debug) {
+        return run(network, variantId, launcher, dynawoParameters, debug, ReportNode.NO_OP);
+    }
+
+    private DynamicSimulationResult run(Network network, String variantId, DynawoJniLauncher launcher, DynawoSimulationParameters dynawoParameters,
+                                        boolean debug, ReportNode reportNode) {
         DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(DYNAWO_HOME, debug, DynawoSimulationConfig.Launcher.JNI), launcher);
         DynamicSimulationParameters parameters = new DynamicSimulationParameters().setStartTime(0).setStopTime(10);
         parameters.addExtension(DynawoSimulationParameters.class, dynawoParameters);
         DynamicSimulationRunParameters runParameters = new DynamicSimulationRunParameters()
                 .setComputationManager(computationManager)
-                .setParameters(parameters);
+                .setParameters(parameters)
+                .setReportNode(reportNode);
         return provider.run(network, variantId, EMPTY_DYNAMIC_MODELS_SUPPLIER, runParameters).join();
+    }
+
+    private static List<String> getMessages(ReportNode reportNode) {
+        List<String> messages = new ArrayList<>();
+        messages.add(reportNode.getMessage());
+        reportNode.getChildren().forEach(child -> messages.addAll(getMessages(child)));
+        return messages;
     }
 
     private DynamicSimulationResult run(Network network, DynawoJniLauncher launcher) {
@@ -160,17 +201,42 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testDebug() {
+    void testOutputsInMemory() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         DynawoJniLauncherMock launcher = new DynawoJniLauncherMock(n -> {
-        });
+        }).withOutputs(OUTPUTS);
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblDynawoReportResourceBundle.BASE_NAME, PowsyblTestReportResourceBundle.TEST_BASE_NAME)
+                .withMessageTemplate("testJni")
+                .build();
+
+        DynamicSimulationResult result = run(network, VariantManagerConstants.INITIAL_VARIANT_ID, launcher, DynawoSimulationParameters.load(),
+                false, reportNode);
+
+        // the outputs of Dynawo read from memory
+        assertEquals(DynamicSimulationResult.Status.SUCCESS, result.getStatus());
+        assertEquals(List.of(new TimelineEvent(1.5, "GH1", "PMIN : activation")), result.getTimeLine());
+        assertTrue(getMessages(reportNode).stream().anyMatch(message -> message.contains("Simulation run in memory")), getMessages(reportNode).toString());
+    }
+
+    @Test
+    void testDebug() throws IOException {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        DynawoJniLauncherMock launcher = new DynawoJniLauncherMock(n -> {
+        }).withOutputs(OUTPUTS);
 
         assertEquals(DynamicSimulationResult.Status.SUCCESS,
                 run(network, VariantManagerConstants.INITIAL_VARIANT_ID, launcher, DynawoSimulationParameters.load(), true).getStatus());
 
-        // the input files given in memory are written in the working directory after the run, for inspection
+        // the input and output files that Dynawo read and wrote in memory are written in the working directory after
+        // the run, for inspection
+        Path workingDir = launcher.jobsFile.getParent();
         assertEquals(List.of(), launcher.workingDirFiles);
-        assertEquals(launcher.inputFileNames, listFileNames(launcher.jobsFile.getParent()));
+        List<String> expectedFileNames = new ArrayList<>(launcher.inputFileNames);
+        expectedFileNames.add(OUTPUTS_FOLDER);
+        assertEquals(expectedFileNames.stream().sorted().toList(), listFileNames(workingDir));
+        assertEquals(OUTPUTS.get(LOG_PATH), Files.readString(workingDir.resolve(LOG_PATH)));
+        assertEquals(OUTPUTS.get(TIMELINE_PATH), Files.readString(workingDir.resolve(TIMELINE_PATH)));
     }
 
     @Test
@@ -211,12 +277,14 @@ class DynawoJniLauncherTest extends AbstractSerDeTest {
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
         DynawoJniLauncherMock launcher = new DynawoJniLauncherMock(n -> {
             throw new PowsyblException("DYN Error: Simulation failed at t=1.5");
-        });
+        }).withOutputs(OUTPUTS);
 
         DynamicSimulationResult result = run(network, launcher);
 
         assertEquals(DynamicSimulationResult.Status.FAILURE, result.getStatus());
         assertEquals("Simulation failed at t=1.5", result.getStatusText());
+        // the outputs of the failed simulation, as far as it went
+        assertEquals(List.of(new TimelineEvent(1.5, "GH1", "PMIN : activation")), result.getTimeLine());
         // no solved positions: the network as it was
         assertNull(twt.getRatioTapChanger().getSolvedTapPosition());
         assertEquals(1, twt.getRatioTapChanger().getTapPosition());

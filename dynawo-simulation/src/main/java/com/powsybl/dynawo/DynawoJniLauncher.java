@@ -14,9 +14,10 @@ import java.util.Map;
 
 /**
  * Runs Dynawo in this JVM, through JNI, on a network of this JVM: Dynawo reads the network itself and writes the
- * results of the simulation into it, so that no IIDM file is written or read, and it reads its other input files from
- * memory. Used by the {@code jni} launcher of {@link DynawoSimulationConfig}; its implementation, in the
- * powsybl-dynawo-simulation-jni module, is found by the {@link java.util.ServiceLoader}.
+ * results of the simulation into it, so that no IIDM file is written or read, it reads its other input files from
+ * memory and writes its outputs there, but its dump files. Used by the {@code jni} launcher of
+ * {@link DynawoSimulationConfig}; its implementation, in the powsybl-dynawo-simulation-jni module, is found by the
+ * {@link java.util.ServiceLoader}.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -31,8 +32,12 @@ public interface DynawoJniLauncher {
      * Runs the jobs of a jobs file on a network: Dynawo reads the given variant of the network and writes the final
      * values of the simulation into it. The input files (the jobs file, and the dyd, par... files it refers to) are
      * given by the paths Dynawo reads them from: it reads them from their content rather than from the file system,
-     * where they need not be, and writes its outputs in the directory of the jobs file. A failure of Dynawo throws a
-     * {@link com.powsybl.commons.PowsyblException} with the message of Dynawo, and leaves the network as it was.
+     * where they need not be. The output files that Dynawo writes in memory (its logs, timeline, curves, final state
+     * values, constraints and lost equipments) are put into {@code outputFiles} by the paths it would write them to,
+     * even if it fails; its other outputs, the dump files of the states, are written in the directory of the jobs file.
+     * A failure of Dynawo throws a {@link com.powsybl.commons.PowsyblException} with the message of Dynawo, and leaves
+     * the network as it was.
      */
-    void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Network network, String variantId);
+    void run(Path dynawoHome, Path jobsFile, Map<Path, byte[]> inputFiles, Map<Path, byte[]> outputFiles, Network network,
+             String variantId);
 }

@@ -69,6 +69,7 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     private final List<TimelineEvent> timeline = new ArrayList<>();
     private final Map<String, DoubleTimeSeries> curves = new LinkedHashMap<>();
     private final Map<String, Double> fsv = new LinkedHashMap<>();
+    private final Map<Path, byte[]> jniOutputFiles = new LinkedHashMap<>();
     private DynamicSimulationResult.Status status = DynamicSimulationResult.Status.SUCCESS;
     private String statusText = "";
     private String jniFailure;
@@ -89,8 +90,9 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
 
     /**
      * Dynawo run in this JVM through JNI, on the network of the context itself: no IIDM file is written or read, the
-     * other input files are given to Dynawo in memory, and there is no command to execute. In debug, the input files
-     * are written in the working directory after the run, for inspection.
+     * other input files are given to Dynawo in memory, its outputs are read from memory but its dump files, and there
+     * is no command to execute. In debug, the input and output files are written in the working directory after the
+     * run, for inspection.
      */
     public static DynawoSimulationHandler withJniLauncher(DynawoSimulationContext context, DynawoJniLauncher jniLauncher,
                                                           Path dynawoHome, boolean debug, ReportNode reportNode) {
@@ -108,7 +110,8 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
             writeExecTmpFile(workingDir);
             runThroughJni(workingDir, inputFiles);
             if (debug) {
-                writeInputFiles(inputFiles);
+                writeFiles(inputFiles);
+                writeFiles(jniOutputFiles);
             }
             return Collections.emptyList();
         }
@@ -127,7 +130,7 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
         SolvedPositions solvedPositions = SolvedPositions.save(network);
         try {
-            jniLauncher.run(dynawoHome, workingDir.resolve(JOBS_FILENAME), inputFiles, network, context.getWorkingVariantId());
+            jniLauncher.run(dynawoHome, workingDir.resolve(JOBS_FILENAME), inputFiles, jniOutputFiles, network, context.getWorkingVariantId());
             network.getVariantManager().setWorkingVariant(context.getWorkingVariantId());
             solvedPositions.applySolved();
         } catch (PowsyblException e) {
@@ -140,8 +143,27 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
 
     @Override
     public DynamicSimulationResult after(Path workingDir, ExecutionReport report) throws IOException {
+        if (jniLauncher == null) {
+            return getResult(workingDir, workingDir.resolve(OUTPUTS_FOLDER));
+        }
+        // the outputs that Dynawo wrote in memory, read from a copy of the working directory in memory
+        try (FileSystem memory = Jimfs.newFileSystem(Configuration.unix())) {
+            Path memoryDir = Files.createDirectory(memory.getPath("/" + workingDir.getFileName()));
+            Path absoluteWorkingDir = workingDir.toAbsolutePath().normalize();
+            for (Map.Entry<Path, byte[]> outputFile : jniOutputFiles.entrySet()) {
+                Path file = memoryDir.resolve(absoluteWorkingDir.relativize(outputFile.getKey().toAbsolutePath().normalize()).toString());
+                Files.createDirectories(file.getParent());
+                Files.write(file, outputFile.getValue());
+            }
+            return getResult(workingDir, memoryDir.resolve(OUTPUTS_FOLDER));
+        }
+    }
 
-        Path outputsFolder = workingDir.resolve(OUTPUTS_FOLDER);
+    /**
+     * The result of the simulation, from the outputs of Dynawo in a folder and from its dump files in the working
+     * directory
+     */
+    private DynamicSimulationResult getResult(Path workingDir, Path outputsFolder) throws IOException {
         context.getNetwork().getVariantManager().setWorkingVariant(context.getWorkingVariantId());
         setDynawoLog(outputsFolder, context.getDynawoSimulationParameters().getSpecificLogs());
         setTimeline(outputsFolder);
@@ -154,7 +176,7 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         Path errorFile = workingDir.resolve(ERROR_FILENAME);
         if (jniLauncher != null) {
             if (jniFailure == null) {
-                setSuccessOutputs(workingDir, outputsFolder);
+                setSuccessOutputs(workingDir);
             } else {
                 status = DynamicSimulationResult.Status.FAILURE;
                 statusText = jniFailure;
@@ -162,7 +184,7 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         } else if (Files.exists(errorFile)) {
             Matcher errorMatcher = Pattern.compile(DYNAWO_ERROR_PATTERN + "(.*)").matcher(Files.readString(errorFile));
             if (!errorMatcher.find()) {
-                setSuccessOutputs(workingDir, outputsFolder);
+                setSuccessOutputs(workingDir);
             } else {
                 status = DynamicSimulationResult.Status.FAILURE;
                 statusText = errorMatcher.group().substring(DYNAWO_ERROR_PATTERN.length());
@@ -175,14 +197,15 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
         return new DynamicSimulationResultImpl(status, statusText, curves, fsv, timeline);
     }
 
-    private void setSuccessOutputs(Path workingDir, Path outputsFolder) throws IOException {
+    private void setSuccessOutputs(Path workingDir) throws IOException {
         // through JNI, Dynawo has written the final state into the network itself
         if (jniLauncher == null) {
             updateNetwork(workingDir);
         }
         DumpFileParameters dumpFileParameters = context.getDynawoSimulationParameters().getDumpFileParameters();
         if (dumpFileParameters.exportDumpFile()) {
-            setDumpFile(outputsFolder, dumpFileParameters.dumpFileFolder(), workingDir.getFileName());
+            // written in the working directory, also through JNI
+            setDumpFile(workingDir.resolve(OUTPUTS_FOLDER), dumpFileParameters.dumpFileFolder(), workingDir.getFileName());
         }
     }
 
@@ -296,12 +319,12 @@ public final class DynawoSimulationHandler extends AbstractExecutionHandler<Dyna
     }
 
     /**
-     * The input files given to Dynawo in memory, written where it read them from
+     * The files that Dynawo read or wrote in memory, written at their paths
      */
-    private static void writeInputFiles(Map<Path, byte[]> inputFiles) throws IOException {
-        for (Map.Entry<Path, byte[]> inputFile : inputFiles.entrySet()) {
-            Files.createDirectories(inputFile.getKey().getParent());
-            Files.write(inputFile.getKey(), inputFile.getValue());
+    private static void writeFiles(Map<Path, byte[]> files) throws IOException {
+        for (Map.Entry<Path, byte[]> file : files.entrySet()) {
+            Files.createDirectories(file.getKey().getParent());
+            Files.write(file.getKey(), file.getValue());
         }
     }
 }

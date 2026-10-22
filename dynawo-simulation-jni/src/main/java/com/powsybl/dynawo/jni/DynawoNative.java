@@ -10,6 +10,7 @@ package com.powsybl.dynawo.jni;
 import com.powsybl.commons.PowsyblException;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * The native methods of Dynawo, in the dynawo_JNILauncher library of its installation (DYNJNILauncher.cpp)
@@ -52,7 +53,11 @@ final class DynawoNative {
      * Runs the jobs of a jobs file on the network registered in {@link com.powsybl.iidmbridge.jni.IidmBridgeRegistry}
      * under an id, in its working variant: Dynawo writes the final values of the simulation into it. The input files,
      * given by their paths and their contents in the same order, are read from their contents rather than from the file
-     * system; the outputs are written in the directory of the jobs file. A failure throws a {@link DynawoNativeException}.
+     * system. The output files written in memory (logs, timeline, curves, final state values, constraints, lost
+     * equipments) are put into {@code outputFiles} by their absolute paths, even by a failed simulation; the other
+     * outputs, the dump files, are written in the directory of the jobs file. A failure throws a
+     * {@link DynawoNativeException}.
      */
-    static native void runJobs(String installDir, String jobsFile, String[] inputPaths, byte[][] inputContents, String networkId);
+    static native void runJobs(String installDir, String jobsFile, String[] inputPaths, byte[][] inputContents, String networkId,
+                               Map<String, byte[]> outputFiles);
 }
