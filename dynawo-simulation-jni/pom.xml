@@ -84,6 +84,17 @@
             <artifactId>powsybl-config-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- IEEE 14 described by the universal mapping, whose extensions need their implementation -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-mappings</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dynawo-extensions-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

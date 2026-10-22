@@ -219,6 +219,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-dynawo-mappings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynawo-extensions-api</artifactId>
                 <version>${project.version}</version>
             </dependency>

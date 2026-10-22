@@ -15,9 +15,13 @@ import com.powsybl.dynamicsimulation.*;
 import com.powsybl.dynawo.DynawoSimulationConfig;
 import com.powsybl.dynawo.DynawoSimulationParameters;
 import com.powsybl.dynawo.DynawoSimulationProvider;
+import com.powsybl.dynawo.mappings.DynamicModelsMappings;
+import com.powsybl.dynawo.mappings.UniversalSynchronousGeneratorMapping;
+import com.powsybl.dynawo.mappings.parameters.ModelDescriptionLookup;
 import com.powsybl.dynawo.models.events.EventDisconnectionBuilder;
 import com.powsybl.dynawo.models.generators.SignalNGeneratorBuilder;
 import com.powsybl.dynawo.models.loads.BaseLoadBuilder;
+import com.powsybl.dynawo.networks.Ieee14EnergySources;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +47,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Dynawo, installed in the directory of the {@code DYNAWO_INSTALL_DIR} environment variable, run in this JVM on the
- * network itself. The libraries of Dynawo and of its third parties must be on the {@code LD_LIBRARY_PATH}; the dynamic
- * tests need the GeneratorPVSignalN, LoadAlphaBetaRestorative, SignalN and EventSetPointBoolean models.
+ * network itself. The libraries of Dynawo and of its third parties must be on the {@code LD_LIBRARY_PATH}. The tests
+ * need the GeneratorPVSignalN, LoadAlphaBetaRestorative, SignalN and EventSetPointBoolean models, and the ones of the
+ * universal mapping of IEEE 14: GeneratorSynchronousFourWindingsGoverPropVRPropInt,
+ * GeneratorSynchronousThreeWindingsGoverPropVRPropInt, LoadAlphaBeta and EventQuadripoleDisconnection.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -53,6 +59,7 @@ class JniDynawoSimulationTest {
 
     private static final String BUS_ID = "_BUS___10_TN";
     private static final String DISCONNECTED_LOAD_ID = "_LOAD__10_EC";
+    private static final String DISCONNECTED_LINE_ID = "_BUS____1-BUS____5-1_AC";
     private static final String[] GENERATOR_IDS = {"_GEN____1_SM", "_GEN____2_SM", "_GEN____3_SM", "_GEN____6_SM", "_GEN____8_SM"};
     private static final String[] GENERATOR_PARAMETER_SET_IDS = {"Generator1", "Generator2", "Generator3", "Generator6", "Generator8"};
 
@@ -121,6 +128,24 @@ class JniDynawoSimulationTest {
         return run(network, launcher, dynawoParameters, dynamicModels, events);
     }
 
+    /**
+     * IEEE 14 described by the universal mapping alone: its generators on the models of the energy source each is given,
+     * its loads on a voltage dependent one, their parameters, the network and the solver ones; its line between the buses
+     * 1 and 5 opened on the side 2 at 1 s
+     */
+    private DynamicSimulationResult runUniversalMapping(Network network, DynawoSimulationConfig.Launcher launcher) {
+        Ieee14EnergySources.apply(network);
+        DynawoSimulationParameters dynawoParameters = new DynawoSimulationParameters();
+        DynamicModelsSupplier dynamicModels = DynamicModelsMappings.getInstance().apply(UniversalSynchronousGeneratorMapping.DYNAWALTZ_NAME,
+                network, dynawoParameters, ModelDescriptionLookup.fromModelDatabase(dynawoHome));
+        EventModelsSupplier events = (n, r) -> List.of(EventDisconnectionBuilder.of(n)
+                .staticId(DISCONNECTED_LINE_ID)
+                .startTime(1)
+                .disconnectOnly(TwoSides.TWO)
+                .build());
+        return run(network, launcher, dynawoParameters, dynamicModels, events);
+    }
+
     private DynamicSimulationResult run(Network network, DynawoSimulationConfig.Launcher launcher, DynawoSimulationParameters dynawoParameters,
                                         DynamicModelsSupplier dynamicModels, EventModelsSupplier events) {
         DynawoSimulationProvider provider = new DynawoSimulationProvider(new DynawoSimulationConfig(dynawoHome, true, launcher));
@@ -183,6 +208,36 @@ class JniDynawoSimulationTest {
 
         DynamicSimulationResult processResult = runSignalN(processNetwork, DynawoSimulationConfig.Launcher.PROCESS);
         DynamicSimulationResult jniResult = runSignalN(jniNetwork, DynawoSimulationConfig.Launcher.JNI);
+
+        assertSuccess(processResult);
+        assertSuccess(jniResult);
+        assertEquals(processResult.getTimeLine(), jniResult.getTimeLine());
+        assertSameState(processNetwork, jniNetwork);
+    }
+
+    @Test
+    void testIeee14UniversalMapping() {
+        Network network = createIeee14();
+        Line line = network.getLine(DISCONNECTED_LINE_ID);
+        assertThat(Math.abs(line.getTerminal1().getP())).isGreaterThan(10);
+
+        DynamicSimulationResult result = runUniversalMapping(network, DynawoSimulationConfig.Launcher.JNI);
+
+        assertSuccess(result);
+        assertNoIidmFile();
+        // the line is open on its side 2, and carries no more power
+        assertTrue(line.getTerminal1().isConnected());
+        assertFalse(line.getTerminal2().isConnected());
+        assertEquals(0, line.getTerminal1().getP(), 1);
+    }
+
+    @Test
+    void testIeee14UniversalMappingAsProcess() {
+        Network processNetwork = createIeee14();
+        Network jniNetwork = createIeee14();
+
+        DynamicSimulationResult processResult = runUniversalMapping(processNetwork, DynawoSimulationConfig.Launcher.PROCESS);
+        DynamicSimulationResult jniResult = runUniversalMapping(jniNetwork, DynawoSimulationConfig.Launcher.JNI);
 
         assertSuccess(processResult);
         assertSuccess(jniResult);
