@@ -32,8 +32,57 @@ public record MappingConfig(boolean strict, Path builtModelsDir, Path modelicaMo
      */
     public static final boolean DEFAULT_STRICT = false;
 
+    // the configuration a study runs with, where it set one of its own for as long as it resolves
+    private static final ThreadLocal<MappingConfig> STUDY_CONFIG = new ThreadLocal<>();
+
+    /**
+     * The configuration in force: the one the current study set with {@link #useForStudy}, the
+     * platform's otherwise.
+     */
     public static MappingConfig load() {
-        return load(PlatformConfig.defaultConfig());
+        MappingConfig studyConfig = STUDY_CONFIG.get();
+        return studyConfig != null ? studyConfig : load(PlatformConfig.defaultConfig());
+    }
+
+    /**
+     * Puts this configuration in force for the current thread until the scope closes, for a study
+     * whose settings are its own rather than the deployment's: the Modelica sources of the controls
+     * it describes, for one.
+     * <p>
+     * The models a mapping builds are resolved deep inside it, where nothing the study holds is
+     * passed, so the study says what it runs with here instead, around applying its mappings. The
+     * scope puts back whatever was in force before, so scopes nest.
+     */
+    public Scope useForStudy() {
+        return new Scope(this);
+    }
+
+    /**
+     * The same configuration, with the Modelica sources kept in that directory.
+     */
+    public MappingConfig withModelicaModelsDir(Path modelicaModelsDir) {
+        return new MappingConfig(strict, builtModelsDir, modelicaModelsDir);
+    }
+
+    /**
+     * A span in which a study's configuration is in force, see {@link #useForStudy}.
+     */
+    public static final class Scope implements AutoCloseable {
+
+        private final MappingConfig previous = STUDY_CONFIG.get();
+
+        private Scope(MappingConfig config) {
+            STUDY_CONFIG.set(config);
+        }
+
+        @Override
+        public void close() {
+            if (previous == null) {
+                STUDY_CONFIG.remove();
+            } else {
+                STUDY_CONFIG.set(previous);
+            }
+        }
     }
 
     public static MappingConfig load(PlatformConfig platformConfig) {
