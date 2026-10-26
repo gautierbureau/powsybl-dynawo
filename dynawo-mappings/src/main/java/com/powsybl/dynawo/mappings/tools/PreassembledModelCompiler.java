@@ -26,7 +26,9 @@ import java.nio.file.Path;
  * left in a directory of our own, which a simulation is told to look in besides the ones Dynawo
  * ships, so nothing has to be installed into the distribution.
  * <p>
- * Compiling a model takes the better part of a minute, so a library already there is left alone.
+ * Compiling a model takes the better part of a minute, so a library already there is left alone,
+ * as long as it was built from the same definition: a control registered again with other wiring
+ * describes another model under the same name, and the library built from the first is rebuilt.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
@@ -36,6 +38,8 @@ public class PreassembledModelCompiler {
 
     private static final long TIMEOUT_SECONDS = 1800;
     private static final String LIBRARY_EXTENSION = ".so";
+    private static final String DEFINITION_EXTENSION = ".xml";
+    private static final String DESCRIPTION_EXTENSION = ".desc.xml";
 
     private final DynawoLauncher launcher;
 
@@ -52,15 +56,25 @@ public class PreassembledModelCompiler {
      */
     public Path compile(PreassembledModel model, Path modelsDir) {
         Path library = modelsDir.resolve(model.getId() + LIBRARY_EXTENSION);
-        if (Files.exists(library)) {
-            return library;
-        }
-        Path definition = modelsDir.resolve(model.getId() + ".xml");
+        Path definition = modelsDir.resolve(model.getId() + DEFINITION_EXTENSION);
+        String xml = PreassembledModelXml.toXml(model);
         try {
+            if (Files.exists(library)) {
+                // a library with no definition beside it was built some other way, and nothing says
+                // what it is made of, so it is taken as it is
+                if (!Files.exists(definition) || Files.readString(definition).equals(xml)) {
+                    return library;
+                }
+                LOGGER.info("Rebuilding {}, whose definition changed since its library was built", model.getId());
+                // the description read out of the old library goes with it, or the parameters
+                // would be completed against variables the new one may not have
+                Files.delete(library);
+                Files.deleteIfExists(modelsDir.resolve(model.getId() + DESCRIPTION_EXTENSION));
+            }
             Files.createDirectories(modelsDir);
             // the tool is told what to build by a definition on disk, so the model is written out
             // where the library will land, which is also what says afterwards what was built
-            Files.writeString(definition, PreassembledModelXml.toXml(model));
+            Files.writeString(definition, xml);
             return compile(definition, modelsDir);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
