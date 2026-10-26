@@ -110,6 +110,29 @@ class ControlUnitCatalogRegistrationTest {
     }
 
     @Test
+    void shouldKeyARegulatorControlUnderTheNameItIsGiven() {
+        // Pss2a as Dynawo ships it, under a name of its own
+        RegulatorControlUnit renamed = new RegulatorControlUnit("powerSystemStabilizer", STABILISERS + "Standard.Pss2a",
+                STABILISERS + "Pss_INIT")
+                .named("MyPss2a")
+                .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
+                .driving("VPssPu", RegulatorInput.STABILISER);
+        catalog.register(new ControlUnitProvider() {
+            @Override
+            public List<RegulatorControlUnit> getRegulatorControls() {
+                return List.of(renamed);
+            }
+        });
+
+        assertThat(catalog.getRegulatorControl("MyPss2a")).containsSame(renamed);
+        assertThat(catalog.getRegulatorControl("Pss2a")).isPresent().get().isNotSameAs(renamed);
+        assertThat(new GeneratorModelDesigner(catalog, ModelNaming.DYNAWO_1_7_0)
+                .design(new GeneratorControls("GovCt2", "St4b", "MyPss2a"), Windings.FOUR_WINDINGS, false, false))
+                .hasValueSatisfying(model -> assertThat(model.getId())
+                        .isEqualTo("GeneratorSynchronousFourWindingsGovCt2St4bMyPss2a"));
+    }
+
+    @Test
     void shouldKeepAKnownControlOnRegister() {
         MachineControlUnit shipped = catalog.getGovernor("GovCt2").orElseThrow();
         MachineControlUnit redefined = myGovernor().named("GovCt2");

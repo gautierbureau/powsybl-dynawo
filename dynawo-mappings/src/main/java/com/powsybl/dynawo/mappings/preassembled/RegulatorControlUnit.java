@@ -36,6 +36,7 @@ public class RegulatorControlUnit implements UnitModel {
     private final String id;
     private final String name;
     private final String initName;
+    private String catalogName;
     private final List<Watch> watches = new ArrayList<>();
     private final List<Drive> drives = new ArrayList<>();
 
@@ -43,6 +44,23 @@ public class RegulatorControlUnit implements UnitModel {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.initName = initName;
+    }
+
+    /**
+     * Names this control in the catalog, and in a built model's library, apart from its Modelica
+     * model, as {@link MachineControlUnit#named} does for a governor or a regulator. Left unset, it
+     * goes by the last part of its Modelica model.
+     */
+    public RegulatorControlUnit named(String catalogName) {
+        this.catalogName = Objects.requireNonNull(catalogName);
+        return this;
+    }
+
+    /**
+     * The name the catalog keys this control under, and a built model carries in its library.
+     */
+    public String getCatalogName() {
+        return catalogName != null ? catalogName : name.substring(name.lastIndexOf('.') + 1);
     }
 
     public RegulatorControlUnit reading(String ownVar, MachineQuantity quantity) {

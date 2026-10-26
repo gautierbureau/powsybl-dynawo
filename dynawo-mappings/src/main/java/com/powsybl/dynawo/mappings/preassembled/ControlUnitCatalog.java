@@ -159,6 +159,9 @@ public final class ControlUnitCatalog {
         if (unit instanceof ControlUnit control) {
             return control.getCatalogName();
         }
+        if (unit instanceof RegulatorControlUnit control) {
+            return control.getCatalogName();
+        }
         String model = unit.getName();
         return model.substring(model.lastIndexOf('.') + 1);
     }
