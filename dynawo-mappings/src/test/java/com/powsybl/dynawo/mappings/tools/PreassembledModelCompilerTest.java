@@ -99,6 +99,16 @@ class PreassembledModelCompilerTest {
     }
 
     @Test
+    void shouldTellAnInstallationThatCompilesFromOneThatDoesNot() {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")),
+                "no Dynawo installation at " + HOME);
+
+        // the probe has to be a model the tool builds, or every failure is blamed on the installation
+        assertThat(new PreassembledModelCompiler(HOME).canCompile()).isTrue();
+        assertThat(new PreassembledModelCompiler(Path.of("nowhere")).canCompile()).isFalse();
+    }
+
+    @Test
     void shouldLeaveALibraryAlreadyThereAlone(@TempDir Path modelsDir) throws Exception {
         Path library = modelsDir.resolve("AlreadyBuilt.so");
         Files.writeString(library, "not really a library");

@@ -40,6 +40,15 @@ public class PreassembledModelCompiler {
     private static final String LIBRARY_EXTENSION = ".so";
     private static final String DEFINITION_EXTENSION = ".xml";
     private static final String DESCRIPTION_EXTENSION = ".desc.xml";
+    private static final String PROBE_MODEL = "CompilerProbe";
+    private static final String PROBE_DEFINITION = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+              <dyn:modelicaModel id="CompilerProbe">
+                <dyn:unitDynamicModel id="load" name="Dynawo.Electrical.Loads.LoadAlphaBeta"/>
+              </dyn:modelicaModel>
+            </dyn:dynamicModelsArchitecture>
+            """;
 
     private final DynawoLauncher launcher;
 
@@ -83,6 +92,37 @@ public class PreassembledModelCompiler {
             // written to ask for it goes with the attempt
             deleteQuietly(definition);
             throw e;
+        }
+    }
+
+    /**
+     * Whether this installation compiles anything at all, found out by building the plainest model
+     * there is, a standard load and nothing else.
+     * <p>
+     * A failed build says that something is wrong, not what: the definition may name a variable a
+     * model does not have, or the installation may lack the toolchain to build anything. Only the
+     * second is worth giving up on the rest of a network for, and a model this plain fails only
+     * that way. It is built somewhere of its own and swept, so it never stands beside the models a
+     * study builds.
+     */
+    public boolean canCompile() {
+        Path probeDir = null;
+        try {
+            probeDir = Files.createTempDirectory("dynawo-compiler-probe");
+            Path definition = probeDir.resolve(PROBE_MODEL + ".xml");
+            Files.writeString(definition, PROBE_DEFINITION);
+            compile(definition, probeDir);
+            return true;
+        } catch (PowsyblException e) {
+            LOGGER.warn("The Dynawo installation at {} compiles no model, not even the plainest: {}",
+                    launcher.getHomeDir(), e.getMessage());
+            return false;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } finally {
+            if (probeDir != null) {
+                deleteRecursively(probeDir);
+            }
         }
     }
 
