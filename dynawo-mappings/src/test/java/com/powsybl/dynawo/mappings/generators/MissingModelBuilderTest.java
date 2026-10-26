@@ -214,6 +214,31 @@ class MissingModelBuilderTest {
         assertThat(modelsDir.toFile().list()).isEmpty();
     }
 
+    @Test
+    @Tag("compilation")
+    void shouldBuildAControlOutOfModelicaSourcesOfOnesOwn(@TempDir Path modelsDir) throws Exception {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")), "no Dynawo installation at " + HOME);
+        Path sources = Path.of(getClass().getResource("/modelica").toURI());
+
+        // a governor Dynawo does not ship, wired as the proportional one it extends
+        MachineControlUnit myGov = new MachineControlUnit("governor", "MyLibrary.Governors.MyGov",
+                "Dynawo.Electrical.Controls.Machines.Governors.Governor_INIT")
+                .reading("PmPu", MachineQuantity.MECHANICAL_POWER)
+                .reading("omegaPu", MachineQuantity.SPEED)
+                .startingFrom("Pm0Pu", MachineQuantity.INIT_MECHANICAL_POWER);
+        ControlUnitCatalog.getInstance().register(new ControlUnitProvider() {
+            @Override
+            public List<MachineControlUnit> getGovernors() {
+                return List.of(myGov);
+            }
+        });
+        MissingModelBuilder builder = new MissingModelBuilder(HOME, modelsDir, sources, ModelNaming.DYNAWO_1_7_0);
+
+        assertThat(builder.build(new GeneratorControls("MyGov", "VRProportional"), Windings.FOUR_WINDINGS, false, false))
+                .hasValue("GeneratorSynchronousFourWindingsMyGovVRProportional");
+        assertThat(modelsDir.resolve("GeneratorSynchronousFourWindingsMyGovVRProportional.so")).exists();
+    }
+
     private static SynchronousGeneratorProperties properties(String governor, String voltageRegulator) {
         Generator generator = TestNetworks.singleGenerator(400.0);
         generator.newExtension(SynchronousGeneratorPropertiesAdder.class)

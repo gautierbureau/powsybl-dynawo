@@ -124,6 +124,7 @@ class PreassembledModelCompilerTest {
     private static final class CountingLauncher extends DynawoLauncher {
 
         private final AtomicInteger builds = new AtomicInteger();
+        private List<String> lastArguments = List.of();
 
         private CountingLauncher() {
             super(Path.of("nowhere"));
@@ -132,6 +133,7 @@ class PreassembledModelCompilerTest {
         @Override
         public String run(Path workingDir, long timeoutSeconds, String option, String... arguments) {
             List<String> args = List.of(arguments);
+            lastArguments = args;
             Path definition = Path.of(args.get(args.indexOf("--model-list") + 1));
             Path outputDir = Path.of(args.get(args.indexOf("--output-dir") + 1));
             String name = definition.getFileName().toString().replaceFirst("\\.xml$", "");
@@ -189,6 +191,41 @@ class PreassembledModelCompilerTest {
         assertThat(description).doesNotExist();
         assertThat(modelsDir.resolve("MyModel.xml")).hasContent(
                 PreassembledModelXml.toXml(nordicGovernor("MyModel")));
+    }
+
+    @Test
+    void shouldTellTheToolWhereTheModelicaSourcesAre(@TempDir Path modelsDir, @TempDir Path sources) {
+        CountingLauncher launcher = new CountingLauncher();
+
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.lastArguments).containsSequence("--recursive-modelica-models-dir", sources.toString());
+    }
+
+    @Test
+    void shouldRebuildALibraryWhoseSourcesChanged(@TempDir Path modelsDir, @TempDir Path sources) throws Exception {
+        Path source = sources.resolve("MyGov.mo");
+        Files.writeString(source, "model MyGov end MyGov;");
+        CountingLauncher launcher = new CountingLauncher();
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+        assertThat(launcher.builds).as("the same sources").hasValue(1);
+
+        Files.writeString(source, "model MyGov parameter Real k; end MyGov;");
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.builds).as("sources edited since").hasValue(2);
+    }
+
+    @Test
+    void shouldBuildOutOfDynawoAloneWhereTheSourcesAreNot(@TempDir Path modelsDir) {
+        CountingLauncher launcher = new CountingLauncher();
+
+        new PreassembledModelCompiler(launcher, modelsDir.resolve("nothing here"))
+                .compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.lastArguments).doesNotContain("--recursive-modelica-models-dir");
+        assertThat(modelsDir.resolve("MyModel.xml")).hasContent(PreassembledModelXml.toXml(proportional("MyModel")));
     }
 
     @Test

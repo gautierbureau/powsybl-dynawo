@@ -82,8 +82,16 @@ public class MissingModelBuilder {
     private String lastFailure;
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
-        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
-                dynawoHomeDir);
+        this(dynawoHomeDir, modelsDir, null, naming);
+    }
+
+    /**
+     * @param modelicaModelsDir where the Modelica sources of controls Dynawo does not ship are kept,
+     *                          or null where every control is Dynawo's own
+     */
+    public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, Path modelicaModelsDir, ModelNaming naming) {
+        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir, modelicaModelsDir),
+                modelsDir, dynawoHomeDir);
     }
 
     public MissingModelBuilder(GeneratorModelDesigner designer, PreassembledModelCompiler compiler, Path modelsDir) {
@@ -120,7 +128,8 @@ public class MissingModelBuilder {
                     + "a machine no installed model suits will get the nearest one instead", homeDir);
             return Optional.empty();
         }
-        return Optional.of(new MissingModelBuilder(homeDir, mappingConfig.getOrCreateBuiltModelsDir(), naming));
+        return Optional.of(new MissingModelBuilder(homeDir, mappingConfig.getOrCreateBuiltModelsDir(),
+                mappingConfig.getModelicaModelsDir().orElse(null), naming));
     }
 
     /**

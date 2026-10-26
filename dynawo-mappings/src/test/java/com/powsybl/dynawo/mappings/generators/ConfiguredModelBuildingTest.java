@@ -77,6 +77,17 @@ class ConfiguredModelBuildingTest {
     }
 
     @Test
+    void shouldReadWhereTheModelicaSourcesAre() {
+        assertThat(MappingConfig.load(platformConfig).getModelicaModelsDir()).isEmpty();
+
+        platformConfig.createModuleConfig(MappingConfig.MODULE_NAME)
+                .setStringProperty("modelicaModelsDir", "/modelica");
+
+        assertThat(MappingConfig.load(platformConfig).getModelicaModelsDir())
+                .hasValue(fileSystem.getPath("/modelica"));
+    }
+
+    @Test
     void shouldBuildNothingWhereThereIsNoInstallationAtAll() {
         assertThat(MissingModelBuilder.fromConfig(MappingConfig.load(platformConfig),
                 () -> fileSystem.getPath("/nowhere"), ModelNaming.DYNAWO_1_7_0)).isEmpty();

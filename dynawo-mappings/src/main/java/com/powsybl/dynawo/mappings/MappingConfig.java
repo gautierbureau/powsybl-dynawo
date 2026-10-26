@@ -17,11 +17,12 @@ import java.util.Optional;
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
-public record MappingConfig(boolean strict, Path builtModelsDir) {
+public record MappingConfig(boolean strict, Path builtModelsDir, Path modelicaModelsDir) {
 
     public static final String MODULE_NAME = "dynawo-mappings";
     private static final String STRICT = "strict";
     private static final String BUILT_MODELS_DIR = "builtModelsDir";
+    private static final String MODELICA_MODELS_DIR = "modelicaModelsDir";
 
     /**
      * A strict deployment never lets a parameter appear on its own: a model given to an equipment
@@ -40,7 +41,8 @@ public record MappingConfig(boolean strict, Path builtModelsDir) {
                 platformConfig.getOptionalModuleConfig(MODULE_NAME);
         return new MappingConfig(
                 config.flatMap(c -> c.getOptionalBooleanProperty(STRICT)).orElse(DEFAULT_STRICT),
-                config.flatMap(c -> c.getOptionalPathProperty(BUILT_MODELS_DIR)).orElse(null));
+                config.flatMap(c -> c.getOptionalPathProperty(BUILT_MODELS_DIR)).orElse(null),
+                config.flatMap(c -> c.getOptionalPathProperty(MODELICA_MODELS_DIR)).orElse(null));
     }
 
     public boolean isStrict() {
@@ -69,6 +71,17 @@ public record MappingConfig(boolean strict, Path builtModelsDir) {
      */
     public Path getOrCreateBuiltModelsDir() {
         return builtModelsDir != null ? builtModelsDir : defaultBuiltModelsDir();
+    }
+
+    /**
+     * Where the Modelica sources of controls Dynawo does not ship are kept, for a model built out of
+     * them to find them, or nothing where every control is Dynawo's own.
+     * <p>
+     * It is one directory, searched through, so several libraries are kept side by side under it:
+     * Dynawo takes a single such directory, besides its own library which it always reads.
+     */
+    public Optional<Path> getModelicaModelsDir() {
+        return Optional.ofNullable(modelicaModelsDir);
     }
 
     private static Path defaultBuiltModelsDir() {
