@@ -72,12 +72,26 @@ public class MissingModelBuilder {
     // set once an installation has shown it cannot build, so the rest of the network does not pay
     // half a minute each to be told the same thing
     private boolean installationCannotBuild;
+    // whether the installation compiles at all, asked once and only when a model fails to build,
+    // null until then
+    private Boolean installationCompiles;
+    // the models whose definition does not build, and why, so the machines asking for the same one
+    // are told at once rather than each paying a compilation to fail it again
+    private final Map<String, String> failedModels = new LinkedHashMap<>();
     // why the last model asked for was not built, to be said where anyone will read it
     private String lastFailure;
 
     public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, ModelNaming naming) {
-        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir), modelsDir,
-                dynawoHomeDir);
+        this(dynawoHomeDir, modelsDir, null, naming);
+    }
+
+    /**
+     * @param modelicaModelsDir where the Modelica sources of controls Dynawo does not ship are kept,
+     *                          or null where every control is Dynawo's own
+     */
+    public MissingModelBuilder(Path dynawoHomeDir, Path modelsDir, Path modelicaModelsDir, ModelNaming naming) {
+        this(new GeneratorModelDesigner(naming), new PreassembledModelCompiler(dynawoHomeDir, modelicaModelsDir),
+                modelsDir, dynawoHomeDir);
     }
 
     public MissingModelBuilder(GeneratorModelDesigner designer, PreassembledModelCompiler compiler, Path modelsDir) {
@@ -114,7 +128,8 @@ public class MissingModelBuilder {
                     + "a machine no installed model suits will get the nearest one instead", homeDir);
             return Optional.empty();
         }
-        return Optional.of(new MissingModelBuilder(homeDir, mappingConfig.getOrCreateBuiltModelsDir(), naming));
+        return Optional.of(new MissingModelBuilder(homeDir, mappingConfig.getOrCreateBuiltModelsDir(),
+                mappingConfig.getModelicaModelsDir().orElse(null), naming));
     }
 
     /**
@@ -152,6 +167,11 @@ public class MissingModelBuilder {
             return Optional.empty();
         }
         PreassembledModel model = designed.get();
+        String knownFailure = failedModels.get(model.getId());
+        if (knownFailure != null) {
+            lastFailure = knownFailure;
+            return Optional.empty();
+        }
         try {
             long start = System.nanoTime();
             Files.createDirectories(modelsDir);
@@ -160,17 +180,36 @@ public class MissingModelBuilder {
                     model.getId(), modelsDir, (System.nanoTime() - start) / 1_000_000);
             builtModelConfigs.computeIfAbsent(model.getId(), lib -> config(lib, transformer, auxiliaries));
             return Optional.of(model.getId());
-        } catch (PowsyblException | UncheckedIOException | IOException e) {
+        } catch (PowsyblException e) {
+            lastFailure = e.getMessage();
             // whether the option is there is one thing, whether it works is another: an
             // installation can carry generate-preassembled and still not compile, for want of a
-            // toolchain it needs. Which it is only shows on trying, so the first machine to try
-            // settles it for the rest, and the study carries on with the models that are there
-            installationCannotBuild = true;
+            // toolchain it needs. A model can also not compile on its own account, a control
+            // registered with a variable its Modelica model does not have. Only the first is worth
+            // giving up on the rest of the network for, so the installation is asked which it is
+            if (installationCompiles == null) {
+                installationCompiles = compiler.canCompile();
+            }
+            if (installationCompiles) {
+                failedModels.put(model.getId(), lastFailure);
+                LOGGER.warn("Could not build {}, whose definition does not compile, falling back on "
+                        + "the installed models for the machines asking for it: {}", model.getId(), lastFailure);
+            } else {
+                giveUp(model, lastFailure);
+            }
+            return Optional.empty();
+        } catch (UncheckedIOException | IOException e) {
+            // no model is built where the models cannot be written
             lastFailure = e.getMessage();
-            LOGGER.warn("Could not build {} with the Dynawo installation at {}, falling back on the "
-                    + "installed models for this network: {}", model.getId(), dynawoHomeDir, lastFailure);
+            giveUp(model, lastFailure);
             return Optional.empty();
         }
+    }
+
+    private void giveUp(PreassembledModel model, String reason) {
+        installationCannotBuild = true;
+        LOGGER.warn("Could not build {} with the Dynawo installation at {}, falling back on the "
+                + "installed models for this network: {}", model.getId(), dynawoHomeDir, reason);
     }
 
     /**

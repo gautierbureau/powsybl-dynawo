@@ -14,14 +14,19 @@ import com.powsybl.dynawo.mappings.preassembled.GeneratorAssembly;
 import com.powsybl.dynawo.mappings.preassembled.GovernorUnits;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
 import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
+import com.powsybl.dynawo.mappings.preassembled.PreassembledModelXml;
 import com.powsybl.dynawo.mappings.preassembled.VoltageRegulatorUnits;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -94,11 +99,144 @@ class PreassembledModelCompilerTest {
     }
 
     @Test
+    void shouldTellAnInstallationThatCompilesFromOneThatDoesNot() {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")),
+                "no Dynawo installation at " + HOME);
+
+        // the probe has to be a model the tool builds, or every failure is blamed on the installation
+        assertThat(new PreassembledModelCompiler(HOME).canCompile()).isTrue();
+        assertThat(new PreassembledModelCompiler(Path.of("nowhere")).canCompile()).isFalse();
+    }
+
+    @Test
     void shouldLeaveALibraryAlreadyThereAlone(@TempDir Path modelsDir) throws Exception {
         Path library = modelsDir.resolve("AlreadyBuilt.so");
         Files.writeString(library, "not really a library");
         // no Dynawo is needed to answer, since nothing is compiled
         assertThat(new PreassembledModelCompiler(Path.of("nowhere"))
                 .compile(modelsDir.resolve("AlreadyBuilt.xml"), modelsDir)).isEqualTo(library);
+    }
+
+    /**
+     * Stands in for Dynawo: builds a library out of the definition it is given, counting the builds,
+     * so whether the compiler asks for one can be told without a Dynawo installation.
+     */
+    private static final class CountingLauncher extends DynawoLauncher {
+
+        private final AtomicInteger builds = new AtomicInteger();
+        private List<String> lastArguments = List.of();
+
+        private CountingLauncher() {
+            super(Path.of("nowhere"));
+        }
+
+        @Override
+        public String run(Path workingDir, long timeoutSeconds, String option, String... arguments) {
+            List<String> args = List.of(arguments);
+            lastArguments = args;
+            Path definition = Path.of(args.get(args.indexOf("--model-list") + 1));
+            Path outputDir = Path.of(args.get(args.indexOf("--output-dir") + 1));
+            String name = definition.getFileName().toString().replaceFirst("\\.xml$", "");
+            try {
+                Files.writeString(outputDir.resolve(name + ".so"), "build " + builds.incrementAndGet());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return "";
+        }
+    }
+
+    private static PreassembledModel proportional(String id) {
+        return new GeneratorAssembly(Windings.FOUR_WINDINGS, false, false, ModelNaming.DYNAWO_1_7_0)
+                .add(VoltageRegulatorUnits.vRProportional())
+                .add(GovernorUnits.goverProportional())
+                .build(id);
+    }
+
+    /**
+     * The same name, a governor wired otherwise: what a control registered again looks like.
+     */
+    private static PreassembledModel nordicGovernor(String id) {
+        return new GeneratorAssembly(Windings.FOUR_WINDINGS, false, false, ModelNaming.DYNAWO_1_7_0)
+                .add(VoltageRegulatorUnits.vRProportional())
+                .add(GovernorUnits.goverNordic())
+                .build(id);
+    }
+
+    @Test
+    void shouldReuseALibraryBuiltFromTheSameDefinition(@TempDir Path modelsDir) throws Exception {
+        CountingLauncher launcher = new CountingLauncher();
+        PreassembledModelCompiler compiler = new PreassembledModelCompiler(launcher);
+
+        Path library = compiler.compile(proportional("MyModel"), modelsDir);
+        compiler.compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.builds).hasValue(1);
+        assertThat(Files.readString(library)).isEqualTo("build 1");
+    }
+
+    @Test
+    void shouldRebuildALibraryWhoseDefinitionChanged(@TempDir Path modelsDir) throws Exception {
+        CountingLauncher launcher = new CountingLauncher();
+        PreassembledModelCompiler compiler = new PreassembledModelCompiler(launcher);
+        Path library = compiler.compile(proportional("MyModel"), modelsDir);
+        // the description dumped out of the first library, which would no longer be true
+        Path description = modelsDir.resolve("MyModel.desc.xml");
+        Files.writeString(description, "<model/>");
+
+        compiler.compile(nordicGovernor("MyModel"), modelsDir);
+
+        assertThat(launcher.builds).hasValue(2);
+        assertThat(Files.readString(library)).isEqualTo("build 2");
+        assertThat(description).doesNotExist();
+        assertThat(modelsDir.resolve("MyModel.xml")).hasContent(
+                PreassembledModelXml.toXml(nordicGovernor("MyModel")));
+    }
+
+    @Test
+    void shouldTellTheToolWhereTheModelicaSourcesAre(@TempDir Path modelsDir, @TempDir Path sources) {
+        CountingLauncher launcher = new CountingLauncher();
+
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.lastArguments).containsSequence("--recursive-modelica-models-dir", sources.toString());
+    }
+
+    @Test
+    void shouldRebuildALibraryWhoseSourcesChanged(@TempDir Path modelsDir, @TempDir Path sources) throws Exception {
+        Path source = sources.resolve("MyGov.mo");
+        Files.writeString(source, "model MyGov end MyGov;");
+        CountingLauncher launcher = new CountingLauncher();
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+        assertThat(launcher.builds).as("the same sources").hasValue(1);
+
+        Files.writeString(source, "model MyGov parameter Real k; end MyGov;");
+        new PreassembledModelCompiler(launcher, sources).compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.builds).as("sources edited since").hasValue(2);
+    }
+
+    @Test
+    void shouldBuildOutOfDynawoAloneWhereTheSourcesAreNot(@TempDir Path modelsDir) {
+        CountingLauncher launcher = new CountingLauncher();
+
+        new PreassembledModelCompiler(launcher, modelsDir.resolve("nothing here"))
+                .compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.lastArguments).doesNotContain("--recursive-modelica-models-dir");
+        assertThat(modelsDir.resolve("MyModel.xml")).hasContent(PreassembledModelXml.toXml(proportional("MyModel")));
+    }
+
+    @Test
+    void shouldTakeALibraryWithNoDefinitionAsItIs(@TempDir Path modelsDir) throws Exception {
+        CountingLauncher launcher = new CountingLauncher();
+        Path library = modelsDir.resolve("MyModel.so");
+        Files.writeString(library, "built some other way");
+
+        new PreassembledModelCompiler(launcher).compile(proportional("MyModel"), modelsDir);
+
+        assertThat(launcher.builds).hasValue(0);
+        assertThat(library).hasContent("built some other way");
     }
 }

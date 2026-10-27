@@ -7,10 +7,16 @@
  */
 package com.powsybl.dynawo.mappings.preassembled;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -26,16 +32,28 @@ import java.util.stream.Stream;
  * <p>
  * Nothing is looked up by position or by guessing where one name ends and the next begins: the
  * extension says which control plays which part, and each is asked for separately.
+ * <p>
+ * Besides the controls declared here and those a {@link ControlUnitProvider} brings, a study may
+ * {@link #register} controls of its own at run time, for a machine whose extension names a control
+ * nothing ships a description of. The catalog is a JVM-wide singleton in a process that may run
+ * study after study, so such a study starts from {@link #resetToBase}, as it does for the model
+ * catalog, rather than from whatever an earlier study left behind.
  *
  * @author Gautier Bureau {@literal <gautier.bureau at rte-france.com>}
  */
 public final class ControlUnitCatalog {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControlUnitCatalog.class);
 
     private static final ControlUnitCatalog INSTANCE = new ControlUnitCatalog();
 
     private final Map<String, MachineControlUnit> governors = new LinkedHashMap<>();
     private final Map<String, MachineControlUnit> voltageRegulators = new LinkedHashMap<>();
     private final Map<String, RegulatorControlUnit> regulatorControls = new LinkedHashMap<>();
+    // the catalog as the declarations and the providers leave it, before any study adds to it
+    private final Map<String, MachineControlUnit> baseGovernors;
+    private final Map<String, MachineControlUnit> baseVoltageRegulators;
+    private final Map<String, RegulatorControlUnit> baseRegulatorControls;
 
     private ControlUnitCatalog() {
         declare(GovernorUnits.class, MachineControlUnit.class, governors);
@@ -45,6 +63,9 @@ public final class ControlUnitCatalog {
         // ones: a deployment's unit stands in for the open default of the same name, so a control the
         // deployment models its own way, RTE's Astre simplified regulations for one, is the one built
         ServiceLoader.load(ControlUnitProvider.class).forEach(this::declare);
+        baseGovernors = new LinkedHashMap<>(governors);
+        baseVoltageRegulators = new LinkedHashMap<>(voltageRegulators);
+        baseRegulatorControls = new LinkedHashMap<>(regulatorControls);
     }
 
     private void declare(ControlUnitProvider provider) {
@@ -55,6 +76,88 @@ public final class ControlUnitCatalog {
 
     public static ControlUnitCatalog getInstance() {
         return INSTANCE;
+    }
+
+    /**
+     * A catalog of its own holding what the declarations and the providers bring, and nothing any
+     * study registered in the shared one: what ships, to be listed or designed from apart from
+     * whichever study last ran in the process.
+     */
+    public static ControlUnitCatalog shipped() {
+        return new ControlUnitCatalog();
+    }
+
+    /**
+     * Adds the controls a study describes of its own, beside those already known. A name already
+     * known keeps the control it has, as {@link com.powsybl.dynawo.builders.ModelConfigsHandler#addModels}
+     * keeps a model already there: a study adds controls, and redefining one is {@link #override}.
+     */
+    public void register(ControlUnitProvider additions) {
+        merge(additions, false);
+    }
+
+    /**
+     * Puts in the controls a study describes its own way, a name already known standing aside for
+     * the one brought in. For a study that means to wire a known control differently, not to add one.
+     */
+    public void override(ControlUnitProvider replacements) {
+        merge(replacements, true);
+    }
+
+    /**
+     * Drops every control registered at run time, putting the catalog back as the declarations and
+     * the providers left it.
+     */
+    public void resetToBase() {
+        restore(governors, baseGovernors);
+        restore(voltageRegulators, baseVoltageRegulators);
+        restore(regulatorControls, baseRegulatorControls);
+    }
+
+    private void merge(ControlUnitProvider provider, boolean override) {
+        Objects.requireNonNull(provider);
+        merge(provider.getGovernors(), governors, "governor", override);
+        merge(provider.getVoltageRegulators(), voltageRegulators, "voltage regulator", override);
+        merge(provider.getRegulatorControls(), regulatorControls, "regulator control", override);
+    }
+
+    private static <T extends UnitModel> void merge(List<T> units, Map<String, T> into, String kind,
+                                                    boolean override) {
+        units.forEach(unit -> {
+            String name = nameOf(Objects.requireNonNull(unit));
+            if (override) {
+                into.put(name, unit);
+            } else if (into.putIfAbsent(name, unit) != null) {
+                LOGGER.warn("The {} {} is already known, the one already there is kept", kind, name);
+            }
+        });
+    }
+
+    private static <T> void restore(Map<String, T> current, Map<String, T> base) {
+        current.clear();
+        current.putAll(base);
+    }
+
+    /**
+     * Every governor known, keyed by the name a model carries.
+     */
+    public Map<String, MachineControlUnit> getGovernors() {
+        return Collections.unmodifiableMap(governors);
+    }
+
+    /**
+     * Every voltage regulator known, keyed by the name a model carries.
+     */
+    public Map<String, MachineControlUnit> getVoltageRegulators() {
+        return Collections.unmodifiableMap(voltageRegulators);
+    }
+
+    /**
+     * Every stabiliser, limiter and reactive power control loop known, keyed by the name a model
+     * carries.
+     */
+    public Map<String, RegulatorControlUnit> getRegulatorControls() {
+        return Collections.unmodifiableMap(regulatorControls);
     }
 
     /**
@@ -86,6 +189,9 @@ public final class ControlUnitCatalog {
      */
     static String nameOf(UnitModel unit) {
         if (unit instanceof ControlUnit control) {
+            return control.getCatalogName();
+        }
+        if (unit instanceof RegulatorControlUnit control) {
             return control.getCatalogName();
         }
         String model = unit.getName();

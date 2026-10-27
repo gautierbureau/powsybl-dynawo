@@ -7,17 +7,24 @@
  */
 package com.powsybl.dynawo.mappings.generators;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.dynawo.extensions.api.generator.RpclType;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorProperties.Windings;
 import com.powsybl.dynawo.extensions.api.generator.SynchronousGeneratorPropertiesAdder;
 import com.powsybl.dynawo.mappings.TestNetworks;
 import com.powsybl.dynawo.mappings.controls.ControlTranslations;
+import com.powsybl.dynawo.mappings.preassembled.ControlUnitCatalog;
+import com.powsybl.dynawo.mappings.preassembled.ControlUnitProvider;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorControls;
 import com.powsybl.dynawo.mappings.preassembled.GeneratorModelDesigner;
+import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit;
+import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit.MachineQuantity;
 import com.powsybl.dynawo.mappings.preassembled.ModelNaming;
+import com.powsybl.dynawo.mappings.preassembled.PreassembledModel;
 import com.powsybl.dynawo.mappings.tools.PreassembledModelCompiler;
 import com.powsybl.iidm.network.Generator;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,7 +32,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,6 +49,110 @@ class MissingModelBuilderTest {
 
     private static final Path HOME = Path.of("..", "..", "dynawo");
     private static final String UNBUILT = "GeneratorSynchronousFourWindingsGovCt2Ac6a";
+    private static final String ALSO_UNBUILT = "GeneratorSynchronousFourWindingsGovCt2Ac1a";
+
+    @AfterEach
+    void resetCatalog() {
+        ControlUnitCatalog.getInstance().resetToBase();
+    }
+
+    /**
+     * Stands in for Dynawo: fails the models it is told to, and says whether the installation
+     * compiles at all as it is told to, recording what it was asked.
+     */
+    private static final class ScriptedCompiler extends PreassembledModelCompiler {
+
+        private final Set<String> failing;
+        private final boolean installationCompiles;
+        private final List<String> compiled = new ArrayList<>();
+        private int probes;
+
+        private ScriptedCompiler(Set<String> failing, boolean installationCompiles) {
+            super(Path.of("nowhere"));
+            this.failing = failing;
+            this.installationCompiles = installationCompiles;
+        }
+
+        @Override
+        public Path compile(PreassembledModel model, Path modelsDir) {
+            compiled.add(model.getId());
+            if (failing.contains(model.getId())) {
+                throw new PowsyblException("--generate-preassembled failed: " + model.getId());
+            }
+            return modelsDir.resolve(model.getId() + ".so");
+        }
+
+        @Override
+        public boolean canCompile() {
+            probes++;
+            return installationCompiles;
+        }
+    }
+
+    private static MissingModelBuilder builder(ScriptedCompiler compiler, Path modelsDir) {
+        return new MissingModelBuilder(new GeneratorModelDesigner(ModelNaming.DYNAWO_1_7_0), compiler, modelsDir);
+    }
+
+    @Test
+    void shouldGiveUpOnlyOnTheModelThatDoesNotCompile(@TempDir Path modelsDir) {
+        ScriptedCompiler compiler = new ScriptedCompiler(Set.of(UNBUILT), true);
+        MissingModelBuilder builder = builder(compiler, modelsDir);
+
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac6a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+        assertThat(builder.getLastFailure()).hasValueSatisfying(reason -> assertThat(reason).contains(UNBUILT));
+        // another machine asking for the same model is told at once, not by failing it again
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac6a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+        assertThat(builder.getLastFailure()).hasValueSatisfying(reason -> assertThat(reason).contains(UNBUILT));
+        // and the installation, which compiles, still builds the models that do
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac1a"), Windings.FOUR_WINDINGS, false, false))
+                .hasValue(ALSO_UNBUILT);
+
+        assertThat(compiler.compiled).containsExactly(UNBUILT, ALSO_UNBUILT);
+        assertThat(compiler.probes).as("the installation is asked once").isEqualTo(1);
+    }
+
+    @Test
+    void shouldGiveUpOnTheInstallationThatCompilesNothing(@TempDir Path modelsDir) {
+        ScriptedCompiler compiler = new ScriptedCompiler(Set.of(UNBUILT, ALSO_UNBUILT), false);
+        MissingModelBuilder builder = builder(compiler, modelsDir);
+
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac6a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac1a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+
+        // the rest of the network does not pay a compilation each to be told the same thing
+        assertThat(compiler.compiled).containsExactly(UNBUILT);
+    }
+
+    @Test
+    @Tag("compilation")
+    void shouldBuildTheRestWhenARegisteredControlDoesNotCompile(@TempDir Path modelsDir) {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")), "no Dynawo installation at " + HOME);
+
+        // GovCt2 under a name of its own, its speed input misspelt, as a study registering it might
+        String governors = "Dynawo.Electrical.Controls.Machines.Governors.";
+        MachineControlUnit misspelt = new MachineControlUnit("governor", governors + "Standard.Generic.GovCt2",
+                governors + "GovernorPmPGen_INIT")
+                .named("MyGov")
+                .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
+                .reading("PmPu", MachineQuantity.MECHANICAL_POWER)
+                .reading("omegaPuu", MachineQuantity.SPEED)
+                .startingFrom("PGen0Pu", MachineQuantity.INIT_ACTIVE_POWER)
+                .startingFrom("Pm0Pu", MachineQuantity.INIT_MECHANICAL_POWER);
+        ControlUnitCatalog.getInstance().register(new ControlUnitProvider() {
+            @Override
+            public List<MachineControlUnit> getGovernors() {
+                return List.of(misspelt);
+            }
+        });
+        MissingModelBuilder builder = new MissingModelBuilder(HOME, modelsDir, ModelNaming.DYNAWO_1_7_0);
+
+        assertThat(builder.build(new GeneratorControls("MyGov", "Ac6a"), Windings.FOUR_WINDINGS, false, false)).isEmpty();
+        assertThat(builder.getLastFailure()).hasValueSatisfying(reason -> assertThat(reason).contains("omegaPuu"));
+
+        assertThat(builder.build(new GeneratorControls("GovCt2", "Ac6a"), Windings.FOUR_WINDINGS, false, false))
+                .hasValue(UNBUILT);
+        assertThat(modelsDir.resolve(UNBUILT + ".so")).exists();
+    }
 
     @Test
     void shouldLeaveAGeneratorUnmappedWhenNothingBuildsMissingModels() {
@@ -98,6 +212,31 @@ class MissingModelBuilderTest {
         assertThat(lib).isPresent();
         // nothing was built, the catalog holding that one already
         assertThat(modelsDir.toFile().list()).isEmpty();
+    }
+
+    @Test
+    @Tag("compilation")
+    void shouldBuildAControlOutOfModelicaSourcesOfOnesOwn(@TempDir Path modelsDir) throws Exception {
+        Assumptions.assumeTrue(Files.exists(HOME.resolve("dynawo.sh")), "no Dynawo installation at " + HOME);
+        Path sources = Path.of(getClass().getResource("/modelica").toURI());
+
+        // a governor Dynawo does not ship, wired as the proportional one it extends
+        MachineControlUnit myGov = new MachineControlUnit("governor", "MyLibrary.Governors.MyGov",
+                "Dynawo.Electrical.Controls.Machines.Governors.Governor_INIT")
+                .reading("PmPu", MachineQuantity.MECHANICAL_POWER)
+                .reading("omegaPu", MachineQuantity.SPEED)
+                .startingFrom("Pm0Pu", MachineQuantity.INIT_MECHANICAL_POWER);
+        ControlUnitCatalog.getInstance().register(new ControlUnitProvider() {
+            @Override
+            public List<MachineControlUnit> getGovernors() {
+                return List.of(myGov);
+            }
+        });
+        MissingModelBuilder builder = new MissingModelBuilder(HOME, modelsDir, sources, ModelNaming.DYNAWO_1_7_0);
+
+        assertThat(builder.build(new GeneratorControls("MyGov", "VRProportional"), Windings.FOUR_WINDINGS, false, false))
+                .hasValue("GeneratorSynchronousFourWindingsMyGovVRProportional");
+        assertThat(modelsDir.resolve("GeneratorSynchronousFourWindingsMyGovVRProportional.so")).exists();
     }
 
     private static SynchronousGeneratorProperties properties(String governor, String voltageRegulator) {
