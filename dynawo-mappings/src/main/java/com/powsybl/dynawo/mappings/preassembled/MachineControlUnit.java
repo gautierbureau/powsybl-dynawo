@@ -276,7 +276,7 @@ public class MachineControlUnit implements ControlUnit {
     /**
      * The variables this exciter shares with the regulator driving it.
      */
-    public List<SharedVariable> getSharedVariables() {
+    public List<SharedVariable> getRegulatorLinks() {
         return Collections.unmodifiableList(regulatorLinks);
     }
 
