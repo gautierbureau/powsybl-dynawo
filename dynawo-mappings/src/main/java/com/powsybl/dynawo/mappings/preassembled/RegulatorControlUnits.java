@@ -9,6 +9,7 @@ package com.powsybl.dynawo.mappings.preassembled;
 
 import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit.MachineQuantity;
 import com.powsybl.dynawo.mappings.preassembled.MachineControlUnit.RegulatorInput;
+import com.powsybl.dynawo.mappings.preassembled.RegulatorControlUnit.Kind;
 
 /**
  * The stabilisers and limiters a machine can be given, as Dynawo assembles them.
@@ -28,7 +29,7 @@ public final class RegulatorControlUnits {
      * Oel2c.
      */
     public static RegulatorControlUnit oel2c() {
-        return new RegulatorControlUnit("overExcitationLimiter",
+        return new RegulatorControlUnit(Kind.OVER_EXCITATION_LIMITER, "overExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel2c",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel23c_INIT")
                 .reading("inputPu", MachineQuantity.ROTOR_CURRENT)
@@ -40,7 +41,7 @@ public final class RegulatorControlUnits {
      * Oel3c.
      */
     public static RegulatorControlUnit oel3c() {
-        return new RegulatorControlUnit("overExcitationLimiter",
+        return new RegulatorControlUnit(Kind.OVER_EXCITATION_LIMITER, "overExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel3c",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel23c_INIT")
                 .reading("inputPu", MachineQuantity.ROTOR_CURRENT)
@@ -52,7 +53,7 @@ public final class RegulatorControlUnits {
      * Oel4c.
      */
     public static RegulatorControlUnit oel4c() {
-        return new RegulatorControlUnit("overExcitationLimiter",
+        return new RegulatorControlUnit(Kind.OVER_EXCITATION_LIMITER, "overExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel4c",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel4c_INIT")
                 .reading("QGenPu", MachineQuantity.REACTIVE_POWER)
@@ -64,7 +65,7 @@ public final class RegulatorControlUnits {
      * Oel5c.
      */
     public static RegulatorControlUnit oel5c() {
-        return new RegulatorControlUnit("overExcitationLimiter",
+        return new RegulatorControlUnit(Kind.OVER_EXCITATION_LIMITER, "overExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel5c",
                 "Dynawo.Electrical.Controls.Machines.OverExcitationLimiters.Standard.Oel23c_INIT")
                 .reading("inputPu", MachineQuantity.ROTOR_CURRENT)
@@ -76,7 +77,7 @@ public final class RegulatorControlUnits {
      * Pss2a.
      */
     public static RegulatorControlUnit pss2a() {
-        return new RegulatorControlUnit("powerSystemStabilizer",
+        return new RegulatorControlUnit(Kind.PSS, "powerSystemStabilizer",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss2a",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -89,7 +90,7 @@ public final class RegulatorControlUnits {
      * Pss2a, named the older way in the assemblies using it.
      */
     public static RegulatorControlUnit pss2aAsPss() {
-        return new RegulatorControlUnit("pss",
+        return new RegulatorControlUnit(Kind.PSS, "pss",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss2a",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -102,7 +103,7 @@ public final class RegulatorControlUnits {
      * Pss2b.
      */
     public static RegulatorControlUnit pss2b() {
-        return new RegulatorControlUnit("powerSystemStabilizer",
+        return new RegulatorControlUnit(Kind.PSS, "powerSystemStabilizer",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss2b",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -115,7 +116,7 @@ public final class RegulatorControlUnits {
      * Pss2b, named the older way in the assemblies using it.
      */
     public static RegulatorControlUnit pss2bAsPss() {
-        return new RegulatorControlUnit("pss",
+        return new RegulatorControlUnit(Kind.PSS, "pss",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss2b",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -128,7 +129,7 @@ public final class RegulatorControlUnits {
      * Pss2c.
      */
     public static RegulatorControlUnit pss2c() {
-        return new RegulatorControlUnit("powerSystemStabilizer",
+        return new RegulatorControlUnit(Kind.PSS, "powerSystemStabilizer",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss2c",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -141,7 +142,7 @@ public final class RegulatorControlUnits {
      * Pss3b.
      */
     public static RegulatorControlUnit pss3b() {
-        return new RegulatorControlUnit("powerSystemStabilizer",
+        return new RegulatorControlUnit(Kind.PSS, "powerSystemStabilizer",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss3b",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -154,7 +155,7 @@ public final class RegulatorControlUnits {
      * Pss6c.
      */
     public static RegulatorControlUnit pss6c() {
-        return new RegulatorControlUnit("powerSystemStabilizer",
+        return new RegulatorControlUnit(Kind.PSS, "powerSystemStabilizer",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.Pss6c",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -167,7 +168,7 @@ public final class RegulatorControlUnits {
      * PssKundur, named the older way in the assemblies using it.
      */
     public static RegulatorControlUnit pssKundurAsPss() {
-        return new RegulatorControlUnit("pss",
+        return new RegulatorControlUnit(Kind.PSS, "pss",
                 "Dynawo.Electrical.Controls.Machines.PowerSystemStabilizers.Standard.PssKundur",
                 null)
                 .reading("omegaPu", MachineQuantity.SPEED)
@@ -178,7 +179,7 @@ public final class RegulatorControlUnits {
      * Scl1c.
      */
     public static RegulatorControlUnit scl1c() {
-        return new RegulatorControlUnit("statorCurrentLimiter",
+        return new RegulatorControlUnit(Kind.STATOR_CURRENT_LIMITER, "statorCurrentLimiter",
                 "Dynawo.Electrical.Controls.Machines.StatorCurrentLimiters.Standard.Scl1c",
                 "Dynawo.Electrical.Controls.Machines.StatorCurrentLimiters.Standard.Scl1c_INIT")
                 .reading("QGenPu", MachineQuantity.REACTIVE_POWER)
@@ -195,7 +196,7 @@ public final class RegulatorControlUnits {
      * Scl2c.
      */
     public static RegulatorControlUnit scl2c() {
-        return new RegulatorControlUnit("statorCurrentLimiter",
+        return new RegulatorControlUnit(Kind.STATOR_CURRENT_LIMITER, "statorCurrentLimiter",
                 "Dynawo.Electrical.Controls.Machines.StatorCurrentLimiters.Standard.Scl2c",
                 "Dynawo.Electrical.Controls.Machines.StatorCurrentLimiters.Standard.Scl2c_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -214,7 +215,7 @@ public final class RegulatorControlUnits {
      * Uel1.
      */
     public static RegulatorControlUnit uel1() {
-        return new RegulatorControlUnit("underExcitationLimiter",
+        return new RegulatorControlUnit(Kind.UNDER_EXCITATION_LIMITER, "underExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.UnderExcitationLimiters.Standard.Uel1",
                 "Dynawo.Electrical.Controls.Machines.UnderExcitationLimiters.Standard.Uel1_INIT")
                 .reading("itPu", MachineQuantity.STATOR_CURRENT)
@@ -228,7 +229,7 @@ public final class RegulatorControlUnits {
      * Uel2c.
      */
     public static RegulatorControlUnit uel2c() {
-        return new RegulatorControlUnit("underExcitationLimiter",
+        return new RegulatorControlUnit(Kind.UNDER_EXCITATION_LIMITER, "underExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.UnderExcitationLimiters.Standard.Uel2c",
                 "Dynawo.Electrical.Controls.Machines.UnderExcitationLimiters.Standard.Uel2c_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
@@ -246,7 +247,7 @@ public final class RegulatorControlUnits {
      * MAXEX2.
      */
     public static RegulatorControlUnit mAXEX2() {
-        return new RegulatorControlUnit("overExcitationLimiter",
+        return new RegulatorControlUnit(Kind.OVER_EXCITATION_LIMITER, "overExcitationLimiter",
                 "Dynawo.Electrical.Controls.Machines.VoltageRegulators.Standard.MAXEX2",
                 "Dynawo.Electrical.Controls.Machines.VoltageRegulators.Standard.MAXEX2_INIT")
                 .reading("IfdPu", MachineQuantity.ROTOR_CURRENT)

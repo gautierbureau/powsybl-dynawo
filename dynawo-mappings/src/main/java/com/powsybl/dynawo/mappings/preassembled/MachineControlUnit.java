@@ -8,6 +8,7 @@
 package com.powsybl.dynawo.mappings.preassembled;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,30 @@ public class MachineControlUnit implements ControlUnit {
         String of(MachineUnit machine) {
             return varName.apply(machine);
         }
+
+        /**
+         * Whether it is a value the machine starts from, read while the initial state is computed,
+         * rather than one it holds while the simulation runs.
+         */
+        public boolean isInitialisation() {
+            return name().startsWith("INIT_");
+        }
+
+        /**
+         * The quantities that machine offers, each with the variable holding it, in the order they
+         * are declared here. A quantity the machine has nothing to say about is left out, as a
+         * release that never carried it leaves the wire to it unmade.
+         */
+        public static Map<MachineQuantity, String> offeredBy(MachineUnit machine) {
+            Map<MachineQuantity, String> offered = new EnumMap<>(MachineQuantity.class);
+            for (MachineQuantity quantity : values()) {
+                String varName = quantity.of(machine);
+                if (varName != null) {
+                    offered.put(quantity, varName);
+                }
+            }
+            return Collections.unmodifiableMap(offered);
+        }
     }
 
     /**
@@ -90,10 +115,18 @@ public class MachineControlUnit implements ControlUnit {
         INIT_VOLTAGE_REFERENCE
     }
 
-    private record Wire(String ownVar, MachineQuantity quantity, boolean initialisation) {
+    /**
+     * One of its variables wired to a quantity of the machine, while the simulation runs or while
+     * the initial state is computed.
+     */
+    public record Wire(String ownVar, MachineQuantity quantity, boolean initialisation) {
     }
 
-    private record RegulatorLink(String var, boolean initialisation) {
+    /**
+     * A variable it shares, under the same name, with the regulator driving it or the governor
+     * beside it.
+     */
+    public record SharedVariable(String var, boolean initialisation) {
     }
 
     private final String id;
@@ -102,8 +135,8 @@ public class MachineControlUnit implements ControlUnit {
     private String catalogName;
     private MachineControlUnit exciter;
     private final List<Wire> wires = new ArrayList<>();
-    private final List<RegulatorLink> regulatorLinks = new ArrayList<>();
-    private final List<RegulatorLink> governorLinks = new ArrayList<>();
+    private final List<SharedVariable> regulatorLinks = new ArrayList<>();
+    private final List<SharedVariable> governorLinks = new ArrayList<>();
     private final Map<RegulatorInput, String> inputs = new EnumMap<>(RegulatorInput.class);
 
     public MachineControlUnit(String id, String name, String initName) {
@@ -135,7 +168,7 @@ public class MachineControlUnit implements ControlUnit {
      * output {@code VROutPu} or the current {@code IExPu} it sends back, the same on both sides.
      */
     public MachineControlUnit linkedToRegulator(String var) {
-        regulatorLinks.add(new RegulatorLink(var, false));
+        regulatorLinks.add(new SharedVariable(var, false));
         return this;
     }
 
@@ -143,7 +176,7 @@ public class MachineControlUnit implements ControlUnit {
      * A variable this exciter shares with the regulator while the initial state is worked out.
      */
     public MachineControlUnit linkedToRegulatorAtInit(String var) {
-        regulatorLinks.add(new RegulatorLink(var, true));
+        regulatorLinks.add(new SharedVariable(var, true));
         return this;
     }
 
@@ -163,7 +196,7 @@ public class MachineControlUnit implements ControlUnit {
      * regulators reach into the governor this way; most stand apart from it.
      */
     public MachineControlUnit linkedToGovernor(String var) {
-        governorLinks.add(new RegulatorLink(var, false));
+        governorLinks.add(new SharedVariable(var, false));
         return this;
     }
 
@@ -224,6 +257,34 @@ public class MachineControlUnit implements ControlUnit {
 
     public Optional<String> getInputVarName(RegulatorInput input) {
         return Optional.ofNullable(inputs.get(input));
+    }
+
+    /**
+     * Its variables wired to the machine, in the order they were declared.
+     */
+    public List<Wire> getWires() {
+        return Collections.unmodifiableList(wires);
+    }
+
+    /**
+     * The inputs another control drives on this regulator, each with the variable it is named by.
+     */
+    public Map<RegulatorInput, String> getInputs() {
+        return Collections.unmodifiableMap(inputs);
+    }
+
+    /**
+     * The variables this exciter shares with the regulator driving it.
+     */
+    public List<SharedVariable> getSharedVariables() {
+        return Collections.unmodifiableList(regulatorLinks);
+    }
+
+    /**
+     * The variables this regulator shares with the governor beside it.
+     */
+    public List<SharedVariable> getGovernorLinks() {
+        return Collections.unmodifiableList(governorLinks);
     }
 
     @Override

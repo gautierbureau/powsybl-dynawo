@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,15 @@ public final class ControlUnitCatalog {
     }
 
     /**
+     * A catalog of its own holding what the declarations and the providers bring, and nothing any
+     * study registered in the shared one: what ships, to be listed or designed from apart from
+     * whichever study last ran in the process.
+     */
+    public static ControlUnitCatalog shipped() {
+        return new ControlUnitCatalog();
+    }
+
+    /**
      * Adds the controls a study describes of its own, beside those already known. A name already
      * known keeps the control it has, as {@link com.powsybl.dynawo.builders.ModelConfigsHandler#addModels}
      * keeps a model already there: a study adds controls, and redefining one is {@link #override}.
@@ -126,6 +136,28 @@ public final class ControlUnitCatalog {
     private static <T> void restore(Map<String, T> current, Map<String, T> base) {
         current.clear();
         current.putAll(base);
+    }
+
+    /**
+     * Every governor known, keyed by the name a model carries.
+     */
+    public Map<String, MachineControlUnit> getGovernors() {
+        return Collections.unmodifiableMap(governors);
+    }
+
+    /**
+     * Every voltage regulator known, keyed by the name a model carries.
+     */
+    public Map<String, MachineControlUnit> getVoltageRegulators() {
+        return Collections.unmodifiableMap(voltageRegulators);
+    }
+
+    /**
+     * Every stabiliser, limiter and reactive power control loop known, keyed by the name a model
+     * carries.
+     */
+    public Map<String, RegulatorControlUnit> getRegulatorControls() {
+        return Collections.unmodifiableMap(regulatorControls);
     }
 
     /**

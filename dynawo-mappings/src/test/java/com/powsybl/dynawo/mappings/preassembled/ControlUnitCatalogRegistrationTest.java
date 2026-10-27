@@ -55,7 +55,7 @@ class ControlUnitCatalogRegistrationTest {
      * A stabiliser of a library of one's own, wired as Pss2a is.
      */
     private static RegulatorControlUnit myStabiliser() {
-        return new RegulatorControlUnit("powerSystemStabilizer", MY_LIBRARY + "MyPss", STABILISERS + "Pss_INIT")
+        return new RegulatorControlUnit(RegulatorControlUnit.Kind.PSS, "powerSystemStabilizer", MY_LIBRARY + "MyPss", STABILISERS + "Pss_INIT")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
                 .reading("omegaPu", MachineQuantity.SPEED)
                 .startingFrom("PGen0Pu", MachineQuantity.INIT_ACTIVE_POWER)
@@ -112,7 +112,7 @@ class ControlUnitCatalogRegistrationTest {
     @Test
     void shouldKeyARegulatorControlUnderTheNameItIsGiven() {
         // Pss2a as Dynawo ships it, under a name of its own
-        RegulatorControlUnit renamed = new RegulatorControlUnit("powerSystemStabilizer", STABILISERS + "Standard.Pss2a",
+        RegulatorControlUnit renamed = new RegulatorControlUnit(RegulatorControlUnit.Kind.PSS, "powerSystemStabilizer", STABILISERS + "Standard.Pss2a",
                 STABILISERS + "Pss_INIT")
                 .named("MyPss2a")
                 .reading("PGenPu", MachineQuantity.ACTIVE_POWER)
